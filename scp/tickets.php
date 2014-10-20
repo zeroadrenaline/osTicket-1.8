@@ -58,6 +58,13 @@ if($_POST && !$errors):
         //More coffee please.
         $errors=array();
         $lock=$ticket->getLock(); //Ticket lock if any
+		
+		// Strobe Technologies Ltd | 20/10/2014 | START - Collect Total Spent from results
+		if($_POST['time_spent']) {
+			$ticket->timeSpent($_POST['time_spent']);
+		}
+		// Strobe Technologies Ltd | 20/10/2014 | END - Collect Total Spent from results
+		
         switch(strtolower($_POST['a'])):
         case 'reply':
             if(!$thisstaff->canPostReply())

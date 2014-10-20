@@ -73,6 +73,10 @@ if ($thisclient && $thisclient->isGuest()
                    <th><?php echo __('Phone');?>:</th>
                    <td><?php echo $ticket->getPhoneNumber(); ?></td>
                </tr>
+			   <tr>
+					<th>Time Spent:</th>
+					<td><?php echo $ticket->getTimeSpent(); // Strobe Technologies Ltd | 20/10/2014 | Added Total Time Spent to ticket information ?></td>
+				</tr>
             </table>
        </td>
     </tr>

@@ -59,6 +59,58 @@ class Ticket {
         /* @trans */ 'open',
         /* @trans */ 'closed',
     );
+	
+	// Strobe Technologies Ltd | 20/10/2014 | START - Variables and functions for recording and retrieving time spent
+	var $timeSpent;
+	
+	function getTimeSpent(){
+        return $this->formatTime($this->timeSpent);
+    }
+	
+    function getRealTimeSpent() {
+        return $this->timeSpent;
+    }
+	
+	function convTimeSpent($time) {
+		return $this->formatTime($time);
+	}
+	
+	function convTimeType($type) {
+		$sql = 'SELECT `value` FROM `ost_list_items` WHERE `id` = '. $type;
+		$res = db_query($sql);
+		
+		$typearray = db_fetch_array($res);
+
+        $typetext = $typearray['value'];
+		return $typetext;
+	}
+	
+    function formatTime($time){
+        if($time < 1){
+            $formatted = $time*60;
+            $formatted .= ' Minutes';
+        }else if ($time == 1){
+            $formatted = $time.' Hour';
+        }else{
+            $formatted = $time.' Hours';
+        }
+        return $formatted;
+    }
+	
+    function timeSpent($time){
+        if(empty($time)){
+            $time = 0.00;
+        }else{
+            if(!is_numeric($time)){
+                $time = 0.25;
+            }else{
+                $time = round($time,2);
+            }
+        }
+        $sql = 'UPDATE '.TICKET_TABLE.' SET time_spent=time_spent+'.db_input($time).' WHERE ticket_id='.db_input($this->getId());
+        return (db_query($sql) && db_affected_rows())?true:false;
+    } 
+	// Strobe Technologies Ltd | 20/10/2014 | END - Variables and functions for recording and retrieving time spent
 
     function Ticket($id) {
         $this->id = 0;
@@ -74,6 +126,7 @@ class Ticket {
             .' ,IF(sla.id IS NULL, NULL, '
                 .'DATE_ADD(ticket.created, INTERVAL sla.grace_period HOUR)) as sla_duedate '
             .' ,count(distinct attach.attach_id) as attachments'
+			.' ,time_spent'
             .' FROM '.TICKET_TABLE.' ticket '
             .' LEFT JOIN '.DEPT_TABLE.' dept ON (ticket.dept_id=dept.dept_id) '
             .' LEFT JOIN '.SLA_TABLE.' sla ON (ticket.sla_id=sla.id AND sla.isactive=1) '
@@ -83,6 +136,7 @@ class Ticket {
                 ON ( ticket.ticket_id=attach.ticket_id) '
             .' WHERE ticket.ticket_id='.db_input($id)
             .' GROUP BY ticket.ticket_id';
+			// Strobe Technologies Ltd | 20/10/2014 | Added time_spent to SQL select
 
         //echo $sql;
         if(!($res=db_query($sql)) || !db_num_rows($res))
@@ -93,6 +147,7 @@ class Ticket {
 
         $this->id       = $this->ht['ticket_id'];
         $this->number   = $this->ht['number'];
+		$this->timeSpent = $this->ht['time_spent'];		// Strobe Technologies Ltd | 20/10/2014 | Collecting time spent from SQL results
         $this->_answers = array();
 
         $this->loadDynamicData();

@@ -328,6 +328,10 @@ if($ticket->isOverdue())
                     <th nowrap><?php echo __('Last Response');?>:</th>
                     <td><?php echo Format::db_datetime($ticket->getLastRespDate()); ?></td>
                 </tr>
+				<tr>
+                    <th nowrap>Time Spent:</th>
+                    <td><?php echo $ticket->getTimeSpent(); // Strobe Technologies Ltd | 20/10/2014 | Show Total Time Spent in Ticket information. ?></td>
+                </tr>
             </table>
         </td>
     </tr>
@@ -402,6 +406,11 @@ $tcount+= $ticket->getNumNotes();
                             echo Format::htmlchars($entry['name'] ?: $entry['poster']); ?></span>
                     </span>
                 </div>
+				<?php if ($entry['time_spent'] !== '0.00') { // Strobe Technologies Ltd | 20/10/2014 | If statement testing if thread has time assigned to it and display it ?>
+					<div>
+						<?php echo $ticket->convTimeSpent($entry['time_spent']) .' - '. $ticket->convTimeType($entry['time_type']); ?>
+					</div>
+				<?php } ?>
                 </th>
             </tr>
             <tr><td colspan="4" class="thread-body" id="thread-id-<?php
@@ -632,6 +641,43 @@ print $response_form->getField('attachments')->render();
                     </select>
                 </td>
             </tr>
+			<?php // Strobe Technologies Ltd | 20/10/2014 | START - Add Time Spent fields to Reply tab
+			if($ticket->isOpen()) { ?>
+            <tr>
+                <td width="120">
+                    <label><strong>Time Spent:</strong></label>
+                </td>
+                <td>
+                    <label for="current_time_spent"><strong>Current Time Spent:</strong></label>
+                    <?php echo $ticket->getTimeSpent().' ('.$ticket->getRealTimeSpent().')<br />';
+                    // show the current time spent (if any) ?>
+                    <label for="time_spent"><strong>Time Spent:</strong></label>
+                    <input type="text" name="time_spent" size="5"
+                    value="<?php if(isset($_POST['time_spent'])) echo $_POST['time_spent'];?>" />
+                    (0.75 = 45 minutes)
+                </td>
+            </tr>
+            <tr>
+				<td>
+                    <label for="time_type"><strong>Time Type:</strong></label>
+                </td>
+                <td>
+                    <select id="time_type" name="time_type">
+                    <?php
+					$criteria = "time-type";
+					$ttype_id = DynamicList::getTypes($criteria);
+					
+					$list = DynamicListItem::objects();
+					foreach ($list as $item) {
+						if($item->getListId() == $ttype_id) {?>
+							<option value="<?php echo $item->getId(); ?>"> <?php echo $item->getValue(); ?> </option>
+						<?php }
+					}
+                    ?>
+                    </select>
+                </td>
+            </tr>
+            <?php } // Strobe Technologies Ltd | 20/10/2014 | END - Add Time Spent fields to Reply tab ?>
          </tbody>
         </table>
         <p  style="padding:0 165px;">
@@ -711,6 +757,43 @@ print $note_form->getField('attachments')->render();
                     &nbsp;<span class='error'>*&nbsp;<?php echo $errors['note_status_id']; ?></span>
                 </td>
             </tr>
+			<?php // Strobe Technologies Ltd | 20/10/2014 | START - Add Time Spent fields to Internal Note tab
+			if($ticket->isOpen()) { ?>
+            <tr>
+                <td width="120">
+                    <label><strong>Time Spent:</strong></label>
+                </td>
+                <td>
+                    <label for="current_time_spent"><strong>Current Time Spent:</strong></label>
+                    <?php echo $ticket->getTimeSpent().' ('.$ticket->getRealTimeSpent().')<br />';
+                    // show the current time spent (if any) ?>
+                    <label for="time_spent"><strong>Time Spent:</strong></label>
+                    <input type="text" name="time_spent" size="5"
+                    value="<?php if(isset($_POST['time_spent'])) echo $_POST['time_spent'];?>" />
+                    (0.75 = 45 minutes)
+                </td>
+            </tr>
+            <tr>
+				<td>
+                    <label for="time_type"><strong>Time Type:</strong></label>
+                </td>
+                <td>
+                    <select id="time_type" name="time_type">
+                    <?php
+					$criteria = "time-type";
+					$ttype_id = DynamicList::getTypes($criteria);
+					
+					$list = DynamicListItem::objects();
+					foreach ($list as $item) {
+						if($item->getListId() == $ttype_id) {?>
+							<option value="<?php echo $item->getId(); ?>"> <?php echo $item->getValue(); ?> </option>
+						<?php }
+					}
+                    ?>
+                    </select>
+                </td>
+            </tr>
+            <?php } // Strobe Technologies Ltd | 20/10/2014 | END - Add Time Spent fields to Internal Note tab ?>
         </table>
 
        <p  style="padding-left:165px;">
