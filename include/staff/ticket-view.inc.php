@@ -328,10 +328,13 @@ if($ticket->isOverdue())
                     <th nowrap><?php echo __('Last Response');?>:</th>
                     <td><?php echo Format::db_datetime($ticket->getLastRespDate()); ?></td>
                 </tr>
+				<?php
+				if ($cfg->isStaffTime()) { ?>
 				<tr>
                     <th nowrap>Time Spent:</th>
                     <td><?php echo $ticket->getTimeSpent(); // Strobe Technologies Ltd | 20/10/2014 | Show Total Time Spent in Ticket information. ?></td>
                 </tr>
+				<?php } ?>
             </table>
         </td>
     </tr>
@@ -406,11 +409,14 @@ $tcount+= $ticket->getNumNotes();
                             echo Format::htmlchars($entry['name'] ?: $entry['poster']); ?></span>
                     </span>
                 </div>
-				<?php if ($entry['time_spent'] !== '0.00') { // Strobe Technologies Ltd | 20/10/2014 | If statement testing if thread has time assigned to it and display it ?>
+				<?php 
+				if ($cfg->isStaffTime()) {
+					if ($entry['time_spent'] !== '0.00') { // Strobe Technologies Ltd | 20/10/2014 | If statement testing if thread has time assigned to it and display it ?>
 					<div>
 						<?php echo $ticket->convTimeSpent($entry['time_spent']) .' - '. $ticket->convTimeType($entry['time_type']); ?>
 					</div>
-				<?php } ?>
+				<?php }
+				} ?>
                 </th>
             </tr>
             <tr><td colspan="4" class="thread-body" id="thread-id-<?php
@@ -642,6 +648,7 @@ print $response_form->getField('attachments')->render();
                 </td>
             </tr>
 			<?php // Strobe Technologies Ltd | 20/10/2014 | START - Add Time Spent fields to Reply tab
+			if ($cfg->isStaffTime()) {
 			if($ticket->isOpen()) { ?>
             <tr>
                 <td width="120">
@@ -677,7 +684,7 @@ print $response_form->getField('attachments')->render();
                     </select>
                 </td>
             </tr>
-            <?php } // Strobe Technologies Ltd | 20/10/2014 | END - Add Time Spent fields to Reply tab ?>
+            <?php }} // Strobe Technologies Ltd | 20/10/2014 | END - Add Time Spent fields to Reply tab ?>
          </tbody>
         </table>
         <p  style="padding:0 165px;">
@@ -758,6 +765,7 @@ print $note_form->getField('attachments')->render();
                 </td>
             </tr>
 			<?php // Strobe Technologies Ltd | 20/10/2014 | START - Add Time Spent fields to Internal Note tab
+			if ($cfg->isStaffTime()) {
 			if($ticket->isOpen()) { ?>
             <tr>
                 <td width="120">
@@ -793,7 +801,7 @@ print $note_form->getField('attachments')->render();
                     </select>
                 </td>
             </tr>
-            <?php } // Strobe Technologies Ltd | 20/10/2014 | END - Add Time Spent fields to Internal Note tab ?>
+            <?php }} // Strobe Technologies Ltd | 20/10/2014 | END - Add Time Spent fields to Internal Note tab ?>
         </table>
 
        <p  style="padding-left:165px;">

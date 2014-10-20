@@ -213,6 +213,16 @@ class OsticketConfig extends Config {
         require_once(INCLUDE_DIR.'class.faq.php');
         return ($this->get('enable_kb') && FAQ::countPublishedFAQs());
     }
+	
+	// Strobe Technologies Ltd | 20/10/2014 | START - Checking to see if Time Spent parts are enabled
+	function isClientTime() {
+		return ($this->get('isclienttime'));
+	}
+	
+	function isStaffTime() {
+		return ($this->get('isstafftime'));
+	}
+	// Strobe Technologies Ltd | 20/10/2014 | END - Checking to see if Time Spent parts are enabled
 
     function getVersion() {
         return THIS_VERSION;
