@@ -214,15 +214,22 @@ class OsticketConfig extends Config {
         return ($this->get('enable_kb') && FAQ::countPublishedFAQs());
     }
 	
-	// Strobe Technologies Ltd | 20/10/2014 | START - Checking to see if Time Spent parts are enabled
+	// Strobe Technologies Ltd | 21/10/2014 | START - Checking to see if Time Spent parts are enabled
 	function isClientTime() {
+		// determines if Client Time View is on or not
 		return ($this->get('isclienttime'));
 	}
 	
-	function isStaffTime() {
-		return ($this->get('isstafftime'));
+	function isTicketTime() {
+		// determines if Ticket Time via Actions is Enabled
+		return ($this->get('istickettime'));
 	}
-	// Strobe Technologies Ltd | 20/10/2014 | END - Checking to see if Time Spent parts are enabled
+	
+	function isThreadTime() {
+		// determines if Ticket Time via Threads is Enabled
+		return ($this->get('isthreadtime'));
+	}
+	// Strobe Technologies Ltd | 21/10/2014 | END - Checking to see if Time Spent parts are enabled
 
     function getVersion() {
         return THIS_VERSION;
@@ -863,6 +870,9 @@ class OsticketConfig extends Config {
             case 'kb':
                 return $this->updateKBSettings($vars, $errors);
                 break;
+			case 'tickettime':
+				return $this->updateTimeSettings($vars, $errors); // Strobe Technologies Ltd | 21/10/2014 | Adding update case check
+				break;
             default:
                 $errors['err']=__('Unknown setting option. Get technical support.');
         }
@@ -1101,6 +1111,20 @@ class OsticketConfig extends Config {
                'enable_premade'=>isset($vars['enable_premade'])?1:0,
         ));
     }
+	
+	
+	// Strobe Technologies Ltd | 21/10/2014 | START - Update Time Settings Function
+	function updateTimeSettings($vars, &$errors) {
+
+        if($errors) return false;
+
+        return $this->updateAll(array(
+            'isclienttime'=>isset($vars['isclienttime'])?1:0,
+			'istickettime'=>isset($vars['istickettime'])?1:0,
+			'isthreadtime'=>isset($vars['isthreadtime'])?1:0,
+        ));
+    }
+	// Strobe Technologies Ltd | 21/10/2014 | END - Update Time Settings Function
 
 
     function updateAlertsSettings($vars, &$errors) {

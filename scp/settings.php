@@ -21,6 +21,8 @@ $settingOptions=array(
         array(__('System Settings'), 'settings.system'),
     'tickets' =>
         array(__('Ticket Settings and Options'), 'settings.ticket'),
+	'tickettime' =>
+		array(__('Ticket Time Settings'), 'settings.tickettime'),
     'emails' =>
         array(__('Email Settings'), 'settings.email'),
     'pages' =>
@@ -34,6 +36,8 @@ $settingOptions=array(
     'alerts' =>
         array(__('Alerts and Notices Settings'), 'settings.alerts'),
 );
+// Strobe Technologies Ltd | 21/10/2014 | Added Ticket Time settings options
+
 //Handle a POST.
 $target=($_REQUEST['t'] && $settingOptions[$_REQUEST['t']])?$_REQUEST['t']:'system';
 $page = false;

@@ -329,7 +329,7 @@ if($ticket->isOverdue())
                     <td><?php echo Format::db_datetime($ticket->getLastRespDate()); ?></td>
                 </tr>
 				<?php
-				if ($cfg->isStaffTime()) { ?>
+				if ($cfg->isTicketTime() || $cfg->isThreadTime()) { ?>
 				<tr>
                     <th nowrap>Time Spent:</th>
                     <td><?php echo $ticket->getTimeSpent(); // Strobe Technologies Ltd | 20/10/2014 | Show Total Time Spent in Ticket information. ?></td>
@@ -410,7 +410,7 @@ $tcount+= $ticket->getNumNotes();
                     </span>
                 </div>
 				<?php 
-				if ($cfg->isStaffTime()) {
+				if ($cfg->isThreadTime()) {
 					if ($entry['time_spent'] !== '0.00') { // Strobe Technologies Ltd | 20/10/2014 | If statement testing if thread has time assigned to it and display it ?>
 					<div>
 						<?php echo $ticket->convTimeSpent($entry['time_spent']) .' - '. $ticket->convTimeType($entry['time_type']); ?>
@@ -648,7 +648,7 @@ print $response_form->getField('attachments')->render();
                 </td>
             </tr>
 			<?php // Strobe Technologies Ltd | 20/10/2014 | START - Add Time Spent fields to Reply tab
-			if ($cfg->isStaffTime()) {
+			if ($cfg->isThreadTime()) {
 			if($ticket->isOpen()) { ?>
             <tr>
                 <td width="120">
@@ -765,7 +765,7 @@ print $note_form->getField('attachments')->render();
                 </td>
             </tr>
 			<?php // Strobe Technologies Ltd | 20/10/2014 | START - Add Time Spent fields to Internal Note tab
-			if ($cfg->isStaffTime()) {
+			if ($cfg->isThreadTime()) {
 			if($ticket->isOpen()) { ?>
             <tr>
                 <td width="120">
