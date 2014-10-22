@@ -66,6 +66,44 @@ if($_POST && !$errors):
 		// Strobe Technologies Ltd | 20/10/2014 | END - Collect Total Spent from results
 		
         switch(strtolower($_POST['a'])):
+		
+		// Strobe Technologies Ltd | 22/10/2014 | START - Add time case / switch
+		case 'time':
+			if(!$_POST['time_spent'])
+				$errors['time_spent']=__('Time required');
+				
+			//Use locks to avoid double replies
+            if($lock && $lock->getStaffId()!=$thisstaff->getId())
+                $errors['err']=__('Action Denied. Ticket is locked by someone else!');
+			
+			//If no error...do the do.
+            $vars = $_POST;
+			
+			if(!$errors && ($response=$ticket->timeSpent($_POST['time_spent']))) {
+                $msg = sprintf(__('%s: Time posted successfully'),
+                        sprintf(__('Ticket #%s'),
+                            sprintf('<a href="tickets.php?id=%d"><b>%s</b></a>',
+                                $ticket->getId(), $ticket->getNumber()))
+                        );
+
+
+                // Remove staff's locks
+                TicketLock::removeStaffLocks($thisstaff->getId(),
+                        $ticket->getId());
+
+                // Cleanup response draft for this user
+                Draft::deleteForNamespace(
+                    'ticket.response.' . $ticket->getId(),
+                    $thisstaff->getId());
+
+                // Go back to the ticket listing page on reply
+                $ticket = null;
+
+            } elseif(!$errors['err']) {
+                $errors['err']=__('Unable to post the time. Correct the errors below and try again!');
+            }
+			break;
+			// Strobe Technologies Ltd | 22/10/2014 | END - Add time case / switch
         case 'reply':
             if(!$thisstaff->canPostReply())
                 $errors['err'] = __('Action denied. Contact admin for access');

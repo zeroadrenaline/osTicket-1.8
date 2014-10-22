@@ -476,6 +476,12 @@ $tcount+= $ticket->getNumNotes();
         <li><a id="assign_tab" href="#assign"><?php echo $ticket->isAssigned()?__('Reassign Ticket'):__('Assign Ticket'); ?></a></li>
         <?php
         } ?>
+		
+		<!-- Strobe Technologies Ltd  | 22/10/2014 | START - Add Time Tab to menu -->
+		<?php if ($cfg->isTicketTime()) { ?>
+			<li><a id="time_tab" href="#time"><?php echo __('Add Time to Ticket'); ?></a></li>
+		<?php } ?>
+		<!-- Strobe Technologies Ltd  | 22/10/2014 | END - Add Time Tab to menu -->
     </ul>
     <?php
     if($thisstaff->canPostReply()) { ?>
@@ -964,6 +970,36 @@ print $note_form->getField('attachments')->render();
     </form>
     <?php
     } ?>
+	<!-- Strobe Technologies Ltd | 22/10/2014 | START - Add Time Tab Form -->
+	<?php if ($cfg->isTicketTime()) { ?>
+    <form id="time" action="tickets.php?id=<?php echo $ticket->getId(); ?>#time" name="time" method="post" enctype="multipart/form-data">
+        <?php csrf_token(); ?>
+        <input type="hidden" name="ticket_id" value="<?php echo $ticket->getId(); ?>">
+        <input type="hidden" name="a" value="time">
+        <table width="100%" border="0" cellspacing="0" cellpadding="3">
+			<p  style="padding-left:100px;">Add Required time to ticket.</p>
+			<p>&nbsp;</p>
+			<table>
+				<tr>
+					<td width="200px"><label for="current_time_spent"><strong>Current Time Spent:</strong></label></td>
+					<td><?php echo $ticket->getTimeSpent().' ('.$ticket->getRealTimeSpent().')';
+							// show the current time spent (if any) ?></td>
+				</tr>
+				<tr>
+					<td width="200px"><label for="time_spent"><strong>Time Spent:</strong></label></td>
+					<td><input type="text" name="time_spent" size="5" value="<?php if(isset($_POST['time_spent'])) echo $_POST['time_spent'];?>" />
+						(0.75 = 45 minutes)
+						<span class="error"><?php echo $errors['time_spent']; ?></span></td>
+				</tr>
+			</table>
+			<p  style="padding-left:165px;">
+				<input class="btn_sm" type="submit" value="<?php echo __('Add Time'); ?>">
+				<input class="btn_sm" type="reset" value="<?php echo __('Reset');?>">
+			</p>
+		</table>
+	</form>
+	<?php } ?>
+	<!-- Strobe Technologies Ltd | 22/10/2014 | END - Add Time Tab Form -->
 </div>
 <div style="display:none;" class="dialog" id="print-options">
     <h3><?php echo __('Ticket Print Options');?></h3>
