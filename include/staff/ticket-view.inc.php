@@ -375,10 +375,18 @@ foreach (DynamicFormEntry::forTicket($ticket->getId()) as $form) {
 $tcount = $ticket->getThreadCount();
 $tcount+= $ticket->getNumNotes();
 ?>
-<ul id="threads">
-    <li><a class="active" id="toggle_ticket_thread" href="#"><?php echo sprintf(__('Ticket Thread (%d)'), $tcount); ?></a></li>
+<ul id="threads" class="threads"> <!-- Strobe Technologies Ltd | 24/10/2014 | added class for tab switch java script -->
+    <li><a class="active" id="toggle_ticket_thread" href="#ticket_thread"><?php echo sprintf(__('Ticket Thread (%d)'), $tcount); ?></a></li>
+	<!-- Strobe Technologies Ltd | 24/10/2014 | START - FAQ Tab -->
+	<li><a class="deactive" href="#knowledge_thread"><?php echo __('Knowledge Base'); ?></a></li>
+	<!-- Strobe Technologies Ltd | 24/10/2014 | END - FAQ Tab -->
 </ul>
-<div id="ticket_thread">
+<!-- Strobe Technologies Ltd | 24/10/2014 | START - FAQ Thread -->
+<div id="knowledge_thread" class="hide-thread">
+	<p>This is the FAQ Thread</p>
+</div>
+<!-- Strobe Technologies Ltd | 24/10/2014 | END - FAQ Thread -->
+<div id="ticket_thread" class="show-thread"> <!-- Strobe Technologies Ltd | 24/10/2014 | Added class to hide or show -->
     <?php
     $threadTypes=array('M'=>'message','R'=>'response', 'N'=>'note');
     /* -------- Messages & Responses & Notes (if inline)-------------*/
@@ -990,4 +998,31 @@ $(function() {
         });
     });
 });
+// Strobe Technologies Ltd | 24/10/2014 | START - java script to hide / show threads
+$(document).ready(function() {
+	$('.threads > li > a').click(function(event){
+		event.preventDefault();//stop browser to take action for clicked anchor
+	
+		//get current displaying tab content jQuery selector
+		var active_tab_selector = $('.threads > li > a.active').attr('href');
+	
+		//find activated navigation and remove 'active' css
+		var activated_nav = $('.threads > li > a.active');
+		activated_nav.removeClass('active');
+		activated_nav.addClass('deactive');
+					
+		//add 'active' css into clicked navigation
+		$(this).addClass('active');
+					
+		//hide displaying tab content
+		$(active_tab_selector).removeClass('show-thread');
+		$(active_tab_selector).addClass('hide-thread');
+					
+		//show target tab content
+		var target_tab_selector = $(this).attr('href');
+		$(target_tab_selector).removeClass('hide-thread');
+		$(target_tab_selector).addClass('show-thread');
+	});
+});
+// Strobe Technologies Ltd | 24/10/2014 | END - java script to hide / show threads
 </script>

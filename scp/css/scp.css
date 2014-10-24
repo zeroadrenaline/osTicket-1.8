@@ -799,6 +799,24 @@ h2 .reload {
     border-top:2px solid #ed9100;
     font-weight:bold;
 }
+/* Strobe Technologies Ltd | 24/10/2104 | START - CSS de-active tab for threads */
+#threads li a.deactive {
+    height:28px;
+    background-color:#fff;
+    /*border:1px solid #aaa;
+    border-bottom:none;
+    border-top:2px solid #ed9100; */
+	border-bottom: 1px solid #aaa;
+    font-weight:bold;
+}
+.show-thread{
+	display: block;
+}
+			
+.hide-thread{
+	display: none;
+}
+/* Strobe Technologies Ltd | 24/10/2104 | END - CSS de-active tab for threads */
 
 #toggle_ticket_thread {
     background:url(../images/icons/open.gif) 10px 50% no-repeat;
