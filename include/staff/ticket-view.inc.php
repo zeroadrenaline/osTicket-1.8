@@ -381,11 +381,37 @@ $tcount+= $ticket->getNumNotes();
 	<li><a class="deactive" href="#knowledge_thread"><?php echo __('Knowledge Base'); ?></a></li>
 	<!-- Strobe Technologies Ltd | 24/10/2014 | END - FAQ Tab -->
 </ul>
-<!-- Strobe Technologies Ltd | 24/10/2014 | START - FAQ Thread -->
+<!-- Strobe Technologies Ltd | 25/10/2014 | START - FAQ Thread -->
 <div id="knowledge_thread" class="hide-thread">
-	<p>This is the FAQ Thread</p>
+	<p>This is the FAQ Thread<br />
+	There is a known bug with re-hiding the threads when clicking tabs.<br />
+	The code works on new test page but has error when added to osTicket.</p>
+	
+	<table class="thread-entry faqthread" cellspacing="0" cellpadding="1" width="940" border="0">
+		<tr>
+			<th>
+				Category
+			</th>
+			<th colspan="2">
+				Title / Question
+			</th>
+			<th>
+				Action
+			</th>
+		</tr>
+		<tr>
+			<td>General Help</td>
+			<td colspan="2">Hot to change my password</td>
+			<td>Email</td>
+		</tr>
+		<tr>
+			<td>Email</td>
+			<td colspan="2">How to add a signature</td>
+			<td>Email - Display - other</td>
+		</tr>
+	</table>
 </div>
-<!-- Strobe Technologies Ltd | 24/10/2014 | END - FAQ Thread -->
+<!-- Strobe Technologies Ltd | 25/10/2014 | END - FAQ Thread -->
 <div id="ticket_thread" class="show-thread"> <!-- Strobe Technologies Ltd | 24/10/2014 | Added class to hide or show -->
     <?php
     $threadTypes=array('M'=>'message','R'=>'response', 'N'=>'note');
