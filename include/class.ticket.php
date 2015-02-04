@@ -97,12 +97,12 @@ class Ticket {
             $time = 0.00;
         }else{
             if(!is_numeric($time)){
-                $time = 0.25;
+                $time = 0.00;
             }else{
                 $time = round($time,2);
             }
         }
-        $sql = 'UPDATE '.TICKET_TABLE.' SET time_spent=time_spent+'.db_input($time).' WHERE ticket_id='.db_input($this->getId());
+        $sql = 'UPDATE '.TICKET_TABLE.' SET time_spent='.db_input($this->getRealTimeSpent()).'+'.db_input($time).' WHERE ticket_id='.db_input($this->getId());
         return (db_query($sql) && db_affected_rows())?true:false;
     } 
 	// Strobe Technologies Ltd | 04/02/2015 | END - Variables and functions for recording and retrieving time spent
