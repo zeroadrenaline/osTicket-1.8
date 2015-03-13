@@ -653,7 +653,7 @@ print $response_form->getField('attachments')->render();
                     </select>
                 </td>
             </tr>
-			<?php // Strobe Technologies Ltd | 20/10/2014 | START - Add Time Spent fields to Reply tab
+			<?php // Strobe Technologies Ltd | 13/03/2015 | START - Add Time Spent fields to Reply tab
 			if ($cfg->isThreadTime()) {
 			if($ticket->isOpen()) { ?>
             <tr>
@@ -667,7 +667,7 @@ print $response_form->getField('attachments')->render();
                     <label for="time_spent"><strong>Time Spent:</strong></label>
                     <input type="text" name="time_spent" size="5"
                     value="<?php if(isset($_POST['time_spent'])) echo $_POST['time_spent'];?>" />
-                    (0.75 = 45 minutes)
+                    <!--(0.75 = 45 minutes)-->(1 = 1 minute, 60 = 1 hour)
                 </td>
             </tr>
             <tr>
@@ -690,7 +690,7 @@ print $response_form->getField('attachments')->render();
                     </select>
                 </td>
             </tr>
-            <?php }} // Strobe Technologies Ltd | 20/10/2014 | END - Add Time Spent fields to Reply tab ?>
+            <?php }} // Strobe Technologies Ltd | 13/03/2015 | END - Add Time Spent fields to Reply tab ?>
          </tbody>
         </table>
         <p  style="padding:0 165px;">
@@ -770,7 +770,7 @@ print $note_form->getField('attachments')->render();
                     &nbsp;<span class='error'>*&nbsp;<?php echo $errors['note_status_id']; ?></span>
                 </td>
             </tr>
-			<?php // Strobe Technologies Ltd | 20/10/2014 | START - Add Time Spent fields to Internal Note tab
+			<?php // Strobe Technologies Ltd | 13/03/2015 | START - Add Time Spent fields to Internal Note tab
 			if ($cfg->isThreadTime()) {
 			if($ticket->isOpen()) { ?>
             <tr>
@@ -784,7 +784,7 @@ print $note_form->getField('attachments')->render();
                     <label for="time_spent"><strong>Time Spent:</strong></label>
                     <input type="text" name="time_spent" size="5"
                     value="<?php if(isset($_POST['time_spent'])) echo $_POST['time_spent'];?>" />
-                    (0.75 = 45 minutes)
+                    <!--(0.75 = 45 minutes)-->(1 = 1 minute, 60 = 1 hour)
                 </td>
             </tr>
             <tr>
@@ -807,7 +807,7 @@ print $note_form->getField('attachments')->render();
                     </select>
                 </td>
             </tr>
-            <?php }} // Strobe Technologies Ltd | 20/10/2014 | END - Add Time Spent fields to Internal Note tab ?>
+            <?php }} // Strobe Technologies Ltd | 13/03/2015 | END - Add Time Spent fields to Internal Note tab ?>
         </table>
 
        <p  style="padding-left:165px;">
@@ -970,7 +970,7 @@ print $note_form->getField('attachments')->render();
     </form>
     <?php
     } ?>
-	<!-- Strobe Technologies Ltd | 22/10/2014 | START - Add Time Tab Form -->
+	<!-- Strobe Technologies Ltd | 13/03/2015 | START - Add Time Tab Form -->
 	<?php if ($cfg->isTicketTime()) { ?>
     <form id="time" action="tickets.php?id=<?php echo $ticket->getId(); ?>#time" name="time" method="post" enctype="multipart/form-data">
         <?php csrf_token(); ?>
@@ -988,7 +988,7 @@ print $note_form->getField('attachments')->render();
 				<tr>
 					<td width="200px"><label for="time_spent"><strong>Time Spent:</strong></label></td>
 					<td><input type="text" name="time_spent" size="5" value="<?php if(isset($_POST['time_spent'])) echo $_POST['time_spent'];?>" />
-						(0.75 = 45 minutes)
+						<!--(0.75 = 45 minutes)-->(1 = 1 minute, 60 = 1 hour)
 						<span class="error"><?php echo $errors['time_spent']; ?></span></td>
 				</tr>
 			</table>
@@ -999,7 +999,7 @@ print $note_form->getField('attachments')->render();
 		</table>
 	</form>
 	<?php } ?>
-	<!-- Strobe Technologies Ltd | 22/10/2014 | END - Add Time Tab Form -->
+	<!-- Strobe Technologies Ltd | 13/03/2015 | END - Add Time Tab Form -->
 </div>
 <div style="display:none;" class="dialog" id="print-options">
     <h3><?php echo __('Ticket Print Options');?></h3>

@@ -54,8 +54,9 @@ class Ticket {
 
     var $thread; //Thread obj.
 	
-	// Strobe Technologies Ltd | 04/02/2015 | START - Variables and functions for recording and retrieving time spent
-	// osTicket v1.9.5.1
+	// Strobe Technologies Ltd | 13/03/2015 | START - Variables and functions for recording and retrieving time spent
+	// osTicket v1.9.5.1 Verified
+	// osTicket v1.9.6 Tested
 	var $timeSpent;
 	
 	function getTimeSpent(){
@@ -80,7 +81,8 @@ class Ticket {
 		return $typetext;
 	}
 	
-    function formatTime($time){
+    /*function formatTime($time){
+		//Original Function storing all in hours
         if($time < 1){
             $formatted = $time*60;
             $formatted .= ' Minutes';
@@ -90,22 +92,47 @@ class Ticket {
             $formatted = $time.' Hours';
         }
         return $formatted;
-    }
+    }*/
+	function formatTime($time) {
+		//New format to store in mins contributed by @joshbmarshall
+		$hours = floor($time / 60);
+		$minutes = $time % 60;
+
+		$formatted = '';
+
+		if ($hours > 0) {
+            $formatted .= $hours . ' Hour';
+            if ($hours > 1) {
+                    $formatted .= 's';
+            }
+		}
+		if ($minutes > 0) {
+            if ($formatted) $formatted .= ', ';
+            $formatted .= $minutes . ' Minute';
+            if ($minutes > 1) {
+                    $formatted .= 's';
+            }
+		}
+		return $formatted;
+	}
 	
     function timeSpent($time){
         if(empty($time)){
-            $time = 0.00;
+            //$time = 0.00;
+			$time = 0; //new min store format
         }else{
             if(!is_numeric($time)){
-                $time = 0.00;
+                //$time = 0.00;
+				$time = 0; //new min store format
             }else{
-                $time = round($time,2);
+                //$time = round($time,2);
+				$time = round($time,0); //new min store format
             }
         }
         $sql = 'UPDATE '.TICKET_TABLE.' SET time_spent='.db_input($this->getRealTimeSpent()).'+'.db_input($time).' WHERE ticket_id='.db_input($this->getId());
         return (db_query($sql) && db_affected_rows())?true:false;
     } 
-	// Strobe Technologies Ltd | 04/02/2015 | END - Variables and functions for recording and retrieving time spent
+	// Strobe Technologies Ltd | 13/03/2015 | END - Variables and functions for recording and retrieving time spent
 
     function Ticket($id) {
         $this->id = 0;
