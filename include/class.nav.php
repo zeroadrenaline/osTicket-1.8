@@ -125,6 +125,7 @@ class StaffNav {
     }
 
     function getSubMenus(){ //Private.
+        global $cfg;
 
         $staff = $this->staff;
         $submenus=array();
@@ -163,7 +164,7 @@ class StaffNav {
                     if($staff) {
                         if($staff->canManageFAQ())
                             $subnav[]=array('desc'=>__('Categories'),'href'=>'categories.php','iconclass'=>'faq-categories');
-                        if($staff->canManageCannedResponses())
+                        if ($cfg->isCannedResponseEnabled() && $staff->canManageCannedResponses())
                             $subnav[]=array('desc'=>__('Canned Responses'),'href'=>'canned.php','iconclass'=>'canned');
                     }
                    break;
@@ -232,7 +233,8 @@ class AdminNav extends StaffNav{
                     $subnav[]=array('desc'=>__('Company'),'href'=>'settings.php?t=pages','iconclass'=>'pages');
                     $subnav[]=array('desc'=>__('System'),'href'=>'settings.php?t=system','iconclass'=>'preferences');
                     $subnav[]=array('desc'=>__('Tickets'),'href'=>'settings.php?t=tickets','iconclass'=>'ticket-settings');
-					$subnav[]=array('desc'=>__('Time'), 'href'=>'settings.php?t=tickettime','iconclass'=>'ticket-settings'); // Strobe Technologies Ltd | 21/10/2014 | Admin Menu for accessing Ticket Time.
+					$subnav[]=array('desc'=>__('Time'), 'href'=>'settings.php?t=tickettime','iconclass'=>'ticket-settings');	// Strobe Technologies Ltd | 14/03/2015 | Admin Menu for accessing Ticket Time.
+																																// osTicket Version = v1.9.6
                     $subnav[]=array('desc'=>__('Emails'),'href'=>'settings.php?t=emails','iconclass'=>'email-settings');
                     $subnav[]=array('desc'=>__('Access'),'href'=>'settings.php?t=access','iconclass'=>'users');
                     $subnav[]=array('desc'=>__('Knowledgebase'),'href'=>'settings.php?t=kb','iconclass'=>'kb-settings');
