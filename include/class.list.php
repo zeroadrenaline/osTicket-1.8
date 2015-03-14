@@ -109,10 +109,15 @@ abstract class CustomListHandler {
         return $rv;
     }
 
+    function __get($field) {
+        return $this->_list->{$field};
+    }
+
     function update($vars, &$errors) {
         return $this->_list->update($vars, $errors);
     }
 
+    abstract function getListOrderBy();
     abstract function getNumItems();
     abstract function getAllItems();
     abstract function getItems($criteria);
@@ -149,8 +154,9 @@ class DynamicList extends VerySimpleModel implements CustomList {
         call_user_func_array(array('parent', '__construct'), func_get_args());
         $this->_config = new Config('list.'.$this->getId());
     }
-	
-	// Strobe Technologies Ltd | 20/10/2014 | START - Function to lookup types from dynamic lists
+
+	// Strobe Technologies Ltd | 14/03/2015 | START - Function to lookup types from dynamic lists
+	// osTicket Version = v1.9.6
 	static function getTypes($criteria) {
 
         $types = array();
@@ -160,8 +166,8 @@ class DynamicList extends VerySimpleModel implements CustomList {
 
         return $types;
     }
-	// Strobe Technologies Ltd | 20/10/2014 | END - Function to lookup types from dynamic lists
-
+	// Strobe Technologies Ltd | 14/03/2015 | END - Function to lookup types from dynamic lists
+	
     function getId() {
         return $this->get('id');
     }
@@ -346,6 +352,7 @@ class DynamicList extends VerySimpleModel implements CustomList {
             $this->set('updated', new SqlFunction('NOW'));
         if (isset($this->dirty['notes']))
             $this->notes = Format::sanitize($this->notes);
+
         return parent::save($refetch);
     }
 
@@ -593,6 +600,15 @@ class DynamicListItem extends VerySimpleModel implements CustomListItem {
         }
     }
 
+    function getFilterData() {
+        $data = array();
+        foreach ($this->getConfigurationForm()->getFields() as $F) {
+            $data['.'.$F->get('id')] = $F->toString($F->value);
+        }
+        $data['.abb'] = (string) $this->get('extra');
+        return $data;
+    }
+
     function toString() {
         return $this->get('value');
     }
@@ -667,6 +683,14 @@ class TicketStatusList extends CustomListHandler {
 
     var $_items;
     var $_form;
+
+    function getListOrderBy() {
+        switch ($this->getSortMode()) {
+            case 'Alpha':   return 'name';
+            case '-Alpha':  return '-name';
+            case 'SortCol': return 'sort';
+        }
+    }
 
     function getNumItems() {
         return TicketStatus::objects()->count();
@@ -785,8 +809,6 @@ class TicketStatus  extends VerySimpleModel implements CustomListItem {
 
     const ENABLED   = 0x0001;
     const INTERNAL  = 0x0002; // Forbid deletion or name and status change.
-
-
 
     function __construct() {
         call_user_func_array(array('parent', '__construct'), func_get_args());
