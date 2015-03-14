@@ -54,9 +54,8 @@ class Ticket {
 
     var $thread; //Thread obj.
 	
-	// Strobe Technologies Ltd | 13/03/2015 | START - Variables and functions for recording and retrieving time spent
-	// osTicket v1.9.5.1 Verified
-	// osTicket v1.9.6 Tested
+	// Strobe Technologies Ltd | 14/03/2015 | START - Variables and functions for recording and retrieving time spent
+	// osTicket Version = v1.9.6
 	var $timeSpent;
 	
 	function getTimeSpent(){
@@ -132,7 +131,7 @@ class Ticket {
         $sql = 'UPDATE '.TICKET_TABLE.' SET time_spent='.db_input($this->getRealTimeSpent()).'+'.db_input($time).' WHERE ticket_id='.db_input($this->getId());
         return (db_query($sql) && db_affected_rows())?true:false;
     } 
-	// Strobe Technologies Ltd | 13/03/2015 | END - Variables and functions for recording and retrieving time spent
+	// Strobe Technologies Ltd | 14/03/2015 | END - Variables and functions for recording and retrieving time spent
 
     function Ticket($id) {
         $this->id = 0;
@@ -158,8 +157,8 @@ class Ticket {
                 ON ( ticket.ticket_id=attach.ticket_id) '
             .' WHERE ticket.ticket_id='.db_input($id)
             .' GROUP BY ticket.ticket_id';
-			// Strobe Technologies Ltd | 04/02/2015 | Added time_spent to SQL select
-			// osTicket v1.9.5.1
+			// Strobe Technologies Ltd | 14/03/2015 | Added time_spent to SQL select
+			// osTicket v1.9.6
 
         //echo $sql;
         if(!($res=db_query($sql)) || !db_num_rows($res))
@@ -170,7 +169,8 @@ class Ticket {
 
         $this->id       = $this->ht['ticket_id'];
         $this->number   = $this->ht['number'];
-		$this->timeSpent = $this->ht['time_spent'];		// Strobe Technologies Ltd | 04/02/2015 | Collecting time spent from SQL results
+		$this->timeSpent = $this->ht['time_spent'];		// Strobe Technologies Ltd | 14/03/2015 | Collecting time spent from SQL results
+														// osTicket Version = v1.9.6
         $this->_answers = array();
 
         $this->loadDynamicData();
@@ -1073,7 +1073,7 @@ class Ticket {
                           'signature' => ($dept && $dept->isPublic())?$dept->getSignature():'')
                     );
 
-            $email->sendAutoReply($this->getEmail(), $msg['subj'], $msg['body'],
+            $email->sendAutoReply($this->getOwner(), $msg['subj'], $msg['body'],
                 null, $options);
         }
 
@@ -1119,7 +1119,7 @@ class Ticket {
             foreach( $recipients as $k=>$staff) {
                 if(!is_object($staff) || !$staff->isAvailable() || in_array($staff->getEmail(), $sentlist)) continue;
                 $alert = $this->replaceVars($msg, array('recipient' => $staff));
-                $email->sendAlert($staff->getEmail(), $alert['subj'], $alert['body'], null, $options);
+                $email->sendAlert($staff, $alert['subj'], $alert['body'], null, $options);
                 $sentlist[] = $staff->getEmail();
             }
         }
@@ -1148,7 +1148,7 @@ class Ticket {
             $msg = $this->replaceVars($msg->asArray(),
                         array('signature' => ($dept && $dept->isPublic())?$dept->getSignature():''));
 
-            $email->sendAutoReply($this->getEmail(), $msg['subj'], $msg['body']);
+            $email->sendAutoReply($this->getOwner(), $msg['subj'], $msg['body']);
         }
 
         $user = $this->getOwner();
@@ -1210,9 +1210,8 @@ class Ticket {
                          'thread' => $entry);
         foreach ($recipients as $recipient) {
             if ($uid == $recipient->getUserId()) continue;
-            $options['references'] =  $entry->getEmailReferencesForUser($recipient);
             $notice = $this->replaceVars($msg, array('recipient' => $recipient));
-            $email->send($recipient->getEmail(), $notice['subj'], $notice['body'], $attachments,
+            $email->send($recipient, $notice['subj'], $notice['body'], $attachments,
                 $options);
         }
 
@@ -1278,9 +1277,8 @@ class Ticket {
 
             $options = array(
                 'inreplyto'=>$message->getEmailMessageId(),
-                'references' => $message->getEmailReferencesForUser($user),
                 'thread'=>$message);
-            $email->sendAutoReply($user->getEmail(), $msg['subj'], $msg['body'],
+            $email->sendAutoReply($user, $msg['subj'], $msg['body'],
                 null, $options);
         }
     }
@@ -1343,7 +1341,7 @@ class Ticket {
             foreach( $recipients as $k=>$staff) {
                 if(!is_object($staff) || !$staff->isAvailable() || in_array($staff->getEmail(), $sentlist)) continue;
                 $alert = $this->replaceVars($msg, array('recipient' => $staff));
-                $email->sendAlert($staff->getEmail(), $alert['subj'], $alert['body'], null, $options);
+                $email->sendAlert($staff, $alert['subj'], $alert['body'], null, $options);
                 $sentlist[] = $staff->getEmail();
             }
         }
@@ -1392,7 +1390,7 @@ class Ticket {
             foreach( $recipients as $k=>$staff) {
                 if(!is_object($staff) || !$staff->isAvailable() || in_array($staff->getEmail(), $sentlist)) continue;
                 $alert = $this->replaceVars($msg, array('recipient' => $staff));
-                $email->sendAlert($staff->getEmail(), $alert['subj'], $alert['body'], null);
+                $email->sendAlert($staff, $alert['subj'], $alert['body'], null);
                 $sentlist[] = $staff->getEmail();
             }
 
@@ -1595,7 +1593,7 @@ class Ticket {
             foreach( $recipients as $k=>$staff) {
                 if(!is_object($staff) || !$staff->isAvailable() || in_array($staff->getEmail(), $sentlist)) continue;
                 $alert = $this->replaceVars($msg, array('recipient' => $staff));
-                $email->sendAlert($staff->getEmail(), $alert['subj'], $alert['body'], null, $options);
+                $email->sendAlert($staff, $alert['subj'], $alert['body'], null, $options);
                 $sentlist[] = $staff->getEmail();
             }
          }
@@ -1830,7 +1828,7 @@ class Ticket {
             foreach( $recipients as $k=>$staff) {
                 if(!$staff || !$staff->getEmail() || !$staff->isAvailable() || in_array($staff->getEmail(), $sentlist)) continue;
                 $alert = $this->replaceVars($msg, array('recipient' => $staff));
-                $email->sendAlert($staff->getEmail(), $alert['subj'], $alert['body'], null, $options);
+                $email->sendAlert($staff, $alert['subj'], $alert['body'], null, $options);
                 $sentlist[] = $staff->getEmail();
             }
         }
@@ -1891,7 +1889,7 @@ class Ticket {
                 'inreplyto'=>$response->getEmailMessageId(),
                 'references'=>$response->getEmailReferences(),
                 'thread'=>$response);
-            $email->sendAutoReply($this->getEmail(), $msg['subj'], $msg['body'], $attachments,
+            $email->sendAutoReply($this, $msg['subj'], $msg['body'], $attachments,
                 $options);
         }
 
@@ -1953,7 +1951,7 @@ class Ticket {
                     $variables + array('recipient' => $this->getOwner()));
 
             $attachments = $cfg->emailAttachments()?$response->getAttachments():array();
-            $email->send($this->getEmail(), $msg['subj'], $msg['body'], $attachments,
+            $email->send($this->getOwner(), $msg['subj'], $msg['body'], $attachments,
                 $options);
         }
 
@@ -2100,7 +2098,7 @@ class Ticket {
                         )
                     continue;
                 $alert = $this->replaceVars($msg, array('recipient' => $staff));
-                $email->sendAlert($staff->getEmail(), $alert['subj'], $alert['body'], null, $options);
+                $email->sendAlert($staff, $alert['subj'], $alert['body'], null, $options);
                 $sentlist[$staff->getEmail()] = 1;
             }
         }
@@ -2474,7 +2472,7 @@ class Ticket {
      *
      *  $autorespond and $alertstaff overrides config settings...
      */
-    static function create(&$vars, &$errors, $origin, $autorespond=true,
+    static function create($vars, &$errors, $origin, $autorespond=true,
             $alertstaff=true) {
         global $ost, $cfg, $thisclient, $_FILES;
 
@@ -2932,16 +2930,10 @@ class Ticket {
         }
 
         $ticket->reload();
-        $dept = $ticket->getDept();
 
-        // See if we need to skip auto-response.
-        $autorespond = isset($create_vars['autorespond'])
-            ? $create_vars['autorespond'] : true;
-
-        if (!$autorespond
+        if(!$cfg->notifyONNewStaffTicket()
                 || !isset($vars['alertuser'])
-                || !$dept->autoRespONNewTicket()
-                || !$cfg->notifyONNewStaffTicket())
+                || !($dept=$ticket->getDept()))
             return $ticket; //No alerts.
 
         //Send Notice to user --- if requested AND enabled!!
@@ -2981,7 +2973,7 @@ class Ticket {
                 'references' => $references,
                 'thread' => $ticket->getLastMessage()
             );
-            $email->send($ticket->getEmail(), $msg['subj'], $msg['body'], $attachments,
+            $email->send($ticket->getOwner(), $msg['subj'], $msg['body'], $attachments,
                 $options);
         }
 
