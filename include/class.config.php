@@ -214,7 +214,8 @@ class OsticketConfig extends Config {
         return ($this->get('enable_kb') && FAQ::countPublishedFAQs());
     }
 	
-	// Strobe Technologies Ltd | 21/10/2014 | START - Checking to see if Time Spent parts are enabled
+	// Strobe Technologies Ltd | 14/03/2015 | START - Checking to see if Time Spent parts are enabled
+	// osTicket Version = v1.9.6
 	function isClientTime() {
 		// determines if Client Time View is on or not
 		return ($this->get('isclienttime'));
@@ -229,7 +230,11 @@ class OsticketConfig extends Config {
 		// determines if Ticket Time via Threads is Enabled
 		return ($this->get('isthreadtime'));
 	}
-	// Strobe Technologies Ltd | 21/10/2014 | END - Checking to see if Time Spent parts are enabled
+	// Strobe Technologies Ltd | 14/03/2015 | END - Checking to see if Time Spent parts are enabled
+
+    function isCannedResponseEnabled() {
+        return $this->get('enable_premade');
+    }
 
     function getVersion() {
         return THIS_VERSION;
@@ -538,15 +543,6 @@ class OsticketConfig extends Config {
 
     function getMaxFileSize() {
         return $this->get('max_file_size');
-    }
-
-    function getStaffMaxFileUploads() {
-        return $this->get('max_staff_file_uploads');
-    }
-
-    function getClientMaxFileUploads() {
-        //TODO: change max_user_file_uploads to max_client_file_uploads
-        return $this->get('max_user_file_uploads');
     }
 
     function getLogLevel() {
@@ -871,8 +867,8 @@ class OsticketConfig extends Config {
                 return $this->updateKBSettings($vars, $errors);
                 break;
 			case 'tickettime':
-				return $this->updateTimeSettings($vars, $errors); // Strobe Technologies Ltd | 21/10/2014 | Adding update case check
-				break;
+				return $this->updateTimeSettings($vars, $errors);	// Strobe Technologies Ltd | 14/03/2015 | Adding update case check
+				break;												// osTicket Version = v1.9.6
             default:
                 $errors['err']=__('Unknown setting option. Get technical support.');
         }
@@ -991,7 +987,6 @@ class OsticketConfig extends Config {
             'enable_html_thread'=>isset($vars['enable_html_thread'])?1:0,
             'allow_client_updates'=>isset($vars['allow_client_updates'])?1:0,
             'max_file_size'=>$vars['max_file_size'],
-            'email_attachments'=>isset($vars['email_attachments'])?1:0,
         ));
     }
 
@@ -1025,6 +1020,7 @@ class OsticketConfig extends Config {
             'accept_unregistered_email'=>isset($vars['accept_unregistered_email'])?1:0,
             'add_email_collabs'=>isset($vars['add_email_collabs'])?1:0,
             'reply_separator'=>$vars['reply_separator'],
+            'email_attachments'=>isset($vars['email_attachments'])?1:0,
          ));
     }
 
@@ -1040,6 +1036,13 @@ class OsticketConfig extends Config {
     }
     function getClientLogoId() {
         return $this->getLogoId('client');
+    }
+
+    function getStaffLogoId() {
+        return $this->getLogoId('staff');
+    }
+    function getStaffLogo() {
+        return $this->getLogo('staff');
     }
 
     function updatePagesSettings($vars, &$errors) {
@@ -1085,6 +1088,9 @@ class OsticketConfig extends Config {
             'client_logo_id' => (
                 (is_numeric($vars['selected-logo']) && $vars['selected-logo'])
                 ? $vars['selected-logo'] : false),
+            'staff_logo_id' => (
+                (is_numeric($vars['selected-logo-scp']) && $vars['selected-logo-scp'])
+                ? $vars['selected-logo-scp'] : false),
            ));
     }
 
@@ -1111,9 +1117,10 @@ class OsticketConfig extends Config {
                'enable_premade'=>isset($vars['enable_premade'])?1:0,
         ));
     }
+
 	
-	
-	// Strobe Technologies Ltd | 21/10/2014 | START - Update Time Settings Function
+	// Strobe Technologies Ltd | 14/03/2015 | START - Update Time Settings Function
+	// osTicket Version = v1.9.6
 	function updateTimeSettings($vars, &$errors) {
 
         if($errors) return false;
@@ -1124,9 +1131,9 @@ class OsticketConfig extends Config {
 			'isthreadtime'=>isset($vars['isthreadtime'])?1:0,
         ));
     }
-	// Strobe Technologies Ltd | 21/10/2014 | END - Update Time Settings Function
+	// Strobe Technologies Ltd | 14/03/2015 | END - Update Time Settings Function
 
-
+	
     function updateAlertsSettings($vars, &$errors) {
 
        if($vars['ticket_alert_active']
