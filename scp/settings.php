@@ -36,7 +36,8 @@ $settingOptions=array(
     'alerts' =>
         array(__('Alerts and Notices Settings'), 'settings.alerts'),
 );
-// Strobe Technologies Ltd | 21/10/2014 | Added Ticket Time settings options
+// Strobe Technologies Ltd | 14/03/2015 | Added Ticket Time settings options
+// osTicket Version = v1.9.6
 
 //Handle a POST.
 $target=($_REQUEST['t'] && $settingOptions[$_REQUEST['t']])?$_REQUEST['t']:'system';
