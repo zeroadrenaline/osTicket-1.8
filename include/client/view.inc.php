@@ -74,12 +74,15 @@ if ($thisclient && $thisclient->isGuest()
                    <td><?php echo $ticket->getPhoneNumber(); ?></td>
                </tr>
 			   <?php
+			   // Strobe Technologies Ltd | 14/03/2015 | START - Added Total Time Spent to ticket information
+			   // osTicket Version = v1.9.6
 			   if ($cfg->isClientTime()) { ?>
 			   <tr>
 					<th>Time Spent:</th>
-					<td><?php echo $ticket->getTimeSpent(); // Strobe Technologies Ltd | 20/10/2014 | Added Total Time Spent to ticket information ?></td>
+					<td><?php echo $ticket->getTimeSpent(); ?></td>
 				</tr>
-				<?PHP } ?>
+				<?PHP }
+				// Strobe Technologies Ltd | 14/03/2015 | START - Added Total Time Spent to ticket information ?>
             </table>
        </td>
     </tr>
@@ -129,7 +132,7 @@ if($ticket->getThreadCount() && ($thread=$ticket->getClientThread())) {
                 <span><?php echo $poster; ?></span>
             </div>
             </th></tr>
-            <tr><td class="thread-body"><div><?php echo $entry['body']->toHtml(); ?></div></td></tr>
+            <tr><td class="thread-body"><div><?php echo Format::clickableurls($entry['body']->toHtml()); ?></div></td></tr>
             <?php
             if($entry['attachments']
                     && ($tentry=$ticket->getThreadEntry($entry['id']))
