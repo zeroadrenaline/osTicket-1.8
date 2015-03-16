@@ -662,7 +662,7 @@ print $response_form->getField('attachments')->render();
                 </td>
             </tr>
 			<?php
-			// Strobe Technologies Ltd | 14/03/2015 | START - Add Time Spent fields to Reply tab
+			// Strobe Technologies Ltd | 16/03/2015 | START - Add Time Spent fields to Reply tab
 			// osTicket Version = v1.9.6
 			if ($cfg->isThreadTime()) {
 			if($ticket->isOpen()) { ?>
@@ -671,13 +671,26 @@ print $response_form->getField('attachments')->render();
                     <label><strong>Time Spent:</strong></label>
                 </td>
                 <td>
+					<table>
+						<tr>
+							<td>
                     <label for="current_time_spent"><strong>Current Time Spent:</strong></label>
                     <?php echo $ticket->getTimeSpent().' ('.$ticket->getRealTimeSpent().')<br />';
                     // show the current time spent (if any) ?>
                     <label for="time_spent"><strong>Time Spent:</strong></label>
                     <input type="text" name="time_spent" size="5"
                     value="<?php if(isset($_POST['time_spent'])) echo $_POST['time_spent'];?>" />
-                    <!--(0.75 = 45 minutes)-->(1 = 1 minute, 60 = 1 hour)
+                    (Minutes)
+							</td>
+							<td>
+								<p style="padding:0 165px;">
+									<input class="btn_sm" type="button" value="<?php echo __('Start Timer');?>" onclick="startButton()">
+									<input class="btn_sm" type="button" value="<?php echo __('Stop Timer');?>" onclick="stopButton()">
+									<input class="btn_sm" type="button" value="<?php echo __('Reset Timer');?>" onclick="resetButton()">
+								</p>
+							</td>
+						</tr>
+					</table>
                 </td>
             </tr>
             <tr>
@@ -781,7 +794,7 @@ print $note_form->getField('attachments')->render();
                 </td>
             </tr>
 			<?php
-			// Strobe Technologies Ltd | 14/03/2015 | START - Add Time Spent fields to Internal Note tab
+			// Strobe Technologies Ltd | 16/03/2015 | START - Add Time Spent fields to Internal Note tab
 			// osTicket Version = v1.9.6
 			if ($cfg->isThreadTime()) {
 			if($ticket->isOpen()) { ?>
@@ -790,13 +803,26 @@ print $note_form->getField('attachments')->render();
                     <label><strong>Time Spent:</strong></label>
                 </td>
                 <td>
+					<table>
+						<tr>
+							<td>
                     <label for="current_time_spent"><strong>Current Time Spent:</strong></label>
                     <?php echo $ticket->getTimeSpent().' ('.$ticket->getRealTimeSpent().')<br />';
                     // show the current time spent (if any) ?>
                     <label for="time_spent"><strong>Time Spent:</strong></label>
                     <input type="text" name="time_spent" size="5"
                     value="<?php if(isset($_POST['time_spent'])) echo $_POST['time_spent'];?>" />
-                    <!--(0.75 = 45 minutes)-->(1 = 1 minute, 60 = 1 hour)
+                    (Minutes)
+							</td>
+							<td>
+								<p style="padding:0 165px;">
+									<input class="btn_sm" type="button" value="<?php echo __('Start Timer');?>" onclick="startButton()">
+									<input class="btn_sm" type="button" value="<?php echo __('Stop Timer');?>" onclick="stopButton()">
+									<input class="btn_sm" type="button" value="<?php echo __('Reset Timer');?>" onclick="resetButton()">
+								</p>
+							</td>
+						</tr>
+					</table>
                 </td>
             </tr>
             <tr>
@@ -819,7 +845,7 @@ print $note_form->getField('attachments')->render();
                     </select>
                 </td>
             </tr>
-            <?php }} // Strobe Technologies Ltd | 14/03/2015 | END - Add Time Spent fields to Internal Note tab ?>
+            <?php }} // Strobe Technologies Ltd | 16/03/2015 | END - Add Time Spent fields to Internal Note tab ?>
         </table>
 
        <p  style="padding-left:165px;">
@@ -982,7 +1008,7 @@ print $note_form->getField('attachments')->render();
     </form>
     <?php
     } ?>
-	<!-- Strobe Technologies Ltd | 14/03/2015 | START - Add Time Tab Form -->
+	<!-- Strobe Technologies Ltd | 16/03/2015 | START - Add Time Tab Form -->
 	<!-- osTicket Version = v1.9.6 -->
 	<?php if ($cfg->isTicketTime()) { ?>
     <form id="time" action="tickets.php?id=<?php echo $ticket->getId(); ?>#time" name="time" method="post" enctype="multipart/form-data">
@@ -1001,7 +1027,7 @@ print $note_form->getField('attachments')->render();
 				<tr>
 					<td width="200px"><label for="time_spent"><strong>Time Spent:</strong></label></td>
 					<td><input type="text" name="time_spent" size="5" value="<?php if(isset($_POST['time_spent'])) echo $_POST['time_spent'];?>" />
-						<!--(0.75 = 45 minutes)-->(1 = 1 minute, 60 = 1 hour)
+						(Minutes)
 						<span class="error"><?php echo $errors['time_spent']; ?></span></td>
 				</tr>
 			</table>
@@ -1012,7 +1038,7 @@ print $note_form->getField('attachments')->render();
 		</table>
 	</form>
 	<?php } ?>
-	<!-- Strobe Technologies Ltd | 14/03/2015 | END - Add Time Tab Form -->
+	<!-- Strobe Technologies Ltd | 16/03/2015 | END - Add Time Tab Form -->
 </div>
 <div style="display:none;" class="dialog" id="print-options">
     <h3><?php echo __('Ticket Print Options');?></h3>
@@ -1129,6 +1155,7 @@ $(function() {
             }
         });
     });
+	
 <?php
     // Set the lock if one exists
     if ($lock) { ?>
@@ -1144,4 +1171,35 @@ $(function() {
 }();
 <?php } ?>
 });
+
+// Strobe Technologies Ltd | 16/03/2015 | START - Ticket Time Timer
+$('input[name=time_spent]').val(0);		// sets default value to 0 minutes
+var timer = null;						// timer store / var used for counting
+var timerOn = 0;						// var to store if the timer is on or off
+
+function setTime() {	// Counter system
+	$('input[name=time_spent]').each(function() {
+		$(this).val(parseInt($(this).val()) + 1);
+	});
+};
+
+function startButton() {
+	if (timerOn == 1) {
+		return;
+	} else {
+		timer = setInterval(setTime, 60000);
+	}
+};
+
+function stopButton() {
+	clearInterval(timer);
+	timerOn = 0;
+};
+
+function resetButton() {
+	clearInterval(timer);
+	timerOn = 0;
+	$('input[name=time_spent]').val(0);
+};
+// Strobe Technologies Ltd | 16/03/2015 | END - Ticket Time Timer
 </script>
