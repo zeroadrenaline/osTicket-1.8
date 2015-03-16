@@ -1,5 +1,5 @@
 <?php
-// Strobe Technologies Ltd | 21/10/2014 | Ticket Time Menu allowing you to enable and disable options / views
+// Strobe Technologies Ltd | 16/03/2015 | Ticket Time Menu allowing you to enable and disable options / views
 
 if(!defined('OSTADMININC') || !$thisstaff || !$thisstaff->isAdmin() || !$config) die('Access Denied');
 ?>
@@ -41,6 +41,15 @@ if(!defined('OSTADMININC') || !$thisstaff || !$thisstaff->isAdmin() || !$config)
                 <input type="checkbox" name="isthreadtime" value="1" <?php echo $config['isthreadtime']?'checked="checked"':''; ?> >
                 <?php echo __('Enable Adding Time to Tickets via Threads'); ?>
                 &nbsp;<font class="error">&nbsp;<?php echo $errors['isthreadtime']; ?></font>
+                <i class="help-tip icon-question-sign" href="#"></i>
+            </td>
+        </tr>
+		<tr>
+            <td width="180"><?php echo __('Thread Ticket Timer');?>:</td>
+            <td>
+                <input type="checkbox" name="isthreadtimer" value="1" <?php echo $config['isthreadtimer']?'checked="checked"':''; ?> >
+                <?php echo __('Enable Timer to Tickets Threads'); ?>
+                &nbsp;<font class="error">&nbsp;<?php echo $errors['isthreadtimer']; ?></font>
                 <i class="help-tip icon-question-sign" href="#"></i>
             </td>
         </tr>

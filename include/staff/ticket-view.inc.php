@@ -682,6 +682,7 @@ print $response_form->getField('attachments')->render();
                     value="<?php if(isset($_POST['time_spent'])) echo $_POST['time_spent'];?>" />
                     (Minutes)
 							</td>
+							<?php if ($cfg->isThreadTimer()) { ?>
 							<td>
 								<p style="padding:0 165px;">
 									<input class="btn_sm" type="button" value="<?php echo __('Start Timer');?>" onclick="startButton()">
@@ -689,6 +690,7 @@ print $response_form->getField('attachments')->render();
 									<input class="btn_sm" type="button" value="<?php echo __('Reset Timer');?>" onclick="resetButton()">
 								</p>
 							</td>
+							<?php } ?>
 						</tr>
 					</table>
                 </td>
@@ -814,6 +816,7 @@ print $note_form->getField('attachments')->render();
                     value="<?php if(isset($_POST['time_spent'])) echo $_POST['time_spent'];?>" />
                     (Minutes)
 							</td>
+							<?php if ($cfg->isThreadTimer()) { ?>
 							<td>
 								<p style="padding:0 165px;">
 									<input class="btn_sm" type="button" value="<?php echo __('Start Timer');?>" onclick="startButton()">
@@ -821,6 +824,7 @@ print $note_form->getField('attachments')->render();
 									<input class="btn_sm" type="button" value="<?php echo __('Reset Timer');?>" onclick="resetButton()">
 								</p>
 							</td>
+							<?php } ?>
 						</tr>
 					</table>
                 </td>
