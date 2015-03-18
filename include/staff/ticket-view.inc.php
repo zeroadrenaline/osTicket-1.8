@@ -482,7 +482,7 @@ $tcount+= $ticket->getNumNotes();
         <li><a id="assign_tab" href="#assign"><?php echo $ticket->isAssigned()?__('Reassign Ticket'):__('Assign Ticket'); ?></a></li>
         <?php
         } ?>
-		
+
 		<!-- Strobe Technologies Ltd  | 14/03/2015 | START - Add Time Tab to menu -->
 		<!-- osTicket Version = v1.9.6 -->
 		<?php if ($cfg->isTicketTime()) { ?>
@@ -671,9 +671,6 @@ print $response_form->getField('attachments')->render();
                     <label><strong>Time Spent:</strong></label>
                 </td>
                 <td>
-					<table>
-						<tr>
-							<td>
                     <label for="current_time_spent"><strong>Current Time Spent:</strong></label>
                     <?php echo $ticket->getTimeSpent().' ('.$ticket->getRealTimeSpent().')<br />';
                     // show the current time spent (if any) ?>
@@ -681,18 +678,11 @@ print $response_form->getField('attachments')->render();
                     <input type="text" name="time_spent" size="5"
                     value="<?php if(isset($_POST['time_spent'])) echo $_POST['time_spent'];?>" />
                     (Minutes)
-							</td>
-							<?php if ($cfg->isThreadTimer()) { ?>
-							<td>
-								<p style="padding:0 165px;">
-									<input class="btn_sm" type="button" value="<?php echo __('Start Timer');?>" onclick="startButton()">
-									<input class="btn_sm" type="button" value="<?php echo __('Stop Timer');?>" onclick="stopButton()">
-									<input class="btn_sm" type="button" value="<?php echo __('Reset Timer');?>" onclick="resetButton()">
-								</p>
-							</td>
-							<?php } ?>
-						</tr>
-					</table>
+					<?php if ($cfg->isThreadTimer()) { ?>
+					<i class="icon-play" title="Start / Resume timer"></i>
+					<i class="icon-pause" title="Pause timer"></i>
+					<i class="icon-undo" title="Reset timer to zero"></i>
+					<?php } ?>
                 </td>
             </tr>
             <tr>
@@ -704,7 +694,7 @@ print $response_form->getField('attachments')->render();
                     <?php
 					$criteria = "time-type";
 					$ttype_id = DynamicList::getTypes($criteria);
-					
+
 					$list = DynamicListItem::objects();
 					foreach ($list as $item) {
 						if($item->getListId() == $ttype_id) {?>
@@ -805,9 +795,6 @@ print $note_form->getField('attachments')->render();
                     <label><strong>Time Spent:</strong></label>
                 </td>
                 <td>
-					<table>
-						<tr>
-							<td>
                     <label for="current_time_spent"><strong>Current Time Spent:</strong></label>
                     <?php echo $ticket->getTimeSpent().' ('.$ticket->getRealTimeSpent().')<br />';
                     // show the current time spent (if any) ?>
@@ -815,18 +802,11 @@ print $note_form->getField('attachments')->render();
                     <input type="text" name="time_spent" size="5"
                     value="<?php if(isset($_POST['time_spent'])) echo $_POST['time_spent'];?>" />
                     (Minutes)
-							</td>
-							<?php if ($cfg->isThreadTimer()) { ?>
-							<td>
-								<p style="padding:0 165px;">
-									<input class="btn_sm" type="button" value="<?php echo __('Start Timer');?>" onclick="startButton()">
-									<input class="btn_sm" type="button" value="<?php echo __('Stop Timer');?>" onclick="stopButton()">
-									<input class="btn_sm" type="button" value="<?php echo __('Reset Timer');?>" onclick="resetButton()">
-								</p>
-							</td>
-							<?php } ?>
-						</tr>
-					</table>
+					<?php if ($cfg->isThreadTimer()) { ?>
+					<i class="icon-play" title="Start / Resume timer"></i>
+					<i class="icon-pause" title="Pause timer"></i>
+					<i class="icon-undo" title="Reset timer to zero"></i>
+					<?php } ?>
                 </td>
             </tr>
             <tr>
@@ -838,7 +818,7 @@ print $note_form->getField('attachments')->render();
                     <?php
 					$criteria = "time-type";
 					$ttype_id = DynamicList::getTypes($criteria);
-					
+
 					$list = DynamicListItem::objects();
 					foreach ($list as $item) {
 						if($item->getListId() == $ttype_id) {?>
@@ -1032,6 +1012,9 @@ print $note_form->getField('attachments')->render();
 					<td width="200px"><label for="time_spent"><strong>Time Spent:</strong></label></td>
 					<td><input type="text" name="time_spent" size="5" value="<?php if(isset($_POST['time_spent'])) echo $_POST['time_spent'];?>" />
 						(Minutes)
+					<i class="icon-play" title="Start / Resume timer"></i>
+					<i class="icon-pause" title="Pause timer"></i>
+					<i class="icon-undo" title="Reset timer to zero"></i>
 						<span class="error"><?php echo $errors['time_spent']; ?></span></td>
 				</tr>
 			</table>
@@ -1159,7 +1142,7 @@ $(function() {
             }
         });
     });
-	
+
 <?php
     // Set the lock if one exists
     if ($lock) { ?>
@@ -1178,32 +1161,37 @@ $(function() {
 
 // Strobe Technologies Ltd | 16/03/2015 | START - Ticket Time Timer
 $('input[name=time_spent]').val(0);		// sets default value to 0 minutes
-var timer = null;						// timer store / var used for counting
-var timerOn = 0;						// var to store if the timer is on or off
+$('i.icon-play').hide();
+var timerOn = true;						// var to store if the timer is on or off
 
-function setTime() {	// Counter system
-	$('input[name=time_spent]').each(function() {
-		$(this).val(parseInt($(this).val()) + 1);
-	});
-};
+setInterval(function() {
+    $('input[name=time_spent]').each(function() {
+        if (timerOn) $(this).val(parseInt($(this).val()) + 1);
+    });
+}, 60000);
 
-function startButton() {
-	if (timerOn == 1) {
-		return;
-	} else {
-		timer = setInterval(setTime, 60000);
-	}
-};
+$('i.icon-undo').click(function() {
+	$('input[name=time_spent]').val(0);		// sets default value to 0 minutes
+	return false;
+});
 
-function stopButton() {
-	clearInterval(timer);
-	timerOn = 0;
-};
-
-function resetButton() {
-	clearInterval(timer);
-	timerOn = 0;
-	$('input[name=time_spent]').val(0);
-};
+$('i.icon-play').click(function() {
+	timerOn = true;
+	$('i.icon-play').hide();
+	$('i.icon-pause').show();
+	return false;
+});
+$('i.icon-pause').click(function() {
+	timerOn = false;
+	$('i.icon-pause').hide();
+	$('i.icon-play').show();
+	return false;
+});
 // Strobe Technologies Ltd | 16/03/2015 | END - Ticket Time Timer
 </script>
+<style>
+	i.icon-undo, i.icon-play, i.icon-pause {
+		cursor: pointer;
+		margin-left: 5px;
+	}
+</style>
