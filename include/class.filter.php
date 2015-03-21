@@ -13,23 +13,22 @@
 
     vim: expandtab sw=4 ts=4 sts=4:
 **********************************************************************/
-
 class Filter {
 
     var $id;
     var $ht;
 
     static $match_types = array(
-        /* @trans */ 'User Information' => array(
-            array('name'      =>    /* @trans */ 'Name',
-                'email'     =>      /* @trans */ 'Email',
+        'User Information' => array(
+            array('name'      => 'Name',
+                'email'     => 'Email',
             ),
             900
         ),
-        /* @trans */ 'Email Meta-Data' => array(
-            array('reply-to'  =>    /* @trans */ 'Reply-To Email',
-                'reply-to-name' =>  /* @trans */ 'Reply-To Name',
-                'addressee' =>      /* @trans */ 'Addressee (To and Cc)',
+        'Email Meta-Data' => array(
+            array('reply-to'  => 'Reply-To Email',
+                'reply-to-name' => 'Reply-To Name',
+                'addressee' => 'Addressee (To and Cc)',
             ),
             200
         ),
@@ -108,10 +107,6 @@ class Filter {
         return $this->ht['dept_id'];
     }
 
-    function getStatusId() {
-        return $this->ht['status_id'];
-    }
-
     function getPriorityId() {
         return $this->ht['priority_id'];
     }
@@ -137,7 +132,7 @@ class Filter {
     }
 
     function stopOnMatch() {
-        return ($this->ht['stop_onmatch']);
+        return ($this->ht['stop_on_match']);
     }
 
     function matchAllRules() {
@@ -307,8 +302,6 @@ class Filter {
         if ($this->getPriorityId()) $ticket['priorityId']=$this->getPriorityId();
         #       Set SLA plan (?)
         if ($this->getSLAId())      $ticket['slaId']=$this->getSLAId();
-        #       Set status
-        if ($this->getStatusId())   $ticket['statusId']=$this->getStatusId();
         #       Auto-assign to (?)
         #       XXX: Unset the other (of staffId or teamId) (?)
         if ($this->getStaffId())    $ticket['staffId']=$this->getStaffId();
@@ -316,13 +309,9 @@ class Filter {
         #       Override name with reply-to information from the TicketFilter
         #       match
         if ($this->useReplyToEmail() && $info['reply-to']) {
-            $changed = $info['reply-to'] != $ticket['email']
-                || ($info['reply-to-name'] && $ticket['name'] != $info['reply-to-name']);
             $ticket['email'] = $info['reply-to'];
             if ($info['reply-to-name'])
                 $ticket['name'] = $info['reply-to-name'];
-            if ($changed)
-                throw new FilterDataChanged();
         }
 
         # Use canned response.
@@ -359,14 +348,14 @@ class Filter {
 
     /* static */ function getSupportedMatchTypes() {
         return array(
-            'equal'=>       __('Equal'),
-            'not_equal'=>   __('Not Equal'),
-            'contains'=>    __('Contains'),
-            'dn_contain'=>  __('Does Not Contain'),
-            'starts'=>      __('Starts With'),
-            'ends'=>        __('Ends With'),
-            'match'=>       __('Matches Regex'),
-            'not_match'=>   __('Does Not Match Regex'),
+            'equal'=>       'Equal',
+            'not_equal'=>   'Not Equal',
+            'contains'=>    'Contains',
+            'dn_contain'=>  'Does Not Contain',
+            'starts'=>      'Starts With',
+            'ends'=>        'Ends With',
+            'match'=>       'Matches Regex',
+            'not_match'=>   'Does Not Match Regex',
         );
     }
 
@@ -394,10 +383,10 @@ class Filter {
     /** static functions **/
     function getTargets() {
         return array(
-                'Any' => __('Any'),
-                'Web' => __('Web Forms'),
-                'API' => __('API Calls'),
-                'Email' => __('Emails'));
+                'Any' => 'Any',
+                'Web' => 'Web Forms',
+                'API' => 'API Calls',
+                'Email' => 'Emails');
     }
 
     function create($vars,&$errors) {
@@ -438,18 +427,18 @@ class Filter {
                 }
 
                 if(!$vars["rule_w$i"] || !in_array($vars["rule_w$i"],$matches))
-                    $errors["rule_$i"]=__('Invalid match selection');
+                    $errors["rule_$i"]='Invalid match selection';
                 elseif(!$vars["rule_h$i"] || !in_array($vars["rule_h$i"],$types))
-                    $errors["rule_$i"]=__('Invalid match type selection');
+                    $errors["rule_$i"]='Invalid match type selection';
                 elseif(!$vars["rule_v$i"])
-                    $errors["rule_$i"]=__('Value required');
+                    $errors["rule_$i"]='Value required';
                 elseif($vars["rule_w$i"]=='email'
                         && $vars["rule_h$i"]=='equal'
                         && !Validator::is_email($vars["rule_v$i"]))
-                    $errors["rule_$i"]=__('Valid email required for the match type');
+                    $errors["rule_$i"]='Valid email required for the match type';
                 elseif (in_array($vars["rule_h$i"], array('match','not_match'))
                         && (false === @preg_match($vars["rule_v$i"], ' ')))
-                    $errors["rule_$i"] = sprintf(__('Regex compile error: (#%s)'),
+                    $errors["rule_$i"] = sprintf('Regex compile error: (#%s)',
                         preg_last_error());
 
 
@@ -457,7 +446,7 @@ class Filter {
                     $rules[]=array('what'=>$vars["rule_w$i"],
                         'how'=>$vars["rule_h$i"],'val'=>$vars["rule_v$i"]);
             }elseif($vars["rule_v$i"]) {
-                $errors["rule_$i"]=__('Incomplete selection');
+                $errors["rule_$i"]='Incomplete selection';
             }
         }
 
@@ -465,7 +454,7 @@ class Filter {
             # XXX: Validation bypass
             $rules = $vars["rules"];
         elseif(!$rules && !$errors)
-            $errors['rules']=__('You must set at least one rule.');
+            $errors['rules']='You must set at least one rule.';
 
         if($errors) return false;
 
@@ -485,24 +474,25 @@ class Filter {
 
     function save($id,$vars,&$errors) {
 
+
         if(!$vars['execorder'])
-            $errors['execorder'] = __('Order required');
+            $errors['execorder'] = 'Order required';
         elseif(!is_numeric($vars['execorder']))
-            $errors['execorder'] = __('Must be numeric value');
+            $errors['execorder'] = 'Must be numeric value';
 
         if(!$vars['name'])
-            $errors['name'] = __('Name required');
+            $errors['name'] = 'Name required';
         elseif(($sid=self::getIdByName($vars['name'])) && $sid!=$id)
-            $errors['name'] = __('Name already in use');
+            $errors['name'] = 'Name already in use';
 
         if(!$errors && !self::validate_rules($vars,$errors) && !$errors['rules'])
-            $errors['rules'] = __('Unable to validate rules as entered');
+            $errors['rules'] = 'Unable to validate rules as entered';
 
         $targets = self::getTargets();
         if(!$vars['target'])
-            $errors['target'] = __('Target required');
+            $errors['target'] = 'Target required';
         else if(!is_numeric($vars['target']) && !$targets[$vars['target']])
-            $errors['target'] = __('Unknown or invalid target');
+            $errors['target'] = 'Unknown or invalid target';
 
         if($errors) return false;
 
@@ -519,7 +509,6 @@ class Filter {
             .',execorder='.db_input($vars['execorder'])
             .',email_id='.db_input($emailId)
             .',dept_id='.db_input($vars['dept_id'])
-            .',status_id='.db_input($vars['status_id'])
             .',priority_id='.db_input($vars['priority_id'])
             .',sla_id='.db_input($vars['sla_id'])
             .',topic_id='.db_input($vars['topic_id'])
@@ -543,13 +532,11 @@ class Filter {
         if($id) {
             $sql='UPDATE '.FILTER_TABLE.' SET '.$sql.' WHERE id='.db_input($id);
             if(!db_query($sql))
-                $errors['err']=sprintf(__('Unable to update %s.'), __('this ticket filter'))
-                   .' '.__('Internal error occurred');
+                $errors['err']='Unable to update the filter. Internal error occurred';
         }else{
             $sql='INSERT INTO '.FILTER_TABLE.' SET '.$sql.',created=NOW() ';
             if(!db_query($sql) || !($id=db_insert_id()))
-                $errors['err']=sprintf(__('Unable to add %s.'), __('this ticket filter'))
-                   .' '.__('Internal error occurred');
+                $errors['err']='Unable to add filter. Internal error';
         }
 
         if($errors || !$id) return false;
@@ -647,8 +634,9 @@ class FilterRule {
     }
 
     /* static private */ function save($id,$vars,&$errors) {
+
         if(!$vars['filter_id'])
-            $errors['err']=__('Parent filter ID required');
+            $errors['err']='Parent filter ID required';
 
 
         if($errors) return false;
@@ -742,7 +730,7 @@ class TicketFilter {
         $res = $this->getAllActive();
         if($res) {
             while (list($id) = db_fetch_row($res))
-                $this->filters[] = new Filter($id);
+                array_push($this->filters, new Filter($id));
         }
 
         return $this->filters;
@@ -769,24 +757,35 @@ class TicketFilter {
         return $this->short_list;
     }
     /**
+     * Determine if the filters that match the received vars indicate that
+     * the email should be rejected
+     *
+     * Returns FALSE if the email should be acceptable. If the email should
+     * be rejected, the first filter that matches and has reject ticket set is
+     * returned.
+     */
+    function shouldReject() {
+        foreach ($this->getMatchingFilterList() as $filter) {
+            # Set reject if this filter indicates that the email should
+            # be blocked; however, don't unset $reject, because if it
+            # was set by another rule that did not set stopOnMatch(), we
+            # should still honor its configuration
+            if ($filter->rejectOnMatch()) return $filter;
+        }
+        return false;
+    }
+    /**
      * Determine if any filters match the received email, and if so, apply
      * actions defined in those filters to the ticket-to-be-created.
-     *
-     * Throws:
-     * RejectedException if the email should not be acceptable. If the email
-     * should be rejected, the first filter that matches and has reject
-     * ticket set is returned.
      */
     function apply(&$ticket) {
         foreach ($this->getMatchingFilterList() as $filter) {
-            if ($filter->rejectOnMatch())
-                throw new RejectedException($filter, $ticket);
             $filter->apply($ticket, $this->vars);
             if ($filter->stopOnMatch()) break;
         }
     }
 
-    function getAllActive() {
+    /* static */ function getAllActive() {
 
         $sql='SELECT id FROM '.FILTER_TABLE
             .' WHERE isactive=1 '
@@ -941,27 +940,6 @@ class TicketFilter {
         return $sources[strtolower($origin)];
     }
 }
-
-class RejectedException extends Exception {
-    var $filter;
-    var $vars;
-
-    function __construct(Filter $filter, $vars) {
-        parent::__construct('Ticket rejected by a filter');
-        $this->filter = $filter;
-        $this->vars = $vars;
-    }
-
-    function getRejectingFilter() {
-        return $this->filter;
-    }
-
-    function get($what) {
-        return $this->vars[$what];
-    }
-}
-
-class FilterDataChanged extends Exception {}
 
 /**
  * Function: endsWith

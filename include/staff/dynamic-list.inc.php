@@ -1,37 +1,35 @@
 <?php
 
 $info=array();
-if ($list) {
-    $title = __('Update custom list');
+if($list && !$errors) {
+    $title = 'Update custom list';
     $action = 'update';
-    $submit_text = __('Save Changes');
-    $info = $list->getInfo();
+    $submit_text='Save Changes';
+    $info = $list->ht;
     $newcount=2;
 } else {
-    $title = __('Add New Custom List');
+    $title = 'Add new custom list';
     $action = 'add';
-    $submit_text = __('Add List');
+    $submit_text='Add List';
     $newcount=4;
 }
-
-$info=Format::htmlchars(($errors && $_POST) ? array_merge($info,$_POST) : $info);
+$info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
 
 ?>
-<form action="" method="post" id="save">
+<form action="?" method="post" id="save">
     <?php csrf_token(); ?>
     <input type="hidden" name="do" value="<?php echo $action; ?>">
     <input type="hidden" name="a" value="<?php echo Format::htmlchars($_REQUEST['a']); ?>">
     <input type="hidden" name="id" value="<?php echo $info['id']; ?>">
-    <h2><?php echo __('Custom List'); ?>
-    <?php echo $list ? $list->getName() : 'Add new list'; ?></h2>
+    <h2>Custom List</h2>
 
 <ul class="tabs">
     <li><a href="#definition" class="active">
-        <i class="icon-plus"></i> <?php echo __('Definition'); ?></a></li>
+        <i class="icon-plus"></i> Definition</a></li>
     <li><a href="#items">
-        <i class="icon-list"></i> <?php echo __('Items'); ?></a></li>
+        <i class="icon-list"></i> Items</a></li>
     <li><a href="#properties">
-        <i class="icon-asterisk"></i> <?php echo __('Properties'); ?></a></li>
+        <i class="icon-asterisk"></i> Properties</a></li>
 </ul>
 
 <div id="definition" class="tab_content">
@@ -40,47 +38,24 @@ $info=Format::htmlchars(($errors && $_POST) ? array_merge($info,$_POST) : $info)
         <tr>
             <th colspan="2">
                 <h4><?php echo $title; ?></h4>
-                <em><?php echo __(
-                'Custom lists are used to provide drop-down lists for custom forms.'
-                ); ?>&nbsp;<i class="help-tip icon-question-sign" href="#custom_lists"></i></em>
+                <em>Custom lists are used to provide drop-down lists for custom forms. &nbsp;<i class="help-tip icon-question-sign" href="#custom_lists"></i></em>
             </th>
         </tr>
     </thead>
     <tbody>
         <tr>
-            <td width="180" class="required"><?php echo __('Name'); ?>:</td>
-            <td>
-                <?php
-                if ($list && !$list->isEditable())
-                    echo $list->getName();
-                else {
-                    echo sprintf('<input size="50" type="text" name="name"
-                            value="%s"/> <span
-                            class="error">*<br/>%s</span>',
-                            $info['name'], $errors['name']);
-                }
-                ?>
-            </td>
+            <td width="180" class="required">Name:</td>
+            <td><input size="50" type="text" name="name" value="<?php echo $info['name']; ?>"/>
+            <span class="error">*<br/><?php echo $errors['name']; ?></td>
         </tr>
         <tr>
-            <td width="180"><?php echo __('Plural Name'); ?>:</td>
-            <td>
-                <?php
-                    if ($list && !$list->isEditable())
-                        echo $list->getPluralName();
-                    else
-                        echo sprintf('<input size="50" type="text"
-                                name="name_plural" value="%s"/>',
-                                $info['name_plural']);
-                ?>
-            </td>
+            <td width="180">Plural Name:</td>
+            <td><input size="50" type="text" name="name_plural" value="<?php echo $info['name_plural']; ?>"/></td>
         </tr>
         <tr>
-            <td width="180"><?php echo __('Sort Order'); ?>:</td>
+            <td width="180">Sort Order:</td>
             <td><select name="sort_mode">
-                <?php
-                $sortModes = $list ? $list->getSortModes() : DynamicList::getSortModes();
-                foreach ($sortModes as $key=>$desc) { ?>
+                <?php foreach (DynamicList::getSortModes() as $key=>$desc) { ?>
                 <option value="<?php echo $key; ?>" <?php
                     if ($key == $info['sort_mode']) echo 'selected="selected"';
                     ?>><?php echo $desc; ?></option>
@@ -91,8 +66,7 @@ $info=Format::htmlchars(($errors && $_POST) ? array_merge($info,$_POST) : $info)
     <tbody>
         <tr>
             <th colspan="7">
-                <em><strong><?php echo __('Internal Notes'); ?>:</strong>
-                <?php echo __("be liberal, they're internal"); ?></em>
+                <em><strong>Internal Notes:</strong> be liberal, they're internal</em>
             </th>
         </tr>
         <tr>
@@ -109,20 +83,19 @@ $info=Format::htmlchars(($errors && $_POST) ? array_merge($info,$_POST) : $info)
     <thead>
         <tr>
             <th colspan="7">
-                <em><strong><?php echo __('Item Properties'); ?></strong>
-                <?php echo __('properties definable for each item'); ?></em>
+                <em><strong>Item Properties</strong> properties definable for each item</em>
             </th>
         </tr>
         <tr>
-            <th nowrap></th>
-            <th nowrap><?php echo __('Label'); ?></th>
-            <th nowrap><?php echo __('Type'); ?></th>
-            <th nowrap><?php echo __('Variable'); ?></th>
-            <th nowrap><?php echo __('Delete'); ?></th>
+            <th nowrap>Sort</th>
+            <th nowrap>Label</th>
+            <th nowrap>Type</th>
+            <th nowrap>Variable</th>
+            <th nowrap>Delete</th>
         </tr>
     </thead>
     <tbody class="sortable-rows" data-sort="prop-sort-">
-    <?php if ($list && $form=$list->getForm()) foreach ($form->getDynamicFields() as $f) {
+    <?php if ($form) foreach ($form->getDynamicFields() as $f) {
         $id = $f->get('id');
         $deletable = !$f->isDeletable() ? 'disabled="disabled"' : '';
         $force_name = $f->isNameForced() ? 'disabled="disabled"' : '';
@@ -135,26 +108,31 @@ $info=Format::htmlchars(($errors && $_POST) ? array_merge($info,$_POST) : $info)
                 <font class="error"><?php
                     if ($ferrors['label']) echo '<br/>'; echo $ferrors['label']; ?>
             </td>
-            <td nowrap><select style="max-width:150px" name="type-<?php echo $id; ?>" <?php
-                if (!$fi->isChangeable() || !$f->isChangeable()) echo 'disabled="disabled"'; ?>>
+            <td nowrap><select name="type-<?php echo $id; ?>" <?php
+                if (!$fi->isChangeable()) echo 'disabled="disabled"'; ?>>
                 <?php foreach (FormField::allTypes() as $group=>$types) {
-                        ?><optgroup label="<?php echo Format::htmlchars(__($group)); ?>"><?php
+                        ?><optgroup label="<?php echo Format::htmlchars($group); ?>"><?php
                         foreach ($types as $type=>$nfo) {
                             if ($f->get('type') != $type
                                     && isset($nfo[2]) && !$nfo[2]) continue; ?>
                 <option value="<?php echo $type; ?>" <?php
                     if ($f->get('type') == $type) echo 'selected="selected"'; ?>>
-                    <?php echo __($nfo[0]); ?></option>
+                    <?php echo $nfo[0]; ?></option>
                     <?php } ?>
                 </optgroup>
                 <?php } ?>
             </select>
             <?php if ($f->isConfigurable()) { ?>
-                <a class="action-button field-config"
-                    style="overflow:inherit"
-                    href="#form/field-config/<?php
-                        echo $f->get('id'); ?>"><i
-                        class="icon-cog"></i> <?php echo __('Config'); ?></a> <?php } ?></td>
+                <a class="action-button" style="float:none;overflow:inherit"
+                    href="#ajax.php/form/field-config/<?php
+                        echo $f->get('id'); ?>"
+                    onclick="javascript:
+                        $('#overlay').show();
+                        $('#field-config .body').load($(this).attr('href').substr(1));
+                        $('#field-config').show();
+                        return false;
+                    "><i class="icon-edit"></i> Config</a>
+            <?php } ?></td>
             <td>
                 <input type="text" size="20" name="name-<?php echo $id; ?>"
                     value="<?php echo Format::htmlchars($f->get('name'));
@@ -163,13 +141,8 @@ $info=Format::htmlchars(($errors && $_POST) ? array_merge($info,$_POST) : $info)
                     if ($ferrors['name']) echo '<br/>'; echo $ferrors['name'];
                 ?></font>
                 </td>
-            <td>
-                <?php
-                if (!$f->isDeletable())
-                    echo '<i class="icon-ban-circle"></i>';
-                else
-                    echo sprintf('<input type="checkbox" name="delete-prop-%s">', $id);
-                ?>
+            <td><input type="checkbox" name="delete-<?php echo $id; ?>"
+                    <?php echo $deletable; ?>/>
                 <input type="hidden" name="prop-sort-<?php echo $id; ?>"
                     value="<?php echo $f->get('sort'); ?>"/>
                 </td>
@@ -182,14 +155,14 @@ $info=Format::htmlchars(($errors && $_POST) ? array_merge($info,$_POST) : $info)
                     value="<?php echo $info["prop-sort-new-$i"]; ?>"/></td>
             <td><input type="text" size="32" name="prop-label-new-<?php echo $i; ?>"
                 value="<?php echo $info["prop-label-new-$i"]; ?>"/></td>
-            <td><select style="max-width:150px" name="type-new-<?php echo $i; ?>">
+            <td><select name="type-new-<?php echo $i; ?>">
                 <?php foreach (FormField::allTypes() as $group=>$types) {
-                    ?><optgroup label="<?php echo Format::htmlchars(__($group)); ?>"><?php
+                    ?><optgroup label="<?php echo Format::htmlchars($group); ?>"><?php
                     foreach ($types as $type=>$nfo) {
                         if (isset($nfo[2]) && !$nfo[2]) continue; ?>
                 <option value="<?php echo $type; ?>"
                     <?php if ($info["type-new-$i"] == $type) echo 'selected="selected"'; ?>>
-                    <?php echo __($nfo[0]); ?>
+                    <?php echo $nfo[0]; ?>
                 </option>
                     <?php } ?>
                 </optgroup>
@@ -211,13 +184,13 @@ $info=Format::htmlchars(($errors && $_POST) ? array_merge($info,$_POST) : $info)
     <thead>
     <?php if ($list) {
         $page = ($_GET['p'] && is_numeric($_GET['p'])) ? $_GET['p'] : 1;
-        $count = $list->getNumItems();
+        $count = $list->getItemCount();
         $pageNav = new Pagenate($count, $page, PAGE_LIMIT);
-        $pageNav->setURL('list.php', array('id' => $list->getId()));
-        $showing=$pageNav->showing().' '.__('list items');
+        $pageNav->setURL('dynamic-list.php', 'id='.urlencode($_REQUEST['id']));
+        $showing=$pageNav->showing().' list items';
         ?>
     <?php }
-        else $showing = __('Add a few initial items to the list');
+        else $showing = 'Add a few initial items to the list';
     ?>
         <tr>
             <th colspan="5">
@@ -226,123 +199,68 @@ $info=Format::htmlchars(($errors && $_POST) ? array_merge($info,$_POST) : $info)
         </tr>
         <tr>
             <th></th>
-            <th><?php echo __('Value'); ?></th>
-            <?php
-            if (!$list || $list->hasAbbrev()) { ?>
-            <th><?php echo __(/* Short for 'abbreviation' */ 'Abbrev'); ?> <em style="display:inline">&mdash;
-                <?php echo __('abbreviations and such'); ?></em></th>
-            <?php
-            } ?>
-            <th><?php echo __('Disabled'); ?></th>
-            <th><?php echo __('Delete'); ?></th>
+            <th>Value</th>
+            <th>Extra <em style="display:inline">&mdash; abbreviations and such</em></th>
+            <th>Disabled</th>
+            <th>Delete</th>
         </tr>
     </thead>
 
     <tbody <?php if ($info['sort_mode'] == 'SortCol') { ?>
             class="sortable-rows" data-sort="sort-"<?php } ?>>
-        <?php
+        <?php if ($list)
+        $icon = ($info['sort_mode'] == 'SortCol')
+            ? '<i class="icon-sort"></i>&nbsp;' : '';
         if ($list) {
-            $icon = ($info['sort_mode'] == 'SortCol')
-                ? '<i class="icon-sort"></i>&nbsp;' : '';
         foreach ($list->getAllItems() as $i) {
-            $id = $i->getId(); ?>
+            $id = $i->get('id'); ?>
         <tr class="<?php if (!$i->isEnabled()) echo 'disabled'; ?>">
             <td><?php echo $icon; ?>
                 <input type="hidden" name="sort-<?php echo $id; ?>"
-                value="<?php echo $i->getSortOrder(); ?>"/></td>
+                value="<?php echo $i->get('sort'); ?>"/></td>
             <td><input type="text" size="40" name="value-<?php echo $id; ?>"
-                value="<?php echo $i->getValue(); ?>"/>
-                <?php if ($list->hasProperties()) { ?>
-                   <a class="action-button field-config"
-                       style="overflow:inherit"
-                       href="#list/<?php
-                        echo $list->getId(); ?>/item/<?php
-                        echo $id ?>/properties"
-                       id="item-<?php echo $id; ?>"
-                    ><?php
-                        echo sprintf('<i class="icon-edit" %s></i> ',
-                                $i->getConfiguration()
-                                ? '': 'style="color:red; font-weight:bold;"');
-                        echo __('Properties');
-                   ?></a>
-                <?php
-                }
-
-                if ($errors["value-$id"])
-                    echo sprintf('<br><span class="error">%s</span>',
-                            $errors["value-$id"]);
-                ?>
-            </td>
-            <?php
-            if ($list->hasAbbrev()) { ?>
-            <td><input type="text" size="30" name="abbrev-<?php echo $id; ?>"
-                value="<?php echo $i->getAbbrev(); ?>"/></td>
-            <?php
-            } ?>
+                value="<?php echo $i->get('value'); ?>"/>
+                <?php if ($form && $form->getFields()) { ?>
+                <a class="action-button" style="float:none;overflow:inherit"
+                    href="#ajax.php/list/item/<?php
+                        echo $i->get('id'); ?>/properties"
+                    onclick="javascript:
+                        $('#overlay').show();
+                        $('#field-config .body').load($(this).attr('href').substr(1));
+                        $('#field-config').show();
+                        return false;
+                    "><i class="icon-edit"></i> Properties</a>
+                <?php } ?></td>
+            <td><input type="text" size="30" name="extra-<?php echo $id; ?>"
+                value="<?php echo $i->get('extra'); ?>"/></td>
             <td>
-                <?php
-                if (!$i->isDisableable())
-                     echo '<i class="icon-ban-circle"></i>';
-                else
-                    echo sprintf('<input type="checkbox" name="disable-%s"
-                            %s %s />',
-                            $id,
-                            !$i->isEnabled() ? ' checked="checked" ' : '',
-                            (!$i->isEnabled() && !$i->isEnableable()) ? ' disabled="disabled" ' : ''
-                            );
-                ?>
-            </td>
+                <input type="checkbox" name="disable-<?php echo $id; ?>" <?php
+                if (!$i->isEnabled()) echo 'checked="checked"'; ?>/></td>
             <td>
-                <?php
-                if (!$i->isDeletable())
-                    echo '<i class="icon-ban-circle"></i>';
-                else
-                    echo sprintf('<input type="checkbox" name="delete-item-%s">', $id);
-
-                ?>
-            </td>
+                <input type="checkbox" name="delete-<?php echo $id; ?>"/></td>
         </tr>
     <?php }
     }
-
-    if (!$list || $list->allowAdd()) {
-       for ($i=0; $i<$newcount; $i++) { ?>
+    for ($i=0; $i<$newcount; $i++) { ?>
         <tr>
             <td><?php echo $icon; ?> <em>+</em>
                 <input type="hidden" name="sort-new-<?php echo $i; ?>"/></td>
             <td><input type="text" size="40" name="value-new-<?php echo $i; ?>"/></td>
-            <?php
-            if (!$list || $list->hasAbbrev()) { ?>
-            <td><input type="text" size="30" name="abbrev-new-<?php echo $i; ?>"/></td>
-            <?php
-            } ?>
-            <td>&nbsp;</td>
-            <td>&nbsp;</td>
+            <td><input type="text" size="30" name="extra-new-<?php echo $i; ?>"/></td>
+            <td></td>
+            <td></td>
         </tr>
-    <?php
-       }
-    }?>
+    <?php } ?>
     </tbody>
     </table>
 </div>
 <p class="centered">
     <input type="submit" name="submit" value="<?php echo $submit_text; ?>">
-    <input type="reset"  name="reset"  value="<?php echo __('Reset'); ?>">
-    <input type="button" name="cancel" value="<?php echo __('Cancel'); ?>"
-        onclick='window.location.href="?"'>
+    <input type="reset"  name="reset"  value="Reset">
+    <input type="button" name="cancel" value="Cancel" onclick='window.location.href="?"'>
 </p>
 </form>
 
-<script type="text/javascript">
-$(function() {
-    $('a.field-config').click( function(e) {
-        e.preventDefault();
-        var $id = $(this).attr('id');
-        var url = 'ajax.php/'+$(this).attr('href').substr(1);
-        $.dialog(url, [201], function (xhr) {
-            $('a#'+$id+' i').removeAttr('style');
-        });
-        return false;
-    });
-});
-</script>
+<div style="display:none;" class="dialog draggable" id="field-config">
+    <div class="body"></div>
+</div>

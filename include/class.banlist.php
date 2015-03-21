@@ -15,6 +15,7 @@
 **********************************************************************/
 
 require_once "class.filter.php";
+
 class Banlist {
     
     function add($email,$submitter='') {
@@ -51,7 +52,7 @@ class Banlist {
             'match_all_rules' => false,
             'reject_ticket'  => true,
             'rules'         => array(),
-            'notes'         => __('Internal list for email banning. Do not remove')
+            'notes'         => 'Internal list for email banning. Do not remove'
         ), $errors);
     }
 

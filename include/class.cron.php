@@ -98,14 +98,11 @@ class Cron {
         self::MailFetcher();
         self::TicketMonitor();
         self::PurgeLogs();
-        // Run file purging about every 10 cron runs
-        if (mt_rand(1, 9) == 4)
-            self::CleanOrphanedFiles();
+        self::CleanOrphanedFiles();
         self::PurgeDrafts();
         self::MaybeOptimizeTables();
 
-        $data = array('autocron'=>false);
-        Signal::send('cron', $data);
+        Signal::send('cron', null);
     }
 }
 ?>

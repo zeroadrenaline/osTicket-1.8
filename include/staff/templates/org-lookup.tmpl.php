@@ -1,11 +1,11 @@
 <?php
 
 if (!$info['title'])
-    $info['title'] = __('Organization Lookup');
+    $info['title'] = 'Organization Lookup';
 
-$msg_info = __('Search existing organizations or add a new one.');
+$msg_info = 'Search existing organizations or add a new one.';
 if ($info['search'] === false)
-    $msg_info = __('Complete the form below to add a new organization.');
+    $msg_info = 'Complete the form below to add a new organization.';
 
 ?>
 <div id="the-lookup-form">
@@ -34,8 +34,7 @@ if ($info['error']) {
     <input type="hidden" id="org-id" name="orgid" value="<?php echo $org ? $org->getId() : 0; ?>"/>
     <i class="icon-group icon-4x pull-left icon-border"></i>
     <a class="action-button pull-right" style="overflow:inherit"
-        id="unselect-org"  href="#"><i class="icon-remove"></i>
-        <?php echo __('Add New Organization'); ?></a>
+        id="unselect-org"  href="#"><i class="icon-remove"></i> Add New Organization</a>
     <div><strong id="org-name"><?php echo $org ?  Format::htmlchars($org->getName()) : ''; ?></strong></div>
 <?php if ($org) { ?>
     <table style="margin-top: 1em;">
@@ -55,11 +54,11 @@ if ($info['error']) {
 <div class="clear"></div>
 <hr>
 <p class="full-width">
-    <span class="buttons pull-left">
-        <input type="button" name="cancel" class="close"  value="<?php echo __('Cancel'); ?>">
+    <span class="buttons" style="float:left">
+        <input type="button" name="cancel" class="close"  value="Cancel">
     </span>
-    <span class="buttons pull-right">
-        <input type="submit" value="<?php echo __('Continue'); ?>">
+    <span class="buttons" style="float:right">
+        <input type="submit" value="Continue">
     </span>
  </p>
 </form>
@@ -69,17 +68,16 @@ if ($info['error']) {
     <table width="100%" class="fixed">
     <?php
         if (!$form) $form = OrganizationForm::getInstance();
-        $form->render(true, __('Create New Organization')); ?>
+        $form->render(true, 'Create New Organization'); ?>
     </table>
     <hr>
     <p class="full-width">
-        <span class="buttons pull-left">
-            <input type="reset" value="<?php echo __('Reset'); ?>">
-            <input type="button" name="cancel" class="<?php echo $org ? 'cancel' : 'close' ?>"
-                value="<?php echo __('Cancel'); ?>">
+        <span class="buttons" style="float:left">
+            <input type="reset" value="Reset">
+            <input type="button" name="cancel" class="<?php echo $org ? 'cancel' : 'close' ?>"  value="Cancel">
         </span>
-        <span class="buttons pull-right">
-            <input type="submit" value="<?php echo __('Add Organization'); ?>">
+        <span class="buttons" style="float:right">
+            <input type="submit" value="Add Organization">
         </span>
      </p>
 </form>

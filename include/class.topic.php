@@ -14,8 +14,6 @@
     vim: expandtab sw=4 ts=4 sts=4:
 **********************************************************************/
 
-require_once INCLUDE_DIR . 'class.sequence.php';
-
 class Topic {
     var $id;
 
@@ -28,8 +26,6 @@ class Topic {
     const DISPLAY_DISABLED = 2;
 
     const FORM_USE_PARENT = 4294967295;
-
-    const FLAG_CUSTOM_NUMBERS = 0x0001;
 
     function Topic($id) {
         $this->id=0;
@@ -110,10 +106,6 @@ class Topic {
         return $this->ht['priority_id'];
     }
 
-    function getStatusId() {
-        return $this->ht['status_id'];
-    }
-
     function getStaffId() {
         return $this->ht['staff_id'];
     }
@@ -191,28 +183,7 @@ class Topic {
     }
 
     function getInfo() {
-        $base = $this->getHashtable();
-        $base['custom-numbers'] = $this->hasFlag(self::FLAG_CUSTOM_NUMBERS);
-        return $base;
-    }
-
-    function hasFlag($flag) {
-        return $this->ht['flags'] & $flag != 0;
-    }
-
-    function getNewTicketNumber() {
-        global $cfg;
-
-        if (!$this->hasFlag(self::FLAG_CUSTOM_NUMBERS))
-            return $cfg->getNewTicketNumber();
-
-        if ($this->ht['sequence_id'])
-            $sequence = Sequence::lookup($this->ht['sequence_id']);
-        if (!$sequence)
-            $sequence = new RandomSequence();
-
-        return $sequence->next($this->ht['number_format'] ?: '######',
-            array('Ticket', 'isTicketNumberUnique'));
+        return $this->getHashtable();
     }
 
     function setSortOrder($i) {
@@ -256,7 +227,7 @@ class Topic {
 
     static function getHelpTopics($publicOnly=false, $disabled=false) {
         global $cfg;
-        static $topics, $names = array();
+        static $topics, $names;
 
         if (!$names) {
             $sql = 'SELECT topic_id, topic_pid, ispublic, isactive, topic FROM '.TOPIC_TABLE
@@ -297,7 +268,7 @@ class Topic {
             if (!$disabled && $info['disabled'])
                 continue;
             if ($disabled === self::DISPLAY_DISABLED && $info['disabled'])
-                $n .= " &mdash; ".__("(disabled)");
+                $n .= " &mdash; (disabled)";
             $requested_names[$id] = $n;
         }
 
@@ -333,21 +304,17 @@ class Topic {
         $vars['topic']=Format::striptags(trim($vars['topic']));
 
         if($id && $id!=$vars['id'])
-            $errors['err']=__('Internal error occurred');
+            $errors['err']='Internal error. Try again';
 
         if(!$vars['topic'])
-            $errors['topic']=__('Help topic name is required');
+            $errors['topic']='Help topic required';
         elseif(strlen($vars['topic'])<5)
-            $errors['topic']=__('Topic is too short. Five characters minimum');
+            $errors['topic']='Topic is too short. 5 chars minimum';
         elseif(($tid=self::getIdByName($vars['topic'], $vars['topic_pid'])) && $tid!=$id)
-            $errors['topic']=__('Topic already exists');
+            $errors['topic']='Topic already exists';
 
         if (!is_numeric($vars['dept_id']))
-            $errors['dept_id']=__('Department selection is required');
-
-        if ($vars['custom-numbers'] && !preg_match('`(?!<\\\)#`', $vars['number_format']))
-            $errors['number_format'] =
-                'Ticket number format requires at least one hash character (#)';
+            $errors['dept_id']='You must select a department';
 
         if($errors) return false;
 
@@ -360,15 +327,11 @@ class Topic {
             .',topic_pid='.db_input($vars['topic_pid'])
             .',dept_id='.db_input($vars['dept_id'])
             .',priority_id='.db_input($vars['priority_id'])
-            .',status_id='.db_input($vars['status_id'])
             .',sla_id='.db_input($vars['sla_id'])
             .',form_id='.db_input($vars['form_id'])
             .',page_id='.db_input($vars['page_id'])
             .',isactive='.db_input($vars['isactive'])
             .',ispublic='.db_input($vars['ispublic'])
-            .',sequence_id='.db_input($vars['custom-numbers'] ? $vars['sequence_id'] : 0)
-            .',number_format='.db_input($vars['custom-numbers'] ? $vars['number_format'] : '')
-            .',flags='.db_input($vars['custom-numbers'] ? self::FLAG_CUSTOM_NUMBERS : 0)
             .',noautoresp='.db_input(isset($vars['noautoresp']) && $vars['noautoresp']?1:0)
             .',notes='.db_input(Format::sanitize($vars['notes']));
 
@@ -384,8 +347,7 @@ class Topic {
         if ($id) {
             $sql='UPDATE '.TOPIC_TABLE.' SET '.$sql.' WHERE topic_id='.db_input($id);
             if (!($rv = db_query($sql)))
-                $errors['err']=sprintf(__('Unable to update %s.'), __('this help topic'))
-                .' '.__('Internal error occurred');
+                $errors['err']='Unable to update topic. Internal error occurred';
         } else {
             if (isset($vars['topic_id']))
                 $sql .= ', topic_id='.db_input($vars['topic_id']);
@@ -401,8 +363,7 @@ class Topic {
             if (db_query($sql) && ($id = db_insert_id()))
                 $rv = $id;
             else
-                $errors['err']=sprintf(__('Unable to create %s.'), __('this help topic'))
-               .' '.__('Internal error occurred');
+                $errors['err']='Unable to create the topic. Internal error';
         }
         if (!$cfg || $cfg->getTopicSortMode() == 'a') {
             static::updateSortOrder();
@@ -421,9 +382,6 @@ class Topic {
         foreach ($update as $idx=>&$id) {
             $id = sprintf("(%s,%s)", db_input($id), db_input($idx+1));
         }
-        if (!count($update))
-            return;
-
         // Thanks, http://stackoverflow.com/a/3466
         $sql = sprintf('INSERT INTO `%s` (topic_id,`sort`) VALUES %s
             ON DUPLICATE KEY UPDATE `sort`=VALUES(`sort`)',
@@ -433,4 +391,4 @@ class Topic {
 }
 
 // Add fields from the standard ticket form to the ticket filterable fields
-Filter::addSupportedMatches(/* @trans */ 'Help Topic', array('topicId' => 'Topic ID'), 100);
+Filter::addSupportedMatches('Help Topic', array('topicId' => 'Topic ID'), 100);

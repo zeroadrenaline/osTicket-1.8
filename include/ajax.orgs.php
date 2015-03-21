@@ -57,7 +57,7 @@ class OrgsAjaxAPI extends AjaxController {
             Http::response(404, 'Unknown organization');
 
         $info = array(
-            'title' => sprintf(__('Update %s'), $org->getName())
+            'title' => sprintf('Update %s', $org->getName())
         );
 
         $forms = $org->getForms();
@@ -119,7 +119,7 @@ class OrgsAjaxAPI extends AjaxController {
             Http::response(404, 'Unknown organization');
 
         $info = array();
-        $info['title'] = __('Add User');
+        $info['title'] = 'Add User';
         $info['action'] = '#orgs/'.$org->getId().'/add-user';
         $info['onselect'] = 'ajax.php/orgs/'.$org->getId().'/add-user/';
 
@@ -130,20 +130,20 @@ class OrgsAjaxAPI extends AjaxController {
         if ($_POST) {
             if ($_POST['id']) { //Existing useer
                 if (!($user = User::lookup($_POST['id'])))
-                    $info['error'] = __('Unknown user selected');
+                    $info['error'] = 'Unknown user selected';
                 elseif ($user->getOrgId() == $org->getId())
                     $info['error'] = sprintf('%s already belongs to the organization',
                             Format::htmlchars($user->getName()));
             } else { //Creating new  user
                 $form = UserForm::getUserForm()->getForm($_POST);
                 if (!($user = User::fromForm($form)))
-                    $info['error'] = __('Error adding user - try again!');
+                    $info['error'] = 'Error adding user - try again!';
             }
 
             if (!$info['error'] && $user && $user->setOrganization($org))
                 Http::response(201, $user->to_json());
             elseif (!$info['error'])
-                $info['error'] = __('Unable to add user to the organization - try again');
+                $info['error'] = 'Unable to add user to the organization - try again';
 
         } elseif ($remote && $userId) {
             list($bk, $userId) = explode(':', $userId, 2);
@@ -157,9 +157,9 @@ class OrgsAjaxAPI extends AjaxController {
 
         if ($user && $user->getOrgId()) {
             if ($user->getOrgId() == $org->getId())
-                $info['warn'] = __('User already belongs to this organization!');
+                $info['warn'] = 'User already belongs to this organization!';
             else
-                $info['warn'] = __("Are you sure you want to change the user's organization?");
+                $info['warn'] = "Are you sure you want to change the user's organization?";
         }
 
         ob_start();
@@ -178,14 +178,13 @@ class OrgsAjaxAPI extends AjaxController {
             Http::response(404, 'No such organization');
 
         $info = array(
-            'title' => __('Import Users'),
+            'title' => 'Import Users',
             'action' => "#orgs/$org_id/import-users",
             'upload_url' => "orgs.php?a=import-users",
         );
 
         if ($_POST) {
-            $status = User::importFromPost($_POST['pasted'],
-                array('org_id'=>$org_id));
+            $status = User::importFromPost($_POST['pasted']);
             if (is_string($status))
                 $info['error'] = $status;
             else
@@ -205,10 +204,10 @@ class OrgsAjaxAPI extends AjaxController {
             if (($org = Organization::fromForm($form)))
                 Http::response(201, $org->to_json());
 
-            $info = array('error' =>__('Error adding organization - try again!'));
+            $info = array('error' =>'Error adding organization - try again!');
         }
 
-        $info['title'] = __('Add New Organization');
+        $info['title'] = 'Add New Organization';
         $info['search'] = false;
 
         return self::_lookupform($form, $info);
@@ -222,7 +221,7 @@ class OrgsAjaxAPI extends AjaxController {
 
         if ($id) $org = Organization::lookup($id);
 
-        $info = array('title' => __('Select Organization'));
+        $info = array('title' => 'Select Organization');
 
         ob_start();
         include(STAFFINC_DIR . 'templates/org-lookup.tmpl.php');
@@ -244,7 +243,7 @@ class OrgsAjaxAPI extends AjaxController {
     static function _lookupform($form=null, $info=array()) {
 
         if (!$info or !$info['title'])
-            $info += array('title' => __('Organization Lookup'));
+            $info += array('title' => 'Organization Lookup');
 
         ob_start();
         include(STAFFINC_DIR . 'templates/org-lookup.tmpl.php');

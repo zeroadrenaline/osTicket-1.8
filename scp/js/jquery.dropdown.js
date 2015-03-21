@@ -36,8 +36,7 @@ if(jQuery) (function($) {
 
 		var trigger = $(this),
 			dropdown = $( $(this).attr('data-dropdown') ),
-			isOpen = trigger.hasClass('dropdown-open'),
-            rtl = $('html').hasClass('rtl');
+			isOpen = trigger.hasClass('dropdown-open');
 
 		event.preventDefault();
 		event.stopPropagation();
@@ -45,9 +44,6 @@ if(jQuery) (function($) {
 		hideDropdowns();
 
 		if( isOpen || trigger.hasClass('dropdown-disabled') ) return;
-
-        if (rtl && dropdown.hasClass('anchor-right'))
-            dropdown.removeClass('anchor-right');
 
 		dropdown.css({
 				left: dropdown.hasClass('anchor-right') ?

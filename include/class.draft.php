@@ -33,9 +33,7 @@ class Draft {
         if (preg_match_all('/"cid:([\\w.-]{32})"/', $body, $matches)) {
             foreach ($matches[1] as $hash) {
                 if ($file_id = AttachmentFile::getIdByHash($hash))
-                    $attachments[] = array(
-                            'id' => $file_id,
-                            'inline' => true);
+                    $attachments[] = $file_id;
             }
         }
         return $attachments;
@@ -61,7 +59,7 @@ class Draft {
     }
 
     function setBody($body) {
-        // Change file.php urls back to content-id's
+        // Change image.php urls back to content-id's
         $body = Format::sanitize($body, false);
         $this->ht['body'] = $body;
 

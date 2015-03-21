@@ -1,7 +1,7 @@
 <?php
 if(!defined('OSTSCPINC') || !$thisstaff) die('Access Denied');
 
-$qs = array();
+$qstr='';
 
 $select = 'SELECT user.*, email.address as email, org.name as organization
           , account.id as account_id, account.status as account_status ';
@@ -29,12 +29,11 @@ if ($_REQUEST['query']) {
                     OR value.value LIKE \'%'.$search.'%\'
                 )';
 
-    $qs += array('query' => $_REQUEST['query']);
+    $qstr.='&query='.urlencode($_REQUEST['query']);
 }
 
 $sortOptions = array('name' => 'user.name',
                      'email' => 'email.address',
-                     'status' => 'account_status',
                      'create' => 'user.created',
                      'update' => 'user.updated');
 $orderWays = array('DESC'=>'DESC','ASC'=>'ASC');
@@ -59,10 +58,9 @@ $order_by="$order_column $order ";
 $total=db_count('SELECT count(DISTINCT user.id) '.$from.' '.$where);
 $page=($_GET['p'] && is_numeric($_GET['p']))?$_GET['p']:1;
 $pageNav=new Pagenate($total,$page,PAGE_LIMIT);
-$qstr = '&amp;'. Http::build_query($qs);
-$qs += array('sort' => $_REQUEST['sort'], 'order' => $_REQUEST['order']);
-$pageNav->setURL('users.php', $qs);
-$qstr.='&amp;order='.($order=='DESC' ? 'ASC' : 'DESC');
+$pageNav->setURL('users.php',$qstr.'&sort='.urlencode($_REQUEST['sort']).'&order='.urlencode($_REQUEST['order']));
+//Ok..lets roll...create the actual query
+$qstr.='&order='.($order=='DESC'?'ASC':'DESC');
 
 $select .= ', count(DISTINCT ticket.ticket_id) as tickets ';
 
@@ -75,8 +73,8 @@ $qhash = md5($query);
 $_SESSION['users_qs_'.$qhash] = $query;
 
 ?>
-<h2><?php echo __('User Directory'); ?></h2>
-<div class="pull-left" style="width:700px;">
+<h2>User Directory</h2>
+<div style="width:700px; float:left;">
     <form action="users.php" method="get">
         <?php csrf_token(); ?>
         <input type="hidden" name="a" value="search">
@@ -84,26 +82,25 @@ $_SESSION['users_qs_'.$qhash] = $query;
             <tr>
                 <td><input type="text" id="basic-user-search" name="query" size=30 value="<?php echo Format::htmlchars($_REQUEST['query']); ?>"
                 autocomplete="off" autocorrect="off" autocapitalize="off"></td>
-                <td><input type="submit" name="basic_search" class="button" value="<?php echo __('Search'); ?>"></td>
+                <td><input type="submit" name="basic_search" class="button" value="Search"></td>
                 <!-- <td>&nbsp;&nbsp;<a href="" id="advanced-user-search">[advanced]</a></td> -->
             </tr>
         </table>
     </form>
  </div>
- <div class="pull-right flush-right" style="padding-right:5px;">
-    <b><a href="#users/add" class="Icon newstaff popup-dialog"><?php echo __('Add User'); ?></a></b>
+ <div style="float:right;text-align:right;padding-right:5px;">
+    <b><a href="#users/add" class="Icon newstaff popup-dialog">Add User</a></b>
     |
-    <b><a href="#users/import" class="popup-dialog"><i class="icon-cloud-upload icon-large"></i>
-    <?php echo __('Import'); ?></a></b>
+    <b><a href="#users/import" class="popup-dialog"><i class="icon-cloud-upload icon-large"></i> Import</a></b>
 </div>
 <div class="clear"></div>
 <?php
-$showing = $search ? __('Search Results').': ' : '';
+$showing = $search ? 'Search Results: ' : '';
 $res = db_query($query);
 if($res && ($num=db_num_rows($res)))
     $showing .= $pageNav->showing();
 else
-    $showing .= __('No users found!');
+    $showing .= 'No users found!';
 ?>
 <form action="users.php" method="POST" name="staff" >
  <?php csrf_token(); ?>
@@ -113,14 +110,10 @@ else
     <caption><?php echo $showing; ?></caption>
     <thead>
         <tr>
-            <th width="350"><a <?php echo $name_sort; ?> href="users.php?<?php
-                echo $qstr; ?>&sort=name"><?php echo __('Name'); ?></a></th>
-            <th width="250"><a  <?php echo $status_sort; ?> href="users.php?<?php
-                echo $qstr; ?>&sort=status"><?php echo __('Status'); ?></a></th>
-            <th width="100"><a <?php echo $create_sort; ?> href="users.php?<?php
-                echo $qstr; ?>&sort=create"><?php echo __('Created'); ?></a></th>
-            <th width="145"><a <?php echo $update_sort; ?> href="users.php?<?php
-                echo $qstr; ?>&sort=update"><?php echo __('Updated'); ?></a></th>
+            <th width="350"><a <?php echo $name_sort; ?> href="users.php?<?php echo $qstr; ?>&sort=name">Name</a></th>
+            <th width="250"><a  <?php echo $status_sort; ?> href="users.php?<?php echo $qstr; ?>&sort=status">Status</a></th>
+            <th width="100"><a <?php echo $create_sort; ?> href="users.php?<?php echo $qstr; ?>&sort=create">Created</a></th>
+            <th width="145"><a <?php echo $update_sort; ?> href="users.php?<?php echo $qstr; ?>&sort=update">Updated</a></th>
         </tr>
     </thead>
     <tbody>
@@ -138,7 +131,7 @@ else
                 if ($row['account_id'])
                     $status = new UserAccountStatus($row['account_status']);
                 else
-                    $status = __('Guest');
+                    $status = 'Guest';
 
                 $sel=false;
                 if($ids && in_array($row['id'], $ids))
@@ -166,8 +159,8 @@ else
 </table>
 <?php
 if($res && $num): //Show options..
-    echo sprintf('<div>&nbsp;'.__('Page').': %s &nbsp; <a class="no-pjax"
-            href="users.php?a=export&qh=%s">'.__('Export').'</a></div>',
+    echo sprintf('<div>&nbsp;Page: %s &nbsp; <a class="no-pjax"
+            href="users.php?a=export&qh=%s">Export</a></div>',
             $pageNav->getPageLinks(),
             $qhash);
 endif;

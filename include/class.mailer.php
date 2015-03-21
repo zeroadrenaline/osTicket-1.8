@@ -155,13 +155,6 @@ class Mailer {
             }
         }
 
-        // Use Mail_mime default initially
-        $eol = null;
-
-        // MAIL_EOL setting can be defined in `ost-config.php`
-        if (defined('MAIL_EOL') && is_string(MAIL_EOL)) {
-            $eol = MAIL_EOL;
-        }
         // The Suhosin patch will muck up the line endings in some
         // cases
         //
@@ -169,12 +162,12 @@ class Mailer {
         // https://github.com/osTicket/osTicket-1.8/issues/202
         // http://pear.php.net/bugs/bug.php?id=12032
         // http://us2.php.net/manual/en/function.mail.php#97680
-        elseif ((extension_loaded('suhosin') || defined("SUHOSIN_PATCH"))
-            && !$this->getSMTPInfo()
-        ) {
-            $eol = "\n";
-        }
-        $mime = new Mail_mime($eol);
+        if ((extension_loaded('suhosin') || defined("SUHOSIN_PATCH"))
+                && !$this->getSMTPInfo())
+            $mime = new Mail_mime("\n");
+        else
+            // Use defaults
+            $mime = new Mail_mime();
 
         // If the message is not explicitly declared to be a text message,
         // then assume that it needs html processing to create a valid text
@@ -183,12 +176,10 @@ class Mailer {
         $mid_token = (isset($options['thread']))
             ? $options['thread']->asMessageId($to) : '';
         if (!(isset($options['text']) && $options['text'])) {
-            $tag = '';
-            if ($cfg && $cfg->stripQuotedReply()
+            if ($cfg && $cfg->stripQuotedReply() && ($tag=$cfg->getReplySeparator())
                     && (!isset($options['reply-tag']) || $options['reply-tag']))
-                $tag = $cfg->getReplySeparator() . '<br/><br/>';
-            $message = "<div style=\"display:none\"
-                data-mid=\"$mid_token\">$tag</div>$message";
+                $message = "<div style=\"display:none\"
+                    data-mid=\"$mid_token\">$tag<br/><br/></div>$message";
             $txtbody = rtrim(Format::html2text($message, 90, false))
                 . ($mid_token ? "\nRef-Mid: $mid_token\n" : '');
             $mime->setTXTBody($txtbody);
@@ -279,7 +270,7 @@ class Mailer {
             // Force reconnect on next ->send()
             unset($smtp_connections[$key]);
 
-            $alert=sprintf(__("Unable to email via SMTP:%1\$s:%2\$d [%3\$s]\n\n%4\$s\n"),
+            $alert=sprintf("Unable to email via SMTP:%s:%d [%s]\n\n%s\n",
                     $smtp['host'], $smtp['port'], $smtp['username'], $result->getMessage());
             $this->logError($alert);
         }
@@ -293,7 +284,7 @@ class Mailer {
     function logError($error) {
         global $ost;
         //NOTE: Admin alert override - don't email when having email trouble!
-        $ost->logError(__('Mailer Error'), $error, false);
+        $ost->logError('Mailer Error', $error, false);
     }
 
     /******* Static functions ************/

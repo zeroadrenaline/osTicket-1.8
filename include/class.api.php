@@ -122,7 +122,7 @@ class API {
     function save($id, $vars, &$errors) {
 
         if(!$id && (!$vars['ipaddr'] || !Validator::is_ip($vars['ipaddr'])))
-            $errors['ipaddr'] = __('Valid IP is required');
+            $errors['ipaddr'] = 'Valid IP required';
 
         if($errors) return false;
 
@@ -137,8 +137,7 @@ class API {
             if(db_query($sql))
                 return true;
 
-            $errors['err']=sprintf(__('Unable to update %s.'), __('this API key'))
-               .' '.__('Internal error occurred');
+            $errors['err']='Unable to update API key. Internal error occurred';
 
         } else {
             $sql='INSERT INTO '.API_KEY_TABLE.' SET '.$sql
@@ -149,8 +148,7 @@ class API {
             if(db_query($sql) && ($id=db_insert_id()))
                 return $id;
 
-            $errors['err']=sprintf(__('Unable to add %s. Correct error(s) below and try again.'),
-                __('this API key'));
+            $errors['err']='Unable to add API key. Try again!';
         }
 
         return false;
@@ -173,9 +171,9 @@ class ApiController {
         # header
 
         if(!($key=$this->getApiKey()))
-            return $this->exerr(401, __('Valid API key required'));
+            return $this->exerr(401, 'Valid API key required');
         elseif (!$key->isActive() || $key->getIPAddr()!=$_SERVER['REMOTE_ADDR'])
-            return $this->exerr(401, __('API key not found/active or source IP not authorized'));
+            return $this->exerr(401, 'API key not found/active or source IP not authorized');
 
         return $key;
     }
@@ -199,13 +197,13 @@ class ApiController {
         $input = $ost->is_cli()?'php://stdin':'php://input';
 
         if (!($stream = @fopen($input, 'r')))
-            $this->exerr(400, __("Unable to read request body"));
+            $this->exerr(400, "Unable to read request body");
 
         $parser = null;
         switch(strtolower($format)) {
             case 'xml':
                 if (!function_exists('xml_parser_create'))
-                    $this->exerr(501, __('XML extension not supported'));
+                    $this->exerr(501, 'XML extension not supported');
 
                 $parser = new ApiXmlDataParser();
                 break;
@@ -216,7 +214,7 @@ class ApiController {
                 $parser = new ApiEmailDataParser();
                 break;
             default:
-                $this->exerr(415, __('Unsupported data format'));
+                $this->exerr(415, 'Unsupported data format');
         }
 
         if (!($data = $parser->parse($stream)))
@@ -247,7 +245,7 @@ class ApiController {
         global $ost;
 
         foreach ($data as $key=>$info) {
-            if (is_array($structure) && (is_array($info) || $info instanceof ArrayAccess)) {
+            if (is_array($structure) and is_array($info)) {
                 $search = (isset($structure[$key]) && !is_numeric($key)) ? $key : "*";
                 if (isset($structure[$search])) {
                     $this->validateRequestStructure($info, $structure[$search], "$prefix$key/", $strict);
@@ -257,10 +255,10 @@ class ApiController {
                 continue;
             }
             if ($strict)
-                return $this->exerr(400, sprintf(__("%s: Unexpected data received in API request"), "$prefix$key"));
+                return $this->exerr(400, "$prefix$key: Unexpected data received");
             else
-                $ost->logWarning(__('API Unexpected Data'),
-                    sprintf(__("%s: Unexpected data received in API request"), "$prefix$key"),
+                $ost->logWarning('API Unexpected Data',
+                    "$prefix$key: Unexpected data received in API request",
                     false);
         }
 
@@ -295,7 +293,7 @@ class ApiController {
         $msg = $error;
         if($_SERVER['HTTP_X_API_KEY'])
             $msg.="\n*[".$_SERVER['HTTP_X_API_KEY']."]*\n";
-        $ost->logWarning(__('API Error')." ($code)", $msg, false);
+        $ost->logWarning("API Error ($code)", $msg, false);
 
         $this->response($code, $error); //Responder should exit...
         return false;
@@ -321,8 +319,8 @@ class ApiXmlDataParser extends XmlDataParser {
     function fixup($current) {
         global $cfg;
 
-		if($current['ticket'])
-			$current = $current['ticket'];
+        if($current['ticket'])
+            $current = $current['ticket'];
 
         if (!is_array($current))
             return $current;
@@ -330,9 +328,9 @@ class ApiXmlDataParser extends XmlDataParser {
             if ($key == "phone" && is_array($value)) {
                 $value = $value[":text"];
             } else if ($key == "alert") {
-                $value = (bool) (strtolower($value) === 'false' ? false : $value);
+                $value = (bool)$value;
             } else if ($key == "autorespond") {
-                $value = (bool) (strtolower($value) === 'false' ? false : $value);
+                $value = (bool)$value;
             } else if ($key == "message") {
                 if (!is_array($value)) {
                     $value = array(
