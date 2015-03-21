@@ -67,6 +67,8 @@ class DraftAjaxAPI extends AjaxController {
     }
 
     function _uploadInlineImage($draft) {
+        global $cfg;
+
         if (!isset($_POST['data']) && !isset($_FILES['file']))
             Http::response(422, "File not included properly");
 
@@ -76,9 +78,26 @@ class DraftAjaxAPI extends AjaxController {
                 $_FILES['image'][$k] = array($v);
             unset($_FILES['file']);
 
-            $file = AttachmentFile::format($_FILES['image'], true);
+            $file = AttachmentFile::format($_FILES['image']);
             # TODO: Detect unacceptable attachment extension
             # TODO: Verify content-type and check file-content to ensure image
+            $type = $file[0]['type'];
+            if (strpos($file[0]['type'], 'image/') !== 0)
+                return Http::response(403,
+                    JsonDataEncoder::encode(array(
+                        'error' => 'File type is not allowed',
+                    ))
+                );
+
+            # TODO: Verify file size is acceptable
+            if ($file[0]['size'] > $cfg->getMaxFileSize())
+                return Http::response(403,
+                    JsonDataEncoder::encode(array(
+                        'error' => 'File is too large',
+                    ))
+                );
+
+
             if (!($ids = $draft->attachments->upload($file))) {
                 if ($file[0]['error']) {
                     return Http::response(403,
@@ -110,7 +129,7 @@ class DraftAjaxAPI extends AjaxController {
 
         echo JsonDataEncoder::encode(array(
             'content_id' => 'cid:'.$f->getKey(),
-            'filelink' => sprintf('image.php?h=%s', $f->getDownloadHash())
+            'filelink' => $f->getDownloadUrl(false, 'inline'),
         ));
     }
 
@@ -165,6 +184,23 @@ class DraftAjaxAPI extends AjaxController {
         }
 
         return self::_updateDraft($draft);
+    }
+
+    function deleteDraftClient($id) {
+        global $thisclient;
+
+        if (!($draft = Draft::lookup($id)))
+            Http::response(205, "Draft not found. Create one first");
+        elseif ($thisclient) {
+            if ($draft->getStaffId() != $thisclient->getId())
+                Http::response(404, "Draft not found");
+        }
+        else {
+            if (substr(session_id(), -12) != substr($draft->getNamespace(), -12))
+                Http::response(404, "Draft not found");
+        }
+
+        $draft->delete();
     }
 
     function uploadInlineImageClient($id) {
@@ -265,15 +301,15 @@ class DraftAjaxAPI extends AjaxController {
 
         $files = array();
         $folders = array(
-            'C' => 'Canned Responses',
-            'F' => 'FAQ Articles',
-            'T' => 'Email Templates',
-            'L' => 'Logos',
-            'P' => 'Pages',
+            'C' => __('Canned Responses'),
+            'F' => __('FAQ Articles'),
+            'T' => __('Email Templates'),
+            'L' => __('Logos'),
+            'P' => __('Pages'),
         );
         while (list($id, $type) = db_fetch_row($res)) {
             $f = AttachmentFile::lookup($id);
-            $url = 'image.php?h='.$f->getDownloadHash();
+            $url = $f->getDownloadUrl();
             $files[] = array(
                 'thumb'=>$url.'&s=128',
                 'image'=>$url,

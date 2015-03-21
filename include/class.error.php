@@ -24,16 +24,17 @@ class Error extends Exception {
     function __construct($message) {
         global $ost;
 
-        $message = str_replace(ROOT_DIR, '(root)/', $message);
+        parent::__construct(__($message));
+        $message = str_replace(ROOT_DIR, '(root)/', _S($message));
 
-        if ($ost->getConfig()->getLogLevel() == 3)
+        if ($ost && $ost->getConfig()->getLogLevel() == 3)
             $message .= "\n\n" . $this->getBacktrace();
 
         $ost->logError($this->getTitle(), $message, static::$sendAlert);
     }
 
     function getTitle() {
-        return get_class($this) . ': ' . static::$title;
+        return get_class($this) . ': ' . _S(static::$title);
     }
 
     function getBacktrace() {

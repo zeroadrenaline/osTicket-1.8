@@ -97,23 +97,14 @@ class AttachmentFile {
         return $this->ht['key'];
     }
 
-    function getSignature() {
+    function getSignature($cascade=false) {
         $sig = $this->ht['signature'];
-        if (!$sig) return $this->getKey();
+        if (!$sig && $cascade) return $this->getKey();
         return $sig;
     }
 
     function lastModified() {
         return $this->ht['created'];
-    }
-
-    /**
-     * Retrieve a signature that can be sent to scp/file.php?h= in order to
-     * download this file
-     */
-    function getDownloadHash() {
-        return strtolower($this->getKey()
-            . md5($this->getId().session_id().strtolower($this->getKey())));
     }
 
     function open() {
@@ -162,7 +153,7 @@ class AttachmentFile {
     }
 
     function makeCacheable($ttl=86400) {
-        Http::cacheable($this->getSignature(), $this->lastModified(), $ttl);
+        Http::cacheable($this->getSignature(true), $this->lastModified(), $ttl);
     }
 
     function display($scale=false) {
@@ -196,13 +187,70 @@ class AttachmentFile {
         exit();
     }
 
-    function download() {
+    function getDownloadUrl($minage=false, $disposition=false, $handler=false) {
+        // XXX: Drop this when AttachmentFile goes to ORM
+        return static::generateDownloadUrl($this->getId(),
+            strtolower($this->getKey()), $this->getSignature(), $minage,
+            $disposition, $handler);
+    }
+
+    static function generateDownloadUrl($id, $key, $hash, $minage=false,
+        $disposition=false, $handler=false
+    ) {
+        // Expire at the nearest midnight, allowing at least 12 hours access
+        $minage = $minage ?: 43200;
+        $gmnow = Misc::gmtime() + $minage;
+        $expires = $gmnow + 86400 - ($gmnow % 86400);
+
+        // Generate a signature based on secret content
+        $signature = static::_genUrlSignature($id, $key, $hash, $expires);
+
+        $handler = $handler ?: ROOT_PATH . 'file.php';
+
+        // Return sanitized query string
+        $args = array(
+            'key' => $key,
+            'expires' => $expires,
+            'signature' => $signature,
+        );
+
+        if ($disposition)
+            $args['disposition'] = $disposition;
+
+        return $handler . '?' . http_build_query($args);
+    }
+
+    function verifySignature($signature, $expires) {
+        $gmnow = Misc::gmtime();
+        if ($expires < $gmnow)
+            return false;
+
+        $check = static::_genUrlSignature($this->getId(), $this->getKey(),
+            $this->getSignature(), $expires);
+        return $signature == $check;
+    }
+
+    static function _genUrlSignature($id, $key, $signature, $expires) {
+        $pieces = array(
+            'Host='.$_SERVER['HTTP_HOST'],
+            'Path='.ROOT_PATH,
+            'Id='.$id,
+            'Key='.strtolower($key),
+            'Hash='.$signature,
+            'Expires='.$expires,
+        );
+        return hash_hmac('sha1', implode("\n", $pieces), SECRET_SALT);
+    }
+
+    function download($disposition=false, $expires=false) {
+        $disposition = $disposition ?: 'inline';
         $bk = $this->open();
-        if ($bk->sendRedirectUrl('inline'))
+        if ($bk->sendRedirectUrl($disposition))
             return;
-        $this->makeCacheable();
+        $ttl = ($expires) ? $expires - Misc::gmtime() : false;
+        $this->makeCacheable($ttl);
         Http::download($this->getName(), $this->getType() ?: 'application/octet-stream',
-            null, 'inline');
+            null, $disposition);
         header('Content-Length: '.$this->getSize());
         $this->sendData(false);
         exit();
@@ -282,7 +330,7 @@ class AttachmentFile {
                 break;
             default:
                 // TODO: Return an error
-                $error = 'Invalid image file type';
+                $error = __('Invalid image file type');
                 return false;
         }
 
@@ -291,7 +339,7 @@ class AttachmentFile {
         if ($source_aspect_ratio >= $aspect_ratio)
             return self::upload($file, 'L');
 
-        $error = 'Image is too square. Upload a wider image';
+        $error = __('Image is too square. Upload a wider image');
         return false;
     }
 
@@ -309,7 +357,7 @@ class AttachmentFile {
                 $file['key'] = $key;
         }
 
-        if (isset($file['size'])) {
+        if (isset($file['size']) && $file['size'] > 0) {
             // Check and see if the file is already on record
             $sql = 'SELECT id, `key` FROM '.FILE_TABLE
                 .' WHERE signature='.db_input($file['signature'])
@@ -317,7 +365,7 @@ class AttachmentFile {
 
             // If the record exists in the database already, a file with the
             // same hash and size is already on file -- just return its ID
-            if (list($id, $key) = db_fetch_row(db_query($sql))) {
+            if (list($id, $key) = db_fetch_row(db_query($sql, false))) {
                 $file['key'] = $key;
                 return $id;
             }
@@ -327,7 +375,7 @@ class AttachmentFile {
             return false;
         }
 
-        if (!$file['type']) {
+        if (!$file['type'] && extension_loaded('fileinfo')) {
             $finfo = new finfo(FILEINFO_MIME_TYPE);
             if ($file['data'])
                 $type = $finfo->buffer($file['data']);
@@ -336,9 +384,9 @@ class AttachmentFile {
 
             if ($type)
                 $file['type'] = $type;
-            else
-                $file['type'] = 'application/octet-stream';
         }
+        if (!$file['type'])
+            $file['type'] = 'application/octet-stream';
 
         $sql='INSERT INTO '.FILE_TABLE.' SET created=NOW() '
             .',type='.db_input(strtolower($file['type']))
@@ -530,9 +578,8 @@ class AttachmentFile {
 
     /*
       Method formats http based $_FILE uploads - plus basic validation.
-      @restrict - make sure file type & size are allowed.
      */
-    function format($files, $restrict=false) {
+    function format($files) {
         global $ost;
 
         if(!$files || !is_array($files))
@@ -558,16 +605,6 @@ class AttachmentFile {
                 $file['error'] = 'File upload error #'.$file['error'];
             elseif(!$file['tmp_name'] || !is_uploaded_file($file['tmp_name']))
                 $file['error'] = 'Invalid or bad upload POST';
-            elseif($restrict) { // make sure file type & size are allowed.
-                if(!$ost->isFileTypeAllowed($file))
-                    $file['error'] = 'Invalid file type for '.Format::htmlchars($file['name']);
-                elseif($ost->getConfig()->getMaxFileSize()
-                        && $file['size']>$ost->getConfig()->getMaxFileSize())
-                    $file['error'] = sprintf('File %s (%s) is too big. Maximum of %s allowed',
-                            Format::htmlchars($file['name']),
-                            Format::file_size($file['size']),
-                            Format::file_size($ost->getConfig()->getMaxFileSize()));
-            }
         }
         unset($file);
 
@@ -587,7 +624,7 @@ class AttachmentFile {
                 .'SELECT file_id FROM '.TICKET_ATTACHMENT_TABLE
                 .' UNION '
                 .'SELECT file_id FROM '.ATTACHMENT_TABLE
-            .") AND `ft` = 'T'";
+            .") AND `ft` = 'T' AND TIMESTAMPDIFF(DAY, `created`, CURRENT_TIMESTAMP) > 1";
 
         if (!($res = db_query($sql)))
             return false;
