@@ -14,8 +14,7 @@
 
     vim: expandtab sw=4 ts=4 sts=4:
 **********************************************************************/
-require_once INCLUDE_DIR . 'class.orm.php';
-require_once INCLUDE_DIR . 'class.util.php';
+require_once(INCLUDE_DIR . 'class.orm.php');
 
 class UserEmailModel extends VerySimpleModel {
     static $meta = array(
@@ -27,10 +26,6 @@ class UserEmailModel extends VerySimpleModel {
             )
         )
     );
-
-    function __toString() {
-        return $this->address;
-    }
 }
 
 class TicketModel extends VerySimpleModel {
@@ -40,9 +35,6 @@ class TicketModel extends VerySimpleModel {
         'joins' => array(
             'user' => array(
                 'constraint' => array('user_id' => 'UserModel.id')
-            ),
-            'status' => array(
-                'constraint' => array('status_id' => 'TicketStatus.id')
             )
         )
     );
@@ -194,23 +186,19 @@ class User extends UserModel {
     }
 
     static function fromForm($form) {
-        global $thisstaff;
 
         if(!$form) return null;
 
         //Validate the form
         $valid = true;
-        $filter = function($f) use ($thisstaff) {
-            return !isset($thisstaff) || $f->isRequiredForStaff();
-        };
-        if (!$form->isValid($filter))
+        if (!$form->isValid())
             $valid  = false;
 
         //Make sure the email is not in-use
         if (($field=$form->getField('email'))
                 && $field->getClean()
                 && User::lookup(array('emails__address'=>$field->getClean()))) {
-            $field->addError(__('Email is assigned to another user'));
+            $field->addError('Email is assigned to another user');
             $valid = false;
         }
 
@@ -266,10 +254,6 @@ class User extends UserModel {
         return JsonDataEncoder::encode($info);
     }
 
-    function __toString() {
-        return $this->asVar();
-    }
-
     function asVar() {
         return (string) $this->getName();
     }
@@ -295,10 +279,10 @@ class User extends UserModel {
         return $uf;
     }
 
-    function getDynamicData($create=true) {
+    function getDynamicData() {
         if (!isset($this->_entries)) {
             $this->_entries = DynamicFormEntry::forClient($this->id)->all();
-            if (!$this->_entries && $create) {
+            if (!$this->_entries) {
                 $g = UserForm::getNewInstance();
                 $g->setClientId($this->id);
                 $g->save();
@@ -306,7 +290,7 @@ class User extends UserModel {
             }
         }
 
-        return $this->_entries ?: array();
+        return $this->_entries;
     }
 
     function getFilterData() {
@@ -318,8 +302,7 @@ class User extends UserModel {
             // Add in special `name` and `email` fields
             foreach (array('name', 'email') as $name) {
                 if ($f = $entry->getForm()->getField($name))
-                    $vars['field.'.$f->get('id')] =
-                        $name == 'name' ? $this->getName() : $this->getEmail();
+                    $vars['field.'.$f->get('id')] = $this->getName();
             }
         }
         return $vars;
@@ -352,7 +335,7 @@ class User extends UserModel {
     function getAccountStatus() {
 
         if (!($account=$this->getAccount()))
-            return __('Guest');
+            return 'Guest';
 
         return (string) $account->getStatus();
     }
@@ -368,7 +351,7 @@ class User extends UserModel {
 
     static function importCsv($stream, $defaults=array()) {
         //Read the header (if any)
-        $headers = array('name' => __('Full Name'), 'email' => __('Email Address'));
+        $headers = array('name' => 'Full Name', 'email' => 'Email Address');
         $uform = UserForm::getUserForm();
         $all_fields = $uform->getFields();
         $named_fields = array();
@@ -378,7 +361,7 @@ class User extends UserModel {
                 $named_fields[] = $f;
 
         if (!($data = fgetcsv($stream, 1000, ",")))
-            return __('Whoops. Perhaps you meant to send some CSV records');
+            return 'Whoops. Perhaps you meant to send some CSV records';
 
         if (Validator::is_email($data[1])) {
             $has_header = false; // We don't have an header!
@@ -392,8 +375,7 @@ class User extends UserModel {
                             mb_strtolower($f->get('name')), mb_strtolower($f->get('label'))))) {
                         $found = true;
                         if (!$f->get('name'))
-                            return sprintf(__(
-                                '%s: Field must have `variable` set to be imported'), $h);
+                            return $h.': Field must have `variable` set to be imported';
                         $headers[$f->get('name')] = $f->get('label');
                         break;
                     }
@@ -409,7 +391,7 @@ class User extends UserModel {
                         break;
                     }
                     else {
-                        return sprintf(__('%s: Unable to map header to a user field'), $h);
+                        return $h.': Unable to map header to a user field';
                     }
                 }
             }
@@ -417,7 +399,7 @@ class User extends UserModel {
 
         // 'name' and 'email' MUST be in the headers
         if (!isset($headers['name']) || !isset($headers['email']))
-            return __('CSV file must include `name` and `email` columns');
+            return 'CSV file must include `name` and `email` columns';
 
         if (!$has_header)
             fseek($stream, 0);
@@ -444,17 +426,14 @@ class User extends UserModel {
                 // Skip empty rows
                 continue;
             elseif (count($data) != count($headers))
-                return sprintf(__('Bad data. Expected: %s'), implode(', ', $headers));
+                return 'Bad data. Expected: '.implode(', ', $headers);
             // Validate according to field configuration
             $i = 0;
             foreach ($headers as $h => $label) {
                 $f = $fields[$h];
                 $T = $f->parse($data[$i]);
                 if ($f->validateEntry($T) && $f->errors())
-                    return sprintf(__(
-                        /* 1 will be a field label, and 2 will be error messages */
-                        '%1$s: Invalid data: %2$s'),
-                        $label, implode(', ', $f->errors()));
+                    return $label.': Invalid data: '.implode(', ', $f->errors());
                 // Convert to database format
                 $data[$i] = $f->to_database($T);
                 $i++;
@@ -469,8 +448,7 @@ class User extends UserModel {
         foreach ($users as $u) {
             $vars = array_combine($keys, $u);
             if (!static::fromVars($vars))
-                return sprintf(__('Unable to import user: %s'),
-                    print_r($vars, true));
+                return 'Unable to import user: '.print_r($vars, true);
         }
 
         return count($users);
@@ -478,8 +456,6 @@ class User extends UserModel {
 
     function importFromPost($stuff, $extra=array()) {
         if (is_array($stuff) && !$stuff['error']) {
-            // Properly detect Macintosh style line endings
-            ini_set('auto_detect_line_endings', true);
             $stream = fopen($stuff['tmp_name'], 'r');
         }
         elseif ($stuff) {
@@ -488,21 +464,19 @@ class User extends UserModel {
             rewind($stream);
         }
         else {
-            return __('Unable to parse submitted users');
+            return 'Unable to parse submitted users';
         }
 
         return User::importCsv($stream, $extra);
     }
 
-    function updateInfo($vars, &$errors, $staff=false) {
+    function updateInfo($vars, &$errors) {
 
         $valid = true;
         $forms = $this->getDynamicData();
         foreach ($forms as $cd) {
             $cd->setSource($vars);
-            if ($staff && !$cd->isValidForStaff())
-                $valid = false;
-            elseif (!$cd->isValidForClient())
+            if (!$cd->isValidForClient())
                 $valid = false;
             elseif ($cd->get('type') == 'U'
                         && ($form= $cd->getForm())
@@ -511,7 +485,7 @@ class User extends UserModel {
                         && ($u=User::lookup(array('emails__address'=>$f->getClean())))
                         && $u->id != $this->getId()) {
                 $valid = false;
-                $f->addError(__('Email is assigned to another user'));
+                $f->addError('Email is assigned to another user');
             }
         }
 
@@ -579,11 +553,6 @@ class User extends UserModel {
         // Delete emails.
         $this->emails->expunge();
 
-        // Drop dynamic data
-        foreach ($this->getDynamicData() as $cd) {
-            $cd->delete();
-        }
-
         // Delete user
         return parent::delete();
     }
@@ -599,16 +568,16 @@ class PersonsName {
     var $name;
 
     static $formats = array(
-        'first' => array(     /*@trans*/ "First", 'getFirst'),
-        'last' => array(      /*@trans*/ "Last", 'getLast'),
-        'full' => array(      /*@trans*/ "First Last", 'getFull'),
-        'legal' => array(     /*@trans*/ "First M. Last", 'getLegal'),
-        'lastfirst' => array( /*@trans*/ "Last, First", 'getLastFirst'),
-        'formal' => array(    /*@trans*/ "Mr. Last", 'getFormal'),
-        'short' => array(     /*@trans*/ "First L.", 'getShort'),
-        'shortformal' => array(/*@trans*/ "F. Last", 'getShortFormal'),
-        'complete' => array(  /*@trans*/ "Mr. First M. Last Sr.", 'getComplete'),
-        'original' => array(  /*@trans*/ '-- As Entered --', 'getOriginal'),
+        'first' => array("First", 'getFirst'),
+        'last' => array("Last", 'getLast'),
+        'full' => array("First Last", 'getFull'),
+        'legal' => array("First M. Last", 'getLegal'),
+        'lastfirst' => array("Last, First", 'getLastFirst'),
+        'formal' => array("Mr. Last", 'getFormal'),
+        'short' => array("First L.", 'getShort'),
+        'shortformal' => array("F. Last", 'getShortFormal'),
+        'complete' => array("Mr. First M. Last Sr.", 'getComplete'),
+        'original' => array('-- As Entered --', 'getOriginal'),
     );
 
     function __construct($name, $format=null) {
@@ -726,13 +695,6 @@ class PersonsName {
 
         $r = explode(' ', $name);
         $size = count($r);
-        
-        //check if name is bad format (ex: J.Everybody), and fix them
-        if($size==1 && mb_strpos($r[0], '.') !== false) 
-        {
-            $r = explode('.', $name);
-            $size = count($r);
-        }
 
         //check first for period, assume salutation if so
         if (mb_strpos($r[0], '.') === false)
@@ -873,10 +835,6 @@ class UserAccountModel extends VerySimpleModel {
         $this->user->set('account', $this);
         return $this->user;
     }
-
-    function getLanguage() {
-        return $this->get('lang');
-    }
 }
 
 class UserAccount extends UserAccountModel {
@@ -902,8 +860,7 @@ class UserAccount extends UserAccountModel {
         $content = Page::lookup(Page::getIdByType($template));
 
         if (!$email ||  !$content)
-            return new Error(sprintf(_S('%s: Unable to retrieve template'),
-                $template));
+            return new Error($template.': Unable to retrieve template');
 
         $vars = array(
             'url' => $ost->getConfig()->getBaseUrl(),
@@ -946,34 +903,34 @@ class UserAccount extends UserAccountModel {
 
 
         if (!$thisstaff) {
-            $errors['err'] = __('Access Denied');
+            $errors['err'] = 'Access Denied';
             return false;
         }
 
         // TODO: Make sure the username is unique
 
         if (!$vars['timezone_id'])
-            $errors['timezone_id'] = __('Time zone selection is required');
+            $errors['timezone_id'] = 'Time zone required';
 
         // Changing password?
         if ($vars['passwd1'] || $vars['passwd2']) {
             if (!$vars['passwd1'])
-                $errors['passwd1'] = __('New password is required');
+                $errors['passwd1'] = 'New password required';
             elseif ($vars['passwd1'] && strlen($vars['passwd1'])<6)
-                $errors['passwd1'] = __('Must be at least 6 characters');
+                $errors['passwd1'] = 'Must be at least 6 characters';
             elseif ($vars['passwd1'] && strcmp($vars['passwd1'], $vars['passwd2']))
-                $errors['passwd2'] = __('Passwords do not match');
+                $errors['passwd2'] = 'Password(s) do not match';
         }
-
-        // Make sure the username is not an email.
-        if ($vars['username'] && Validator::is_email($vars['username']))
-            $errors['username'] =
-                __('Users can always sign in with their email address');
 
         if ($errors) return false;
 
         $this->set('timezone_id', $vars['timezone_id']);
         $this->set('dst', isset($vars['dst']) ? 1 : 0);
+
+        // Make sure the username is not an email.
+        if ($vars['username'] && Validator::is_email($vars['username']))
+             $vars['username'] = '';
+
         $this->set('username', $vars['username']);
 
         if ($vars['passwd1']) {
@@ -1023,11 +980,11 @@ class UserAccount extends UserAccountModel {
         if ((!$vars['backend'] || $vars['backend'] != 'client')
                 && !isset($vars['sendemail'])) {
             if (!$vars['passwd1'])
-                $errors['passwd1'] = 'Temporary password required';
+                $errors['passwd1'] = 'Temp. password required';
             elseif ($vars['passwd1'] && strlen($vars['passwd1'])<6)
                 $errors['passwd1'] = 'Must be at least 6 characters';
             elseif ($vars['passwd1'] && strcmp($vars['passwd1'], $vars['passwd2']))
-                $errors['passwd2'] = 'Passwords do not match';
+                $errors['passwd2'] = 'Password(s) do not match';
         }
 
         if ($errors) return false;
@@ -1094,14 +1051,14 @@ class UserAccountStatus {
     function __toString() {
 
         if ($this->isLocked())
-            return __('Locked (Administrative)');
+            return 'Locked (Administrative)';
 
         if (!$this->isConfirmed())
-            return __('Locked (Pending Activation)');
+            return 'Locked (Pending Activation)';
 
         // ... Other flags here (password reset, etc).
 
-        return __('Active (Registered)');
+        return 'Active (Registered)';
     }
 }
 
@@ -1109,12 +1066,45 @@ class UserAccountStatus {
 /*
  *  Generic user list.
  */
-class UserList extends ListObject {
+class UserList implements  IteratorAggregate, ArrayAccess {
+    private $users;
+
+    function __construct($list = array()) {
+        $this->users = $list;
+    }
+
+    function add($user) {
+        $this->offsetSet(null, $user);
+    }
+
+    function offsetSet($offset, $value) {
+
+        if (is_null($offset))
+            $this->users[] = $value;
+        else
+            $this->users[$offset] = $value;
+    }
+
+    function offsetExists($offset) {
+        return isset($this->users[$offset]);
+    }
+
+    function offsetUnset($offset) {
+        unset($this->users[$offset]);
+    }
+
+    function offsetGet($offset) {
+        return isset($this->users[$offset]) ? $this->users[$offset] : null;
+    }
+
+    function getIterator() {
+        return new ArrayIterator($this->users);
+    }
 
     function __toString() {
 
         $list = array();
-        foreach($this->storage as $user) {
+        foreach($this->users as $user) {
             if (is_object($user))
                 $list [] = $user->getName();
         }
@@ -1122,7 +1112,6 @@ class UserList extends ListObject {
         return $list ? implode(', ', $list) : '';
     }
 }
-
 require_once(INCLUDE_DIR . 'class.organization.php');
 User::_inspect();
 UserAccount::_inspect();

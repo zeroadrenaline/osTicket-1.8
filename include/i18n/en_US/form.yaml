@@ -41,6 +41,7 @@
         size: 40
         length: 64
         validator: email # notrans
+
     - type: text # notrans
       name: name # notrans
       label: Full Name
@@ -50,11 +51,13 @@
       configuration:
         size: 40
         length: 64
+
     - type: phone # notrans
       name: phone # notrans
       label: Phone Number
       required: false
       sort: 3
+
     - type: memo # notrans
       name: notes
       label: Internal Notes
@@ -64,6 +67,7 @@
       configuration:
         rows: 4
         cols: 40
+
 - id: 2
   type: T # notrans
   title: Ticket Details
@@ -84,6 +88,7 @@
       configuration:
         size: 40
         length: 50
+
     - id: 21
       type: thread # notrans
       name: message # notrans
@@ -92,6 +97,7 @@
       required: true
       edit_mask: 15
       sort: 2
+
     - id: 22
       type: priority # notrans
       name: priority # notrans
@@ -100,6 +106,7 @@
       private: true
       edit_mask: 3
       sort: 3
+
 - type: C # notrans
   title: Company Information
   instructions: Details available in email templates
@@ -114,6 +121,7 @@
       configuration:
         size: 40
         length: 64
+
     - type: text # notrans
       name: website # notrans
       label: Website
@@ -121,6 +129,7 @@
       configuration:
         size: 40
         length: 64
+
     - type: phone # notrans
       name: phone # notrans
       label: Phone Number
@@ -128,6 +137,7 @@
       sort: 3
       configuration:
         ext: false
+
     - type: memo # notrans
       name: address
       label: Address
@@ -138,6 +148,7 @@
         cols: 40
         html: false
         length: 100
+
 - type: O # notrans
   title: Organization Information
   instructions: Details on user organization
@@ -152,6 +163,7 @@
       configuration:
         size: 40
         length: 64
+
     - type: memo
       name: address
       label: Address
@@ -162,11 +174,13 @@
         cols: 40
         length: 100
         html: false
+
     - type: phone
       name: phone
       label: Phone
       required: false
       sort: 3
+
     - type: text
       name: website
       label: Website
@@ -175,6 +189,7 @@
       configuration:
         size: 40
         length: 0
+
     - type: memo # notrans
       name: notes
       label: Internal Notes

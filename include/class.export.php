@@ -16,14 +16,6 @@
 
 class Export {
 
-    // XXX: This may need to be moved to a print-specific class
-    static $paper_sizes = array(
-        /* @trans */ 'Letter',
-        /* @trans */ 'Legal',
-        'A4',
-        'A3',
-    );
-
     static function dumpQuery($sql, $headers, $how='csv', $options=array()) {
         $exporters = array(
             'csv' => CsvResultsExporter,
@@ -65,25 +57,25 @@ class Export {
             $sql = str_replace(' FROM ', ',' . implode(',', $select) . ' FROM ', $sql);
         return self::dumpQuery($sql,
             array(
-                'number' =>         __('Ticket Number'),
-                'ticket_created' => __('Date'),
-                'subject' =>        __('Subject'),
-                'name' =>           __('From'),
-                'email' =>          __('From Email'),
-                'priority_desc' =>  __('Priority'),
-                'dept_name' =>      __('Department'),
-                'helptopic' =>      __('Help Topic'),
-                'source' =>         __('Source'),
-                'status' =>         __('Current Status'),
-                'effective_date' => __('Last Updated'),
-                'duedate' =>        __('Due Date'),
-                'isoverdue' =>      __('Overdue'),
-                'isanswered' =>     __('Answered'),
-                'assigned' =>       __('Assigned To'),
-                'staff' =>          __('Agent Assigned'),
-                'team' =>           __('Team Assigned'),
-                'thread_count' =>   __('Thread Count'),
-                'attachments' =>    __('Attachment Count'),
+                'number' =>       'Ticket Number',
+                'created' =>        'Date',
+                'subject' =>        'Subject',
+                'name' =>           'From',
+                'email' =>          'From Email',
+                'priority_desc' =>  'Priority',
+                'dept_name' =>      'Department',
+                'helptopic' =>      'Help Topic',
+                'source' =>         'Source',
+                'status' =>         'Current Status',
+                'effective_date' => 'Last Updated',
+                'duedate' =>        'Due Date',
+                'isoverdue' =>      'Overdue',
+                'isanswered' =>     'Answered',
+                'assigned' =>       'Assigned To',
+                'staff' =>          'Staff Assigned',
+                'team' =>           'Team Assigned',
+                'thread_count' =>   'Thread Count',
+                'attachments' =>    'Attachment Count',
             ) + $cdata,
             $how,
             array('modify' => function(&$record, $keys) use ($fields) {
@@ -135,9 +127,9 @@ class Export {
         ob_start();
         echo self::dumpQuery($sql,
                 array(
-                    'name'  =>          __('Name'),
-                    'organization' =>   __('Organization'),
-                    'email' =>          __('Email'),
+                    'name'  =>  'Name',
+                    'organization' => 'Organization',
+                    'email' =>  'Email'
                     ) + $cdata,
                 $how,
                 array('modify' => function(&$record, $keys) use ($fields) {
@@ -369,7 +361,7 @@ class DatabaseExporter {
 
             if (!$table) {
                 if ($error_stream) $error_stream->write(
-                    sprintf(__("%s: Cannot export table with no fields\n"), $t));
+                    $t.': Cannot export table with no fields'."\n");
                 die();
             }
             $this->write_block(

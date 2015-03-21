@@ -1,9 +1,9 @@
 <?php
 
 if (!$info['title'])
-    $info['title'] = sprintf(__('Delete %s'), Format::htmlchars($org->getName()));
+    $info['title'] = 'Delete '.Format::htmlchars($org->getName());
 
-$info['warn'] = __('Deleted organization CANNOT be recovered');
+$info['warn'] = 'Deleted organization CANNOT be recovered';
 
 ?>
 <h3><?php echo $info['title']; ?></h3>
@@ -40,9 +40,8 @@ if ($info['error']) {
     <?php
     if (($users=$org->users->count())) { ?>
     <hr>
-    <div>&nbsp;<strong><?php echo sprintf(__(
-            '%s assigned to this organization will be orphaned.'),
-            sprintf(_N('One user', '%d users', $users), $users)); ?></strong></div>
+    <div>&nbsp;<strong><?php echo sprintf('%d %s', $users, $users>1 ? 'users' : 'user');
+        ?> assigned to this organization will be orphaned.</strong></div>
     <?php
     } ?>
     <hr>
@@ -50,13 +49,13 @@ if ($info['error']) {
         action="#orgs/<?php echo $org->getId(); ?>/delete">
         <input type="hidden" name="id" value="<?php echo $org->getId(); ?>" />
         <p class="full-width">
-        <span class="buttons pull-left">
-            <input type="reset" value="<?php echo __('Reset'); ?>">
+        <span class="buttons" style="float:left">
+            <input type="reset" value="Reset">
             <input type="button" name="cancel" class="close"
-                value="<?php echo __('No, Cancel'); ?>">
+                value="No, Cancel">
         </span>
-        <span class="buttons pull-right">
-            <input type="submit" value="<?php echo __('Yes, Delete'); ?>">
+        <span class="buttons" style="float:right">
+            <input type="submit" value="Yes, Delete">
         </span>
         </p>
     </form>

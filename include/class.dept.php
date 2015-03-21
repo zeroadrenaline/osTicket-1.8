@@ -13,7 +13,6 @@
 
     vim: expandtab sw=4 ts=4 sts=4:
 **********************************************************************/
-
 class Dept {
     var $id;
 
@@ -89,24 +88,6 @@ class Dept {
             if(!($this->email = Email::lookup($this->getEmailId())) && $cfg)
                 $this->email = $cfg->getDefaultEmail();
 
-        return $this->email;
-    }
-
-    /**
-     * getAlertEmail
-     *
-     * Fetches either the department email (for replies) if configured.
-     * Otherwise, the system alert email address is used.
-     */
-    function getAlertEmail() {
-        global $cfg;
-
-        if (!$this->email && ($id = $this->getEmailId())) {
-            $this->email = Email::lookup($id);
-        }
-        if (!$this->email && $cfg) {
-            $this->email = $cfg->getAlertEmail();
-        }
         return $this->email;
     }
 
@@ -431,18 +412,18 @@ class Dept {
         global $cfg;
 
         if($id && $id!=$vars['id'])
-            $errors['err']=__('Missing or invalid Dept ID (internal error).');
+            $errors['err']='Missing or invalid Dept ID (internal error).';
 
         if(!$vars['name']) {
-            $errors['name']=__('Name required');
+            $errors['name']='Name required';
         } elseif(strlen($vars['name'])<4) {
-            $errors['name']=__('Name is too short.');
+            $errors['name']='Name is too short.';
         } elseif(($did=Dept::getIdByName($vars['name'])) && $did!=$id) {
-            $errors['name']=__('Department already exists');
+            $errors['name']='Department already exists';
         }
 
         if(!$vars['ispublic'] && $cfg && ($vars['id']==$cfg->getDefaultDeptId()))
-            $errors['ispublic']=__('System default department cannot be private');
+            $errors['ispublic']='System default department cannot be private';
 
         if($errors) return false;
 
@@ -466,8 +447,7 @@ class Dept {
             if(db_query($sql) && db_affected_rows())
                 return true;
 
-            $errors['err']=sprintf(__('Unable to update %s.'), __('this department'))
-               .' '.__('Internal error occurred');
+            $errors['err']='Unable to update '.Format::htmlchars($vars['name']).' Dept. Error occurred';
 
         } else {
             if (isset($vars['id']))
@@ -478,8 +458,7 @@ class Dept {
                 return $id;
 
 
-            $errors['err']=sprintf(__('Unable to create %s.'), __('this department'))
-               .' '.__('Internal error occurred');
+            $errors['err']='Unable to create department. Internal error';
 
         }
 

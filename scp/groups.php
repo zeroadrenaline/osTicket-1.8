@@ -14,38 +14,34 @@
     vim: expandtab sw=4 ts=4 sts=4:
 **********************************************************************/
 require('admin.inc.php');
-
 $group=null;
 if($_REQUEST['id'] && !($group=Group::lookup($_REQUEST['id'])))
-    $errors['err']=sprintf(__('%s: Unknown or invalid ID.'), __('group'));
+    $errors['err']='Unknown or invalid group ID.';
 
 if($_POST){
     switch(strtolower($_POST['do'])){
         case 'update':
             if(!$group){
-                $errors['err']=sprintf(__('%s: Unknown or invalid'), __('group'));
+                $errors['err']='Unknown or invalid group.';
             }elseif($group->update($_POST,$errors)){
-                $msg=sprintf(__('Successfully updated %s'),
-                    __('this group'));
+                $msg='Group updated successfully';
             }elseif(!$errors['err']){
-                $errors['err']=sprintf(__('Unable to update %s. Correct error(s) below and try again!'),
-                    __('this group'));
+                $errors['err']='Unable to update group. Correct any error(s) below and try again!';
             }
             break;
         case 'create':
             if(($id=Group::create($_POST,$errors))){
-                $msg=sprintf(__('Successfully added %s'),Format::htmlchars($_POST['name']));
+                $msg=Format::htmlchars($_POST['name']).' added successfully';
                 $_REQUEST['a']=null;
             }elseif(!$errors['err']){
-                $errors['err']=sprintf(__('Unable to add %s. Correct error(s) below and try again.'),
-                    __('this group'));
+                $errors['err']='Unable to add group. Correct error(s) below and try again.';
             }
             break;
         case 'mass_process':
             if(!$_POST['ids'] || !is_array($_POST['ids']) || !count($_POST['ids'])) {
-                $errors['err'] = sprintf(__('You must select at least %s.'), __('one group'));
+                $errors['err'] = 'You must select at least one group.';
             } elseif(in_array($thisstaff->getGroupId(), $_POST['ids'])) {
-                $errors['err'] = __("As an admin, you cannot disable/delete a group you belong to - you might lockout all admins!");
+                $errors['err'] = "As an admin, you can't disable/delete a group you belong to - you might lockout all admins!";
             } else {
                 $count=count($_POST['ids']);
                 switch(strtolower($_POST['a'])) {
@@ -55,14 +51,11 @@ if($_POST){
 
                         if(db_query($sql) && ($num=db_affected_rows())){
                             if($num==$count)
-                                $msg = sprintf(__('Successfully activated %s'),
-                                    _N('selected group', 'selected groups', $count));
+                                $msg = 'Selected groups activated';
                             else
-                                $warn = sprintf(__('%1$d of %2$d %3$s activated'), $num, $count,
-                                    _N('selected group', 'selected groups', $count));
+                                $warn = "$num of $count selected groups activated";
                         } else {
-                            $errors['err'] = sprintf(__('Unable to activate %s'),
-                                _N('selected group', 'selected groups', $count));
+                            $errors['err'] = 'Unable to activate selected groups';
                         }
                         break;
                     case 'disable':
@@ -70,14 +63,11 @@ if($_POST){
                             .' WHERE group_id IN ('.implode(',', db_input($_POST['ids'])).')';
                         if(db_query($sql) && ($num=db_affected_rows())) {
                             if($num==$count)
-                                $msg = sprintf(__('Successfully disabled %s'),
-                                    _N('selected group', 'selected groups', $count));
+                                $msg = 'Selected groups disabled';
                             else
-                                $warn = sprintf(__('%1$d of %2$d %3$s disabled'), $num, $count,
-                                    _N('selected group', 'selected groups', $count));
+                                $warn = "$num of $count selected groups disabled";
                         } else {
-                            $errors['err'] = sprintf(__('Unable to disable %s'),
-                                _N('selected group', 'selected groups', $count));
+                            $errors['err'] = 'Unable to disable selected groups';
                         }
                         break;
                     case 'delete':
@@ -87,22 +77,19 @@ if($_POST){
                         }
 
                         if($i && $i==$count)
-                            $msg = sprintf(__('Successfully deleted %s'),
-                                _N('selected group', 'selected groups', $count));
+                            $msg = 'Selected groups deleted successfully';
                         elseif($i>0)
-                            $warn = sprintf(__('%1$d of %2$d %3$s deleted'), $i, $count,
-                                _N('selected group', 'selected groups', $count));
+                            $warn = "$i of $count selected groups deleted";
                         elseif(!$errors['err'])
-                            $errors['err'] = sprintf(__('Unable to delete %s'),
-                                _N('selected group', 'selected groups', $count));
+                            $errors['err'] = 'Unable to delete selected groups';
                         break;
                     default:
-                        $errors['err']  = __('Unknown action - get technical help.');
+                        $errors['err']  = 'Unknown action. Get technical help!';
                 }
             }
             break;
         default:
-            $errors['err']=__('Unknown action');
+            $errors['err']='Unknown action';
             break;
     }
 }

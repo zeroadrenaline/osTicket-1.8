@@ -63,16 +63,14 @@ class Http {
 
     function cacheable($etag, $modified, $ttl=3600) {
         // Thanks, http://stackoverflow.com/a/1583753/1025836
-        // Timezone doesn't matter here — but the time needs to be
-        // consistent round trip to the browser and back.
-        $last_modified = strtotime($modified." GMT");
-        header("Last-Modified: ".date('D, d M Y H:i:s', $last_modified)." GMT", false);
+        $last_modified = Misc::db2gmtime($modified);
+        header("Last-Modified: ".date('D, d M y H:i:s', $last_modified)." GMT", false);
         header('ETag: "'.$etag.'"');
         header("Cache-Control: private, max-age=$ttl");
-        header('Expires: ' . gmdate('D, d M Y H:i:s', Misc::gmtime() + $ttl)." GMT");
+        header('Expires: ' . gmdate(DATE_RFC822, time() + $ttl)." GMT");
         header('Pragma: private');
         if (@strtotime($_SERVER['HTTP_IF_MODIFIED_SINCE']) == $last_modified ||
-            @trim($_SERVER['HTTP_IF_NONE_MATCH'], '"') == $etag) {
+            @trim($_SERVER['HTTP_IF_NONE_MATCH']) == $etag) {
                 header("HTTP/1.1 304 Not Modified");
                 exit();
         }
@@ -99,8 +97,9 @@ class Http {
 
     function download($filename, $type, $data=null, $disposition='attachment') {
         header('Pragma: private');
+        header('Expires: 0');
         header('Cache-Control: must-revalidate, post-check=0, pre-check=0');
-        header('Cache-Control: private', false);
+        header('Cache-Control: private');
         header('Content-Type: '.$type);
         header(sprintf('Content-Disposition: %s; %s',
             $disposition,
@@ -111,11 +110,6 @@ class Http {
             print $data;
             exit;
         }
-    }
-
-    static function build_query($vars, $encode=true, $separator='&amp;') {
-        return http_build_query(
-                ($encode ? Format::htmlchars($vars) : $vars), '', $separator);
     }
 }
 ?>

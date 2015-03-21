@@ -16,10 +16,10 @@ if (isset($user) && $user instanceof ClientCreateRequest) {
 $info = Format::htmlchars(($errors && $_POST)?$_POST:$info);
 
 ?>
-<h1><?php echo __('Account Registration'); ?></h1>
-<p><?php echo __(
-'Use the forms below to create or update the information we have on file for your account'
-); ?>
+<h1>Account Registration</h1>
+<p>
+Use the forms below to create or update the information we have on file for
+your account
 </p>
 <form action="account.php" method="post">
   <?php csrf_token(); ?>
@@ -33,11 +33,11 @@ $info = Format::htmlchars(($errors && $_POST)?$_POST:$info);
 ?>
 <tr>
     <td colspan="2">
-        <div><hr><h3><?php echo __('Preferences'); ?></h3>
+        <div><hr><h3>Preferences</h3>
         </div>
     </td>
 </tr>
-    <td><?php echo __('Time Zone'); ?>:</td>
+    <td>Time Zone:</td>
     <td>
         <select name="timezone_id" id="timezone_id">
             <?php
@@ -55,31 +55,30 @@ $info = Format::htmlchars(($errors && $_POST)?$_POST:$info);
 </tr>
 <tr>
     <td width="180">
-        <?php echo __('Daylight Saving'); ?>:
+       Daylight Saving:
     </td>
     <td>
         <input type="checkbox" name="dst" value="1" <?php echo $info['dst']?'checked="checked"':''; ?>>
-        <?php echo __('Observe daylight saving'); ?>
-        <em>(<?php echo __('Current Time'); ?>:
-            <strong><?php echo Format::date($cfg->getDateTimeFormat(),Misc::gmtime(),$info['tz_offset'],$info['dst']); ?></strong>)</em>
+        Observe daylight saving
+        <em>(Current Time: <strong><?php echo Format::date($cfg->getDateTimeFormat(),Misc::gmtime(),$info['tz_offset'],$info['dst']); ?></strong>)</em>
     </td>
 </tr>
 <tr>
     <td colspan=2">
-        <div><hr><h3><?php echo __('Access Credentials'); ?></h3></div>
+        <div><hr><h3>Access Credentials</h3></div>
     </td>
 </tr>
 <?php if ($info['backend']) { ?>
 <tr>
     <td width="180">
-        <?php echo __('Login With'); ?>:
+        Login With:
     </td>
     <td>
         <input type="hidden" name="backend" value="<?php echo $info['backend']; ?>"/>
         <input type="hidden" name="username" value="<?php echo $info['username']; ?>"/>
 <?php foreach (UserAuthenticationBackend::allRegistered() as $bk) {
     if ($bk::$id == $info['backend']) {
-        echo $bk->getName();
+        echo $bk::$name;
         break;
     }
 } ?>
@@ -88,7 +87,7 @@ $info = Format::htmlchars(($errors && $_POST)?$_POST:$info);
 <?php } else { ?>
 <tr>
     <td width="180">
-        <?php echo __('Create a Password'); ?>:
+        Create a Password:
     </td>
     <td>
         <input type="password" size="18" name="passwd1" value="<?php echo $info['passwd1']; ?>">
@@ -97,7 +96,7 @@ $info = Format::htmlchars(($errors && $_POST)?$_POST:$info);
 </tr>
 <tr>
     <td width="180">
-        <?php echo __('Confirm New Password'); ?>:
+        Confirm New Password:
     </td>
     <td>
         <input type="password" size="18" name="passwd2" value="<?php echo $info['passwd2']; ?>">

@@ -27,8 +27,8 @@ class QuickNoteModel extends VerySimpleModel {
 class QuickNote extends QuickNoteModel {
 
     static $types = array(
-        'U' => /* @trans */ 'User',
-        'O' => /* @trans */ 'Organization',
+        'U' => 'User',
+        'O' => 'Organization',
     );
     var $_staff;
 
@@ -62,10 +62,7 @@ class QuickNote extends QuickNoteModel {
     }
 
     function getIconTitle() {
-        return sprintf(__(
-            // `%s` will be the type of note (`user` or `orgnaization`)
-            "%s Note"),
-            __(static::$types[$this->ext_id[0]]));
+        return sprintf("%s Note", static::$types[$this->ext_id[0]]);
     }
 
     static function forUser($user, $org=false) {

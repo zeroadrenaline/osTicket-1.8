@@ -23,7 +23,10 @@ class HelpTipAjaxAPI extends AjaxController {
     function getTipsJson($namespace, $lang=false) {
         global $ost, $thisstaff;
 
-        $lang = Internationalization::getCurrentLanguage();
+        if (!$lang)
+            $lang = ($thisstaff)
+                ? $thisstaff->getLanguage()
+                : Internationalization::getDefaultLanguage();
 
         $i18n = new Internationalization($lang);
         $tips = $i18n->getTemplate("help/tips/$namespace.yaml");

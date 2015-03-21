@@ -18,48 +18,47 @@ require_once(INCLUDE_DIR.'class.page.php');
 
 $page = null;
 if($_REQUEST['id'] && !($page=Page::lookup($_REQUEST['id'])))
-   $errors['err']=sprintf(__('%s: Unknown or invalid'), __('site page'));
+   $errors['err']='Unknown or invalid page';
 
 if($_POST) {
     switch(strtolower($_POST['do'])) {
         case 'add':
             if(($pageId=Page::create($_POST, $errors))) {
                 $_REQUEST['a'] = null;
-                $msg=sprintf(__('Successfully added %s'), Format::htmlchars($_POST['name']));
+                $msg='Page added successfully';
                 // Attach inline attachments from the editor
-                if ($page = Page::lookup($pageId))
+                if (isset($_POST['draft_id'])
+                        && ($draft = Draft::lookup($_POST['draft_id']))
+                        && ($page = Page::lookup($pageId)))
                     $page->attachments->upload(
-                        Draft::getAttachmentIds($_POST['body']), true);
+                        $draft->getAttachmentIds($_POST['response']), true);
                 Draft::deleteForNamespace('page');
             } elseif(!$errors['err'])
-                $errors['err'] = sprintf(__('Unable to add %s. Correct error(s) below and try again.'),
-                    __('this site page'));
+                $errors['err'] = 'Unable to add page. Try again!';
         break;
         case 'update':
             if(!$page)
-                $errors['err'] = sprintf(__('%s: Invalid or unknown'),
-                    __('site page'));
+                $errors['err'] = 'Invalid or unknown page';
             elseif($page->update($_POST, $errors)) {
-                $msg=sprintf(__('Successfully updated %s'),
-                    __('this site page'));
+                $msg='Page updated successfully';
                 $_REQUEST['a']=null; //Go back to view
                 // Attach inline attachments from the editor
-                $page->attachments->deleteInlines();
-                $page->attachments->upload(
-                    Draft::getAttachmentIds($_POST['body']),
-                    true);
+                if (isset($_POST['draft_id'])
+                        && ($draft = Draft::lookup($_POST['draft_id']))) {
+                    $page->attachments->deleteInlines();
+                    $page->attachments->upload(
+                        $draft->getAttachmentIds($_POST['response']),
+                        true);
+                }
                 Draft::deleteForNamespace('page.'.$page->getId());
             } elseif(!$errors['err'])
-                $errors['err'] = sprintf(__('Unable to update %s. Correct error(s) below and try again.'),
-                    __('this site page'));
+                $errors['err'] = 'Unable to update page. Try again!';
             break;
         case 'mass_process':
             if(!$_POST['ids'] || !is_array($_POST['ids']) || !count($_POST['ids'])) {
-                $errors['err'] = sprintf(__('You must select at least %s.'),
-                    __('one site page'));
+                $errors['err'] = 'You must select at least one page.';
             } elseif(array_intersect($_POST['ids'], $cfg->getDefaultPages()) && strcasecmp($_POST['a'], 'enable')) {
-                $errors['err'] = sprintf(__('One or more of the %s is in-use and CANNOT be disabled/deleted.'),
-                    _N('selected site page', 'selected site pages', 2));
+                 $errors['err'] = 'One or more of the selected pages is in-use and CANNOT be disabled/deleted.';
             } else {
                 $count=count($_POST['ids']);
                 switch(strtolower($_POST['a'])) {
@@ -68,14 +67,11 @@ if($_POST) {
                             .' WHERE id IN ('.implode(',', db_input($_POST['ids'])).')';
                         if(db_query($sql) && ($num=db_affected_rows())) {
                             if($num==$count)
-                                $msg = sprintf(__('Successfully enabled %s'),
-                                    _N('selected site page', 'selected site pages', $count));
+                                $msg = 'Selected pages enabled';
                             else
-                                $warn = sprintf(__('%1$d of %2$d %3$s enabled'), $num, $count,
-                                    _N('selected site page', 'selected site pages', $count));
+                                $warn = "$num of $count selected pages enabled";
                         } else {
-                            $errors['err'] = sprintf(__('Unable to enable %s'),
-                                _N('selected site page', 'selected site pages', $count));
+                            $errors['err'] = 'Unable to enable selected pages';
                         }
                         break;
                     case 'disable':
@@ -86,14 +82,11 @@ if($_POST) {
                         }
 
                         if($i && $i==$count)
-                            $msg = sprintf(__('Successfully disabled %s'),
-                                _N('selected site page', 'selected site pages', $count));
+                            $msg = 'Selected pages disabled';
                         elseif($i>0)
-                            $warn = sprintf(__('%1$d of %2$d %3$s disabled'), $i, $count,
-                                _N('selected site page', 'selected site pages', $count));
+                            $warn = "$num of $count selected pages disabled";
                         elseif(!$errors['err'])
-                            $errors['err'] = sprintf(__('Unable to disable %s'),
-                                _N('selected site page', 'selected site pages', $count));
+                            $errors['err'] = 'Unable to disable selected pages';
                         break;
                     case 'delete':
                         $i=0;
@@ -103,22 +96,19 @@ if($_POST) {
                         }
 
                         if($i && $i==$count)
-                            $msg = sprintf(__('Successfully deleted %s'),
-                                _N('selected site page', 'selected site pages', $count));
+                            $msg = 'Selected pages deleted successfully';
                         elseif($i>0)
-                            $warn = sprintf(__('%1$d of %2$d %3$s deleted'), $i, $count,
-                                _N('selected site page', 'selected site pages', $count));
+                            $warn = "$i of $count selected pages deleted";
                         elseif(!$errors['err'])
-                            $errors['err'] = sprintf(__('Unable to delete %s'),
-                                _N('selected site page', 'selected site pages', $count));
+                            $errors['err'] = 'Unable to delete selected pages';
                         break;
                     default:
-                        $errors['err']=__('Unknown action - get technical help.');
+                        $errors['err']='Unknown action - get technical help.';
                 }
             }
             break;
         default:
-            $errors['err']=__('Unknown action');
+            $errors['err']='Unknown action/command';
             break;
     }
 }

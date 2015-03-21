@@ -40,13 +40,9 @@ abstract class TicketUser {
         $tag =  substr($name, 3);
         switch (strtolower($tag)) {
             case 'ticket_link':
-                return sprintf('%s/view.php?%s',
+                return sprintf('%s/view.php?auth=%s',
                         $cfg->getBaseUrl(),
-                        Http::build_query(
-                            array('auth' => $this->getAuthToken()),
-                            false
-                            )
-                        );
+                        urlencode($this->getAuthToken()));
                 break;
         }
 
@@ -141,7 +137,8 @@ abstract class TicketUser {
     }
 
     function isOwner() {
-        return $this instanceof TicketOwner;
+        return  ($this->user
+                    && $this->user->getId() == $this->getTicket()->getOwnerId());
     }
 
     function flagGuest() {
@@ -251,10 +248,7 @@ class  EndUser extends AuthenticatedUser {
     }
 
     function getNumTickets() {
-        if (!($stats=$this->getTicketStats()))
-            return 0;
-
-        return $stats['open']+$stats['closed'];
+        return ($stats=$this->getTicketStats())?($stats['open']+$stats['closed']):0;
     }
 
     function getNumOpenTickets() {
@@ -273,51 +267,21 @@ class  EndUser extends AuthenticatedUser {
         return $this->_account;
     }
 
-    function getLanguage() {
-        static $cached = false;
-        if (!$cached) $cached = &$_SESSION['client:lang'];
-
-        if (!$cached) {
-            if ($acct = $this->getAccount())
-                $cached = $acct->getLanguage();
-            if (!$cached)
-                $cached = Internationalization::getDefaultLanguage();
-        }
-        return $cached;
-    }
-
     private function getStats() {
 
-        $where = ' WHERE ticket.user_id = '.db_input($this->getId())
-                .' OR collab.user_id = '.db_input($this->getId()).' ';
+        $sql='SELECT count(open.ticket_id) as open, count(closed.ticket_id) as closed '
+            .' FROM '.TICKET_TABLE.' ticket '
+            .' LEFT JOIN '.TICKET_TABLE.' open
+                ON (open.ticket_id=ticket.ticket_id AND open.status=\'open\') '
+            .' LEFT JOIN '.TICKET_TABLE.' closed
+                ON (closed.ticket_id=ticket.ticket_id AND closed.status=\'closed\')'
+            .' LEFT JOIN '.TICKET_COLLABORATOR_TABLE.' collab
+                ON (collab.ticket_id=ticket.ticket_id
+                    AND collab.user_id = '.db_input($this->getId()).' )'
+            .' WHERE ticket.user_id = '.db_input($this->getId())
+            .' OR collab.user_id = '.db_input($this->getId());
 
-        $join  =  'LEFT JOIN '.TICKET_COLLABORATOR_TABLE.' collab
-                    ON (collab.ticket_id=ticket.ticket_id
-                            AND collab.user_id = '.db_input($this->getId()).' ) ';
-
-        $sql =  'SELECT \'open\', count( ticket.ticket_id ) AS tickets '
-                .'FROM ' . TICKET_TABLE . ' ticket '
-                .'INNER JOIN '.TICKET_STATUS_TABLE. ' status
-                    ON (ticket.status_id=status.id
-                            AND status.state=\'open\') '
-                . $join
-                . $where
-
-                .'UNION SELECT \'closed\', count( ticket.ticket_id ) AS tickets '
-                .'FROM ' . TICKET_TABLE . ' ticket '
-                .'INNER JOIN '.TICKET_STATUS_TABLE. ' status
-                    ON (ticket.status_id=status.id
-                            AND status.state=\'closed\' ) '
-                . $join
-                . $where;
-
-        $res = db_query($sql);
-        $stats = array();
-        while($row = db_fetch_row($res)) {
-            $stats[$row[0]] = $row[1];
-        }
-
-        return $stats;
+        return db_fetch_array(db_query($sql));
     }
 }
 
@@ -365,43 +329,39 @@ class ClientAccount extends UserAccount {
         if ($vars['passwd1'] || $vars['passwd2'] || $vars['cpasswd'] || $rtoken) {
 
             if (!$vars['passwd1'])
-                $errors['passwd1']=__('New password is required');
+                $errors['passwd1']='New password required';
             elseif ($vars['passwd1'] && strlen($vars['passwd1'])<6)
-                $errors['passwd1']=__('Password must be at least 6 characters');
+                $errors['passwd1']='Must be at least 6 characters';
             elseif ($vars['passwd1'] && strcmp($vars['passwd1'], $vars['passwd2']))
-                $errors['passwd2']=__('Passwords do not match');
+                $errors['passwd2']='Password(s) do not match';
 
             if ($rtoken) {
                 $_config = new Config('pwreset');
                 if ($_config->get($rtoken) != $this->getUserId())
                     $errors['err'] =
-                        __('Invalid reset token. Logout and try again');
+                        'Invalid reset token. Logout and try again';
                 elseif (!($ts = $_config->lastModified($rtoken))
                         && ($cfg->getPwResetWindow() < (time() - strtotime($ts))))
                     $errors['err'] =
-                        __('Invalid reset token. Logout and try again');
+                        'Invalid reset token. Logout and try again';
             }
             elseif ($this->get('passwd')) {
                 if (!$vars['cpasswd'])
-                    $errors['cpasswd']=__('Current password is required');
+                    $errors['cpasswd']='Current password required';
                 elseif (!$this->hasCurrentPassword($vars['cpasswd']))
-                    $errors['cpasswd']=__('Invalid current password!');
+                    $errors['cpasswd']='Invalid current password!';
                 elseif (!strcasecmp($vars['passwd1'], $vars['cpasswd']))
-                    $errors['passwd1']=__('New password MUST be different from the current password!');
+                    $errors['passwd1']='New password MUST be different from the current password!';
             }
         }
 
         if (!$vars['timezone_id'])
-            $errors['timezone_id']=__('Time zone selection is required');
+            $errors['timezone_id']='Time zone required';
 
         if ($errors) return false;
 
         $this->set('timezone_id', $vars['timezone_id']);
         $this->set('dst', isset($vars['dst']) ? 1 : 0);
-        // Change language
-        $this->set('lang', $vars['lang'] ?: null);
-        $_SESSION['client:lang'] = null;
-        TextDomain::configureForUser($this);
 
         if ($vars['backend']) {
             $this->set('backend', $vars['backend']);

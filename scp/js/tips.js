@@ -10,16 +10,8 @@ jQuery(function() {
             var tip_shadow = $('<div>').addClass('tip_shadow');
             var tip_content = $('<div>').addClass('tip_content').load(url, function() {
                 tip_content.prepend('<a href="#" class="tip_close"><i class="icon-remove-circle"></i></a>').append(tip_arrow);
-            var width = $(window).width(),
-                rtl = $('html').hasClass('rtl'),
-                size = tip_content.outerWidth(),
-                left = the_tip.position().left,
-                left_room = left - size,
-                right_room = width - size - left,
-                flip = rtl
-                    ? (left_room > 0 && left_room > right_room)
-                    : (right_room < 0 && left_room > right_room);
-                if (flip) {
+                if ($(window).width() < tip_content.outerWidth() + the_tip.position().left) {
+                    console.log(x_pos, tip_content.outerWidth(), elem.width());
                     the_tip.css({'left':x_pos-tip_content.outerWidth()-elem.width()-32+'px'});
                     tip_box.addClass('right');
                     tip_arrow.addClass('flip-x');
@@ -44,7 +36,7 @@ jQuery(function() {
                 || $('#content').data('tipNamespace')
                 || $('meta[name=tip-namespace]').attr('content');
             if (!namespace)
-                return $.Deferred().resolve().promise();
+                return false;
             else if (!cache[namespace])
                 cache[namespace] = {
                   dfd: dfd = $.Deferred(),
@@ -113,16 +105,7 @@ jQuery(function() {
             tip_timer = setTimeout(function() {
                 $('.tip_box').remove();
                 $('body').append(the_tip.hide().fadeIn());
-                var width = $(window).width(),
-                    rtl = $('html').hasClass('rtl'),
-                    size = tip_content.outerWidth(),
-                    left = the_tip.position().left,
-                    left_room = left - size,
-                    right_room = width - size - left,
-                    flip = rtl
-                        ? (left_room > 0 && left_room > right_room)
-                        : (right_room < 0 && left_room > right_room);
-                if (flip) {
+                if ($(window).width() < tip_content.outerWidth() + the_tip.position().left) {
                     the_tip.css({'left':x_pos-tip_content.outerWidth()-40+'px'});
                     tip_box.addClass('right');
                     tip_arrow.addClass('flip-x');
@@ -146,8 +129,6 @@ jQuery(function() {
                 clearTimeout(tip_timer);
                 return;
             }
-            if (!section)
-                return;
             tip_content.append(
                 $('<h1>')
                     .append('<i class="icon-info-sign faded"> ')

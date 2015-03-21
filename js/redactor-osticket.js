@@ -28,13 +28,14 @@ RedactorPlugins.draft = {
 
         this.$draft_saved = $('<span>')
             .addClass("pull-right draft-saved")
+            .css({'position':'absolute','top':'3em','right':'0.5em'})
             .hide()
             .append($('<span>')
-                .text(__('Draft Saved')));
+                .text('Draft Saved'));
         // Float the [Draft Saved] box with the toolbar
         this.$toolbar.append(this.$draft_saved);
         if (this.opts.draftDelete) {
-            var trash = this.buttonAdd('deleteDraft', __('Delete Draft'), this.deleteDraft);
+            var trash = this.buttonAdd('deleteDraft', 'Delete Draft', this.deleteDraft);
             this.buttonAwesome('deleteDraft', 'icon-trash');
             trash.parent().addClass('pull-right');
             trash.addClass('delete-draft');
@@ -94,10 +95,20 @@ RedactorPlugins.draft = {
         $('input[name=draft_id]', this.$box.closest('form'))
             .val(data.draft_id);
         this.draft_id = data.draft_id;
-        this.opts.clipboardUploadUrl =
-        this.opts.imageUpload =
-            'ajax.php/draft/'+data.draft_id+'/attach';
-        this.opts.imageUploadErrorCallback = this.displayError;
+
+        var self = this;
+        getConfig().then(function(c) {
+            if (c.allow_attachments) {
+                self.opts.clipboardUploadUrl =
+                self.opts.imageUpload =
+                    'ajax.php/draft/'+data.draft_id+'/attach';
+                self.opts.imageUploadErrorCallback = self.displayError;
+                // XXX: This happens in ::buildBindKeyboard() from
+                // ::buildAfter(). However, the imageUpload option is not
+                // known when the Redactor is init()'d
+                self.$editor.on('drop.redactor', $.proxy(self.buildEventDrop, self));
+            }
+        });
         this.opts.original_autosave = this.opts.autosave;
         this.opts.autosave = 'ajax.php/draft/'+data.draft_id;
     },
@@ -166,7 +177,6 @@ RedactorPlugins.signature = {
                 }, 'fast');
                 $(this).css('box-shadow', originalShadow);
             });
-            this.$box.find('.redactor_editor').css('border-bottom-style', 'none', true);
         }
     },
     updateSignature: function(e) {
@@ -214,12 +224,7 @@ $(function() {
     },
     redact = $.redact = function(el, options) {
         var el = $(el),
-            sizes = {'small': 75, 'medium': 150, 'large': 225},
-            selectedSize = sizes['medium'];
-        $.each(sizes, function(k, v) {
-            if (el.hasClass(k)) selectedSize = v;
-        });
-        var options = $.extend({
+            options = $.extend({
                 'air': el.hasClass('no-bar'),
                 'airButtons': ['formatting', '|', 'bold', 'italic', 'underline', 'deleted', '|', 'unorderedlist', 'orderedlist', 'outdent', 'indent', '|', 'image'],
                 'buttons': ['html', '|', 'formatting', '|', 'bold',
@@ -228,9 +233,9 @@ $(function() {
                     'file', 'table', 'link', '|', 'alignment', '|',
                     'horizontalrule'],
                 'autoresize': !el.hasClass('no-bar'),
-                'minHeight': selectedSize,
+                'minHeight': el.hasClass('small') ? 75 : 150,
                 'focus': false,
-                'plugins': [],
+                'plugins': ['fontcolor','fontfamily', 'signature'],
                 'imageGetJson': 'ajax.php/draft/images/browse',
                 'syncBeforeCallback': captureImageSizes,
                 'linebreaks': true,
@@ -250,32 +255,12 @@ $(function() {
                     el.redactor('set', '', false, false);
             });
         }
-        $('input[type=submit]', el.closest('form')).on('click', function() {
-            // Some setups (IE v10 on Windows 7 at least) seem to have a bug
-            // where Redactor does not sync properly after adding an image.
-            // Therefore, the ::get() call will not include text added after
-            // the image was inserted.
-            el.redactor('sync');
-        });
-        if (!$.clientPortal) {
-            options['plugins'] = options['plugins'].concat(
-                    'fontcolor', 'fontfamily', 'signature');
-        }
         if (el.hasClass('draft')) {
             el.closest('form').append($('<input type="hidden" name="draft_id"/>'));
             options['plugins'].push('draft');
             options.draftDelete = el.hasClass('draft-delete');
         }
-        getConfig().then(function(c) {
-            if (c.lang && c.lang.toLowerCase() != 'en_us' &&
-                    $.Redactor.opts.langs[c.short_lang])
-                options['lang'] = c.short_lang;
-            if (c.has_rtl)
-                options['plugins'].push('textdirection');
-            if ($('html.rtl').length)
-                options['direction'] = 'rtl';
-            el.redactor(options);
-        });
+        el.redactor(options);
     },
     findRichtextBoxes = function() {
         $('.richtext').each(function(i,el) {
@@ -314,7 +299,7 @@ $(document).ajaxError(function(event, request, settings) {
             }
         });
         $('#overlay').show();
-        alert(__('Unable to save draft. Refresh the current page to restore and continue your draft.'));
+        alert('Unable to save draft. Refresh the current page to restore and continue your draft.');
         $('#overlay').hide();
     }
 });
