@@ -2,17 +2,6 @@
 require('staff.inc.php');
 require_once(INCLUDE_DIR.'class.ticket.php');
 
-$ticket = $user = null; //clean start.
-//LOCKDOWN...See if the id provided is actually valid and if the user has access.
-if($_REQUEST['id']) {
-    if(!($ticket=Ticket::lookup($_REQUEST['id'])))
-         $errors['err']=sprintf(__('%s: Unknown or invalid ID.'), __('ticket'));
-    elseif(!$ticket->checkStaffAccess($thisstaff)) {
-        $errors['err']=__('Access denied. Contact admin if you believe this is in error');
-        $ticket=null; //Clear ticket obj.
-    }
-}
-
 function formatTime($time) {
 	$hours = floor($time / 60);
 	$minutes = $time % 60;
@@ -55,42 +44,59 @@ function countTime($ticketid, $typeid) {
 	return $totaltime;
 }
 
-//Navigation
+
+$ticket = $user = null; //clean start.
+//LOCKDOWN...See if the id provided is actually valid and if the user has access.
+if($_REQUEST['id']) {
+    if(!($ticket=Ticket::lookup($_REQUEST['id'])))
+         $errors['err']=sprintf(__('%s: Unknown or invalid ID.'), __('ticket'));
+    elseif(!$ticket->checkStaffAccess($thisstaff)) {
+        $errors['err']=__('Access denied. Contact admin if you believe this is in error');
+        $ticket=null; //Clear ticket obj.
+    }
+}
+
+//Navigation & Page Info
 $nav->setTabActive('tickets');
+$ost->setPageTitle(sprintf(__('Ticket #%s Billing Report'),$ticket->getNumber()));
 
 
-// Retrieve Ticket Information
-$TicketID = $_GET['id'];
-$Subject = $ticket->getSubject();
-//$TicketID = 5022;
+if(!$errors) {
+	// Retrieve Ticket Information
+	$TicketID = $_GET['id'];
+	$Subject = $ticket->getSubject();
+	$TicketNo = $ticket->getNumber();
 
 
-// Determine ID value for time-type
-$sql = 'SELECT * FROM `ost_list` WHERE `type` = "time-type"';
-$res = db_query($sql);
-$timelist = db_fetch_array($res);
-$timelistid = $timelist['id'];
+	// Determine ID value for time-type
+	$sql = 'SELECT * FROM `ost_list` WHERE `type` = "time-type"';
+	$res = db_query($sql);
+	$timelist = db_fetch_array($res);
+	$timelistid = $timelist['id'];
 
 
-// Generate Array of times for summary
-$sql = 'SELECT * FROM `ost_list_items` where `list_id` = ' . $timelistid;
-$res = db_query($sql);
-$loop = 0;
-while($row = db_fetch_array($res, MYSQL_ASSOC)) {
-	$loop++;
-	$time[$loop][0] = countTime($TicketID, $row['id']);
-	$time[$loop][1] = $row['id'];
+	// Generate Array of times for summary
+	$sql = 'SELECT * FROM `ost_list_items` where `list_id` = ' . $timelistid;
+	$res = db_query($sql);
+	$loop = 0;
+	while($row = db_fetch_array($res, MYSQL_ASSOC)) {
+		$loop++;
+		$time[$loop][0] = countTime($TicketID, $row['id']);
+		$time[$loop][1] = $row['id'];
+	}
 }
 
 require_once(STAFFINC_DIR.'header.inc.php');
+
+if(!$errors) {
 ?>
 
 	<h1>Billing Report</h1>
-	<p>Beta / test report</p>
 	
 	<h2>Ticket Information</h2>
-	<p><b>Ticket Number:</b> <?php echo $TicketID; ?> <br />
-	<b>Ticket Subject:</b> <?php echo $Subject; ?>
+	<p><b>Ticket:</b> #<?php echo $TicketNo; ?> <br />
+		<b>Subject:</b> <?php echo $Subject; ?> <br />
+		<b>Generated:</b> <?php echo date("D M d, Y G:i a"); ?>
 	</p>
 	<p>&nbsp;</p>
 	
@@ -98,7 +104,9 @@ require_once(STAFFINC_DIR.'header.inc.php');
 	<p>
 		<?php
 		for ($x = 1; $x <= count($time); $x++) {
-			echo formatTime($time[$x][0]) . " " . convTimeType($time[$x][1]) . "<br />";
+			if ($time[$x][0] <> "" && $time[$x][0] > 0) {
+				echo formatTime($time[$x][0]) . " " . convTimeType($time[$x][1]) . "<br />";
+			}
 		} 
 		?>
 	</p>
@@ -127,5 +135,11 @@ require_once(STAFFINC_DIR.'header.inc.php');
 	</table>
 	
 <?php
+} else {
+?>
+	<h1>Billing Report</h1>
+	<p>You do not have access to this report.</p>
+<?php
+}
 require_once(STAFFINC_DIR.'footer.inc.php');
 ?>
