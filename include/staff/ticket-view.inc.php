@@ -93,6 +93,13 @@ if($ticket->isOverdue())
                  class="icon-file-alt"></i> <?php echo __('Ticket Thread'); ?></a>
                  <li><a class="no-pjax" target="_blank" href="tickets.php?id=<?php echo $ticket->getId(); ?>&a=print&notes=1"><i
                  class="icon-file-text-alt"></i> <?php echo __('Thread + Internal Notes'); ?></a>
+				 <!-- Strobe Technologies Ltd | 28/03/2015 | START - Adds bill printing to print menu -->
+				 <!--- osTicket Version = v1.9.6 -->
+				 <?php if ($cfg->isThreadTime()) { ?>
+					<li><a class="no-pjax" target="_blank" href="tickets_cost.php?id=<?php echo $ticket->getId(); ?>"><i
+					class="icon-file-text-alt"></i> <?php echo __('Billing Information'); ?></a>
+				<?php } ?>
+				 <!-- Strobe Technologies Ltd | 28/03/2015 | END - Adds bill printing to print menu -->
               </ul>
             </div>
             <div id="action-dropdown-more" class="action-dropdown anchor-right">
