@@ -248,10 +248,6 @@ class OsticketConfig extends Config {
         return $this->get('enable_premade');
     }
 
-    function isCannedResponseEnabled() {
-        return $this->get('enable_premade');
-    }
-
     function getVersion() {
         return THIS_VERSION;
     }
@@ -1139,7 +1135,7 @@ class OsticketConfig extends Config {
             'enable_premade'=>isset($vars['enable_premade'])?1:0,
         ));
     }
-
+	
 	
 	// Strobe Technologies Ltd | 17/04/2015 | START - Update Time Settings Function
 	// osTicket Version = v1.9.7
@@ -1156,7 +1152,7 @@ class OsticketConfig extends Config {
     }
 	// Strobe Technologies Ltd | 17/04/2015 | END - Update Time Settings Function
 
-	
+
     function updateAlertsSettings($vars, &$errors) {
 
        if($vars['ticket_alert_active']

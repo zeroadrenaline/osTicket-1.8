@@ -189,7 +189,6 @@ if (!$ticket->isClosed() || $ticket->isReopenable()) { ?>
         if ($messageField->isAttachmentsEnabled()) { ?>
 <?php
             print $attachments->render(true);
-            print $attachments->getForm()->getMedia();
 ?>
         <?php
         } ?>
