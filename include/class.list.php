@@ -155,8 +155,8 @@ class DynamicList extends VerySimpleModel implements CustomList {
         $this->_config = new Config('list.'.$this->getId());
     }
 
-	// Strobe Technologies Ltd | 14/03/2015 | START - Function to lookup types from dynamic lists
-	// osTicket Version = v1.9.6
+	// Strobe Technologies Ltd | 17/04/2015 | START - Function to lookup types from dynamic lists
+	// osTicket Version = v1.9.7
 	static function getTypes($criteria) {
 
         $types = array();
@@ -166,7 +166,7 @@ class DynamicList extends VerySimpleModel implements CustomList {
 
         return $types;
     }
-	// Strobe Technologies Ltd | 14/03/2015 | END - Function to lookup types from dynamic lists
+	// Strobe Technologies Ltd | 17/04/2015 | END - Function to lookup types from dynamic lists
 	
     function getId() {
         return $this->get('id');

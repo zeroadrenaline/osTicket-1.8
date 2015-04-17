@@ -221,8 +221,8 @@ class OsticketConfig extends Config {
         return ($this->get('enable_kb') && FAQ::countPublishedFAQs());
     }
 	
-	// Strobe Technologies Ltd | 16/03/2015 | START - Checking to see if Time Spent parts are enabled
-	// osTicket Version = v1.9.6
+	// Strobe Technologies Ltd | 17/04/2015 | START - Checking to see if Time Spent parts are enabled
+	// osTicket Version = v1.9.7
 	function isClientTime() {
 		// determines if Client Time View is on or not
 		return ($this->get('isclienttime'));
@@ -242,7 +242,7 @@ class OsticketConfig extends Config {
 		// determines if Ticket Thread Timer is Enabled
 		return ($this->get('isthreadtimer'));
 	}
-	// Strobe Technologies Ltd | 16/03/2015 | END - Checking to see if Time Spent parts are enabled
+	// Strobe Technologies Ltd | 17/04/2015 | END - Checking to see if Time Spent parts are enabled
 
     function isCannedResponseEnabled() {
         return $this->get('enable_premade');
@@ -884,8 +884,8 @@ class OsticketConfig extends Config {
                 return $this->updateKBSettings($vars, $errors);
                 break;
 			case 'tickettime':
-				return $this->updateTimeSettings($vars, $errors);	// Strobe Technologies Ltd | 14/03/2015 | Adding update case check
-				break;												// osTicket Version = v1.9.6
+				return $this->updateTimeSettings($vars, $errors);	// Strobe Technologies Ltd | 17/04/2015 | Adding update case check
+				break;												// osTicket Version = v1.9.7
             default:
                 $errors['err']=__('Unknown setting option. Get technical support.');
         }
@@ -1141,8 +1141,8 @@ class OsticketConfig extends Config {
     }
 
 	
-	// Strobe Technologies Ltd | 16/03/2015 | START - Update Time Settings Function
-	// osTicket Version = v1.9.6
+	// Strobe Technologies Ltd | 17/04/2015 | START - Update Time Settings Function
+	// osTicket Version = v1.9.7
 	function updateTimeSettings($vars, &$errors) {
 
         if($errors) return false;
@@ -1154,7 +1154,7 @@ class OsticketConfig extends Config {
 			'isthreadtimer'=>isset($vars['isthreadtimer'])?1:0,
         ));
     }
-	// Strobe Technologies Ltd | 16/03/2015 | END - Update Time Settings Function
+	// Strobe Technologies Ltd | 17/04/2015 | END - Update Time Settings Function
 
 	
     function updateAlertsSettings($vars, &$errors) {

@@ -237,7 +237,7 @@ class Thread {
 }
 
 
-Class ThreadEntry {
+class ThreadEntry {
 
     var $id;
     var $ht;
@@ -257,11 +257,9 @@ Class ThreadEntry {
         if(!$id && !($id=$this->getId()))
             return false;
 
-        $sql='SELECT thread.*, info.email_mid, info.headers '
+        $sql='SELECT thread.*'
             .' ,count(DISTINCT attach.attach_id) as attachments '
             .' FROM '.TICKET_THREAD_TABLE.' thread '
-            .' LEFT JOIN '.TICKET_EMAIL_INFO_TABLE.' info
-                ON (thread.id=info.thread_id) '
             .' LEFT JOIN '.TICKET_ATTACHMENT_TABLE.' attach
                 ON (thread.ticket_id=attach.ticket_id
                         AND thread.id=attach.ref_id) '
@@ -341,6 +339,10 @@ Class ThreadEntry {
         return db_query($sql) && db_affected_rows();
     }
 
+    function getMessage() {
+        return $this->getBody();
+    }
+
     function getCreateDate() {
         return $this->ht['created'];
     }
@@ -357,13 +359,30 @@ Class ThreadEntry {
         return $this->ht['ticket_id'];
     }
 
+    function _deferEmailInfo() {
+        if (isset($this->ht['email_mid']))
+            return;
+
+        // Don't do this more than once
+        $this->ht['email_mid'] = false;
+
+        $sql = 'SELECT email_mid, headers FROM '.TICKET_EMAIL_INFO_TABLE
+            .' WHERE thread_id='.db_input($this->getId());
+        if (!($res = db_query($sql)))
+            return;
+
+        list($this->ht['email_mid'], $this->ht['headers']) = db_fetch_row($res);
+    }
+
     function getEmailMessageId() {
+        $this->_deferEmailInfo();
         return $this->ht['email_mid'];
     }
 
     function getEmailHeaderArray() {
         require_once(INCLUDE_DIR.'class.mailparse.php');
 
+        $this->_deferEmailInfo();
         if (!isset($this->ht['@headers']))
             $this->ht['@headers'] = Mail_Parse::splitHeaders($this->ht['headers']);
 
@@ -378,6 +397,33 @@ Class ThreadEntry {
         if ($include_mid && ($mid = $this->getEmailMessageId()))
             $references .= $mid;
         return $references;
+    }
+
+    /**
+     * Retrieve a list of all the recients of this message if the message
+     * was received via email.
+     *
+     * Returns:
+     * (array<RFC_822>) list of recipients parsed with the Mail/RFC822
+     * address parsing utility. Returns an empty array if the message was
+     * not received via email.
+     */
+    function getAllEmailRecipients() {
+        $headers = self::getEmailHeaderArray();
+        $recipients = array();
+        if (!$headers)
+            return $recipients;
+
+        foreach (array('To', 'Cc') as $H) {
+            if (!isset($headers[$H]))
+                continue;
+
+            if (!($all = Mail_Parse::parseAddressList($headers[$H])))
+                continue;
+
+            $recipients = array_merge($recipients, $all);
+        }
+        return $recipients;
     }
 
     function getUIDFromEmailReference($ref) {
@@ -432,6 +478,7 @@ Class ThreadEntry {
     }
 
     function getEmailHeader() {
+        $this->_deferEmailInfo();
         return $this->ht['headers'];
     }
 
@@ -760,7 +807,8 @@ Class ThreadEntry {
 
     function saveEmailInfo($vars) {
 
-        if(!$vars || !$vars['mid'])
+        // Don't save empty message ID
+        if (!$vars || !$vars['mid'])
             return 0;
 
         $this->ht['email_mid'] = $vars['mid'];
@@ -1054,16 +1102,16 @@ Class ThreadEntry {
         $poster = $vars['poster'];
         if ($poster && is_object($poster))
             $poster = (string) $poster;
-		
-		// Strobe Technologies Ltd | 14/03/2015 | START - Capture Posted time information
-		// osTicket Version = v1.9.6
+			
+		// Strobe Technologies Ltd | 17/04/2015 | START - Capture Posted time information
+		// osTicket Version = v1.9.7
 		$time_spent = $vars['time_spent'];
         if ($time_spent && is_object($time_spent))
             $time_spent = (float) $time_spent;
         $time_type = $vars['time_type'];
         if ($time_type && is_object($time_type))
             $time_type = (int) $time_type;
-		// Strobe Technologies Ltd | 14/03/2015 | END - Capture Posted time information
+		// Strobe Technologies Ltd | 17/04/2015 | END - Capture Posted time information
 
         $sql=' INSERT INTO '.TICKET_THREAD_TABLE.' SET created=NOW() '
             .' ,thread_type='.db_input($vars['type'])
@@ -1076,8 +1124,8 @@ Class ThreadEntry {
 			.' ,time_spent='.db_input($time_spent)
             .' ,time_type='.db_input($time_type)
             .' ,source='.db_input($vars['source']);
-			// Strobe Technologies Ltd | 14/03/2015 | Added time_spent & time_type into SQL statement
-			// osTicket Version = v1.9.6
+			// Strobe Technologies Ltd | 17/04/2015 | Added time_spent & time_type into SQL statement
+			// osTicket Version = v1.9.7
 
         if (!isset($vars['attachments']) || !$vars['attachments'])
             // Otherwise, body will be configured in a block below (after
@@ -1274,10 +1322,6 @@ class Note extends ThreadEntry {
 
     function Note($id, $ticketId=0) {
         parent::ThreadEntry($id, 'N', $ticketId);
-    }
-
-    function getMessage() {
-        return $this->getBody();
     }
 
     /* static */
