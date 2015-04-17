@@ -92,6 +92,24 @@ class Dept {
         return $this->email;
     }
 
+    /**
+     * getAlertEmail
+     *
+     * Fetches either the department email (for replies) if configured.
+     * Otherwise, the system alert email address is used.
+     */
+    function getAlertEmail() {
+        global $cfg;
+
+        if (!$this->email && ($id = $this->getEmailId())) {
+            $this->email = Email::lookup($id);
+        }
+        if (!$this->email && $cfg) {
+            $this->email = $cfg->getAlertEmail();
+        }
+        return $this->email;
+    }
+
     function getNumStaff() {
         return $this->ht['users'];
     }
@@ -228,6 +246,16 @@ class Dept {
         return ($this->getManagerId() && $this->getManagerId()==$staff);
     }
 
+    function isMember($staff) {
+
+        if (is_object($staff))
+            $staff = $staff->getId();
+
+        // Members are indexed by ID
+        $members = $this->getMembers();
+
+        return ($members && isset($members[$staff]));
+    }
 
     function isPublic() {
          return ($this->ht['ispublic']);

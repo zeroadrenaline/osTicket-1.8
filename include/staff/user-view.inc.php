@@ -28,7 +28,7 @@ $org = $user->getOrganization();
             <?php
             } else { ?>
             <a id="user-register" class="action-button pull-right user-action"
-            href="#users/<?php echo $user->getId(); ?>/register"><i class="icon-edit"></i>
+            href="#users/<?php echo $user->getId(); ?>/register"><i class="icon-smile"></i>
             <?php echo __('Register'); ?></a>
             <?php
             } ?>
@@ -94,9 +94,10 @@ $org = $user->getOrganization();
                                 echo sprintf('<a href="#users/%d/org" class="user-action">%s</a>',
                                         $user->getId(), $org->getName());
                             else
-                                echo sprintf('<a href="#users/%d/org"
-                                        class="user-action">Add Organization</a>',
-                                        $user->getId());
+                                echo sprintf(
+                                    '<a href="#users/%d/org" class="user-action">%s</a>',
+                                    $user->getId(),
+                                    __('Add Organization'));
                         ?>
                         </span>
                     </td>

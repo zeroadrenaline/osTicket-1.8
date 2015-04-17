@@ -210,6 +210,13 @@ class OsticketConfig extends Config {
     }
 
     function isKnowledgebaseEnabled() {
+        global $thisclient;
+
+        if ($this->get('restrict_kb', false)
+            && (!$thisclient || $thisclient->isGuest())
+        ) {
+            return false;
+        }
         require_once(INCLUDE_DIR.'class.faq.php');
         return ($this->get('enable_kb') && FAQ::countPublishedFAQs());
     }
@@ -236,6 +243,10 @@ class OsticketConfig extends Config {
 		return ($this->get('isthreadtimer'));
 	}
 	// Strobe Technologies Ltd | 16/03/2015 | END - Checking to see if Time Spent parts are enabled
+
+    function isCannedResponseEnabled() {
+        return $this->get('enable_premade');
+    }
 
     function isCannedResponseEnabled() {
         return $this->get('enable_premade');
@@ -696,19 +707,20 @@ class OsticketConfig extends Config {
         return ($this->get('message_alert_acct_manager'));
     }
 
-    function alertONNewNote() {
+    //TODO: change note_alert to activity_alert
+    function alertONNewActivity() {
         return ($this->get('note_alert_active'));
     }
 
-    function alertLastRespondentONNewNote() {
+    function alertLastRespondentONNewActivity() {
         return ($this->get('note_alert_laststaff'));
     }
 
-    function alertAssignedONNewNote() {
+    function alertAssignedONNewActivity() {
         return ($this->get('note_alert_assigned'));
     }
 
-    function alertDeptManagerONNewNote() {
+    function alertDeptManagerONNewActivity() {
         return ($this->get('note_alert_dept_manager'));
     }
 
@@ -1115,11 +1127,16 @@ class OsticketConfig extends Config {
 
     function updateKBSettings($vars, &$errors) {
 
-        if($errors) return false;
+        if ($vars['restrict_kb'] && !$this->isClientRegistrationEnabled())
+            $errors['restrict_kb'] =
+                __('The knowledge base cannot be restricted unless client registration is enabled');
+
+        if ($errors) return false;
 
         return $this->updateAll(array(
             'enable_kb'=>isset($vars['enable_kb'])?1:0,
-               'enable_premade'=>isset($vars['enable_premade'])?1:0,
+            'restrict_kb'=>isset($vars['restrict_kb'])?1:0,
+            'enable_premade'=>isset($vars['enable_premade'])?1:0,
         ));
     }
 

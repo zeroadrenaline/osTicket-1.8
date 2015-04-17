@@ -5,7 +5,7 @@ $signin_url = ROOT_PATH . "login.php"
     . ($thisclient ? "?e=".urlencode($thisclient->getEmail()) : "");
 $signout_url = ROOT_PATH . "logout.php?auth=".$ost->getLinkToken();
 
-header("Content-Type: text/html; charset=UTF-8\r\n");
+header("Content-Type: text/html; charset=UTF-8");
 ?>
 <!DOCTYPE html>
 <html <?php
@@ -51,11 +51,6 @@ if (($lang = Internationalization::getCurrentLanguage())
 <body>
     <div id="container">
         <div id="header">
-            <a class="pull-left" id="logo" href="<?php echo ROOT_PATH; ?>index.php"
-            title="<?php echo __('Support Center'); ?>"><img src="<?php
-                echo ROOT_PATH; ?>logo.php" border=0 alt="<?php
-                echo $ost->getConfig()->getTitle(); ?>"
-                style="height: 5em"></a>
             <div class="pull-right flush-right">
             <p>
              <?php
@@ -63,7 +58,7 @@ if (($lang = Internationalization::getCurrentLanguage())
                     && !$thisclient->isGuest()) {
                  echo Format::htmlchars($thisclient->getName()).'&nbsp;|';
                  ?>
-                <a href="<?php echo ROOT_PATH; ?>account.php"><?php echo __('Profile'); ?></a> |
+                <a href="<?php echo ROOT_PATH; ?>profile.php"><?php echo __('Profile'); ?></a> |
                 <a href="<?php echo ROOT_PATH; ?>tickets.php"><?php echo sprintf(__('Tickets <b>(%d)</b>'), $thisclient->getNumTickets()); ?></a> -
                 <a href="<?php echo $signout_url; ?>"><?php echo __('Sign Out'); ?></a>
             <?php
@@ -95,6 +90,12 @@ if (($all_langs = Internationalization::availableLanguages())
 } ?>
             </p>
             </div>
+            <a class="pull-left" id="logo" href="<?php echo ROOT_PATH; ?>index.php"
+            title="<?php echo __('Support Center'); ?>">
+                <span class="valign-helper"></span>
+                <img src="<?php echo ROOT_PATH; ?>logo.php" border=0 alt="<?php
+                echo $ost->getConfig()->getTitle(); ?>">
+            </a>
         </div>
         <div class="clear"></div>
         <?php

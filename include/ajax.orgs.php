@@ -184,7 +184,8 @@ class OrgsAjaxAPI extends AjaxController {
         );
 
         if ($_POST) {
-            $status = User::importFromPost($_POST['pasted']);
+            $status = User::importFromPost($_POST['pasted'],
+                array('org_id'=>$org_id));
             if (is_string($status))
                 $info['error'] = $status;
             else
@@ -210,11 +211,11 @@ class OrgsAjaxAPI extends AjaxController {
         $info['title'] = __('Add New Organization');
         $info['search'] = false;
 
-        return self::_lookupform($form, $info);
+        return $this->_lookupform($form, $info);
     }
 
     function lookup() {
-        return self::_lookupform();
+        return $this->_lookupform();
     }
 
     function selectOrg($id) {
@@ -240,10 +241,14 @@ class OrgsAjaxAPI extends AjaxController {
         return $ajax->createNote('O'.$id);
     }
 
-    static function _lookupform($form=null, $info=array()) {
+    function _lookupform($form=null, $info=array()) {
 
         if (!$info or !$info['title'])
             $info += array('title' => __('Organization Lookup'));
+
+        if ($_POST && ($org = Organization::lookup($_POST['orgid']))) {
+            Http::response(201, $org->to_json());
+        }
 
         ob_start();
         include(STAFFINC_DIR . 'templates/org-lookup.tmpl.php');
