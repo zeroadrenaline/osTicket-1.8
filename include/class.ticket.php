@@ -12,6 +12,10 @@
     See LICENSE.TXT for details.
 
     vim: expandtab sw=4 ts=4 sts=4:
+	
+	Modified By
+	Robin Toy <robin@strobe-it.co.uk>
+	http://www.strobe-it.co.uk/
 **********************************************************************/
 include_once(INCLUDE_DIR.'class.thread.php');
 include_once(INCLUDE_DIR.'class.staff.php');
@@ -54,8 +58,8 @@ class Ticket {
 
     var $thread; //Thread obj.
 	
-	// Strobe Technologies Ltd | 17/04/2015 | START - Variables and functions for recording and retrieving time spent
-	// osTicket Version = v1.9.7
+	// Strobe Technologies Ltd | 28/06/2015 | START - Variables and functions for recording and retrieving time spent
+	// osTicket Version = v1.9.9
 	var $timeSpent;
 	
 	function getTimeSpent(){
@@ -116,7 +120,7 @@ class Ticket {
         $sql = 'UPDATE '.TICKET_TABLE.' SET time_spent='.db_input($this->getRealTimeSpent()).'+'.db_input($time).' WHERE ticket_id='.db_input($this->getId());
         return (db_query($sql) && db_affected_rows())?true:false;
     } 
-	// Strobe Technologies Ltd | 17/04/2015 | END - Variables and functions for recording and retrieving time spent
+	// Strobe Technologies Ltd | 28/06/2015 | END - Variables and functions for recording and retrieving time spent
 
     function Ticket($id) {
         $this->id = 0;
@@ -142,8 +146,8 @@ class Ticket {
                 ON ( ticket.ticket_id=attach.ticket_id) '
             .' WHERE ticket.ticket_id='.db_input($id)
             .' GROUP BY ticket.ticket_id';
-			// Strobe Technologies Ltd | 17/04/2015 | Added time_spent to SQL select
-			// osTicket v1.9.7
+			// Strobe Technologies Ltd | 28/06/2015 | Added time_spent to SQL select
+			// osTicket v1.9.9
 
         //echo $sql;
         if(!($res=db_query($sql)) || !db_num_rows($res))
@@ -154,8 +158,8 @@ class Ticket {
 
         $this->id       = $this->ht['ticket_id'];
         $this->number   = $this->ht['number'];
-		$this->timeSpent = $this->ht['time_spent'];		// Strobe Technologies Ltd | 17/04/2015 | Collecting time spent from SQL results
-														// osTicket Version = v1.9.7
+		$this->timeSpent = $this->ht['time_spent'];		// Strobe Technologies Ltd | 28/06/2015 | Collecting time spent from SQL results
+														// osTicket Version = v1.9.9
         $this->_answers = array();
 
         $this->loadDynamicData();
@@ -951,7 +955,7 @@ class Ticket {
         // ticket, the ticket is opened and thereafter the status is set to
         // the requested status).
         if ($current_status = $this->getStatus()) {
-            $note = sprintf(__('Status changed from %s to %s by %s'),
+            $note = sprintf(__('Status changed from %1$s to %2$s by %3$s'),
                     $this->getStatus(),
                     $status,
                     $thisstaff ?: 'SYSTEM');
@@ -1186,7 +1190,7 @@ class Ticket {
             // Skip all the other recipients of the message
             foreach ($entry->getAllEmailRecipients() as $R) {
                 foreach ($recipients as $R2) {
-                    if ($R2->getEmail() == ($R->mailbox.'@'.$R->hostname)) {
+                    if (0 === strcasecmp($R2->getEmail(), $R->mailbox.'@'.$R->host)) {
                         $skip[$R2->getUserId()] = true;
                         break;
                     }
@@ -2495,24 +2499,33 @@ class Ticket {
             }
         }
 
+        if (!$user) {
+            $interesting = array('name', 'email');
+            $user_form = UserForm::getUserForm()->getForm($vars);
+            // Add all the user-entered info for filtering
+            foreach ($interesting as $F) {
+                $field = $user_form->getField($F);
+                $vars[$F] = $field->toString($field->getClean());
+            }
+            // Attempt to lookup the user and associated data
+            $user = User::lookupByEmail($vars['email']);
+        }
+
         // Add in user and organization data for filtering
         if ($user) {
             $vars += $user->getFilterData();
             $vars['email'] = $user->getEmail();
-            $vars['name'] = $user->getName();
+            $vars['name'] = $user->getName()->getOriginal();
             if ($org = $user->getOrganization()) {
                 $vars += $org->getFilterData();
             }
         }
-        // Unpack the basic user information
+        // Don't include org information based solely on email domain
+        // for existing user instances
         else {
-            $interesting = array('name', 'email');
-            $user_form = UserForm::getUserForm()->getForm($vars);
-            // Add all the user-entered info for filtering
+            // Unpack all known user info from the request
             foreach ($user_form->getFields() as $f) {
                 $vars['field.'.$f->get('id')] = $f->toString($f->getClean());
-                if (in_array($f->get('name'), $interesting))
-                    $vars[$f->get('name')] = $vars['field.'.$f->get('id')];
             }
             // Add in organization data if one exists for this email domain
             list($mailbox, $domain) = explode('@', $vars['email'], 2);
@@ -2992,6 +3005,9 @@ class Ticket {
 
         // Not assigned...save optional note if any
         if (!$vars['assignId'] && $vars['note']) {
+            if (!$cfg->isHtmlThreadEnabled()) {
+                $vars['note'] = new TextThreadBody($vars['note']);
+            }
             $ticket->logNote(_S('New Ticket'), $vars['note'], $thisstaff, false);
         }
         else {

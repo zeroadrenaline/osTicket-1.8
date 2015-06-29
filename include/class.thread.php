@@ -13,6 +13,10 @@
     See LICENSE.TXT for details.
 
     vim: expandtab sw=4 ts=4 sts=4:
+	
+	Modified By
+	Robin Toy <robin@strobe-it.co.uk>
+	http://www.strobe-it.co.uk/
 **********************************************************************/
 include_once(INCLUDE_DIR.'class.ticket.php');
 include_once(INCLUDE_DIR.'class.draft.php');
@@ -39,18 +43,14 @@ class Thread {
 
         $sql='SELECT ticket.ticket_id as id '
             .' ,count(DISTINCT attach.attach_id) as attachments '
-            .' ,count(DISTINCT message.id) as messages '
-            .' ,count(DISTINCT response.id) as responses '
-            .' ,count(DISTINCT note.id) as notes '
+            ." ,count(DISTINCT CASE WHEN thread.thread_type = 'M' THEN thread.id ELSE NULL END) as messages "
+            ." ,count(DISTINCT CASE WHEN thread.thread_type = 'R' THEN thread.id ELSE NULL END) as responses "
+            ." ,count(DISTINCT CASE WHEN thread.thread_type = 'N' THEN thread.id ELSE NULL END) as notes "
             .' FROM '.TICKET_TABLE.' ticket '
             .' LEFT JOIN '.TICKET_ATTACHMENT_TABLE.' attach ON ('
                 .'ticket.ticket_id=attach.ticket_id) '
-            .' LEFT JOIN '.TICKET_THREAD_TABLE.' message ON ('
-                ."ticket.ticket_id=message.ticket_id AND message.thread_type = 'M') "
-            .' LEFT JOIN '.TICKET_THREAD_TABLE.' response ON ('
-                ."ticket.ticket_id=response.ticket_id AND response.thread_type = 'R') "
-            .' LEFT JOIN '.TICKET_THREAD_TABLE.' note ON ( '
-                ."ticket.ticket_id=note.ticket_id AND note.thread_type = 'N') "
+            .' LEFT JOIN '.TICKET_THREAD_TABLE.' thread ON ('
+                .'ticket.ticket_id=thread.ticket_id) '
             .' WHERE ticket.ticket_id='.db_input($this->getTicketId())
             .' GROUP BY ticket.ticket_id';
 
@@ -745,10 +745,20 @@ class ThreadEntry {
         if ($mailinfo['userId']
                 || strcasecmp($mailinfo['email'], $ticket->getEmail()) == 0) {
             $vars['message'] = $body;
-            $vars['userId'] = $mailinfo['userId'] ? $mailinfo['userId'] : $ticket->getUserId();
+            $vars['userId'] = $mailinfo['userId'] ?: $ticket->getUserId();
             return $ticket->postMessage($vars, 'Email');
         }
-        // XXX: Consider collaborator role
+        // Consider collaborator role (disambiguate staff members as
+        // collaborators)
+        elseif (($E = UserEmail::lookup($mailinfo['email']))
+            && ($C = Collaborator::lookup(array(
+                'ticketId' => $ticket->getId(), 'userId' => $E->user_id
+            )))
+        ) {
+            $vars['userId'] = $C->getUserId();
+            $vars['message'] = $body;
+            return $ticket->postMessage($vars, 'Email');
+        }
         elseif ($mailinfo['staffId']
                 || ($mailinfo['staffId'] = Staff::getIdByEmail($mailinfo['email']))) {
             $vars['staffId'] = $mailinfo['staffId'];
@@ -996,7 +1006,7 @@ class ThreadEntry {
         }
 
         // Search for the message-id token in the body
-        if (preg_match('`(?:data-mid="|Ref-Mid: )([^"\s]*)(?:$|")`',
+        if (preg_match('`(?:class="mid-|Ref-Mid: )([^"\s]*)(?:$|")`',
                 $mailinfo['message'], $match))
             if ($thread = ThreadEntry::lookupByRefMessageId($match[1],
                     $mailinfo['email']))
@@ -1102,16 +1112,16 @@ class ThreadEntry {
         $poster = $vars['poster'];
         if ($poster && is_object($poster))
             $poster = (string) $poster;
-			
-		// Strobe Technologies Ltd | 17/04/2015 | START - Capture Posted time information
-		// osTicket Version = v1.9.7
+		
+		// Strobe Technologies Ltd | 28/06/2015 | START - Capture Posted time information
+		// osTicket Version = v1.9.9
 		$time_spent = $vars['time_spent'];
         if ($time_spent && is_object($time_spent))
             $time_spent = (float) $time_spent;
         $time_type = $vars['time_type'];
         if ($time_type && is_object($time_type))
             $time_type = (int) $time_type;
-		// Strobe Technologies Ltd | 17/04/2015 | END - Capture Posted time information
+		// Strobe Technologies Ltd | 28/06/2015 | END - Capture Posted time information
 
         $sql=' INSERT INTO '.TICKET_THREAD_TABLE.' SET created=NOW() '
             .' ,thread_type='.db_input($vars['type'])
@@ -1124,8 +1134,8 @@ class ThreadEntry {
 			.' ,time_spent='.db_input($time_spent)
             .' ,time_type='.db_input($time_type)
             .' ,source='.db_input($vars['source']);
-			// Strobe Technologies Ltd | 17/04/2015 | Added time_spent & time_type into SQL statement
-			// osTicket Version = v1.9.7
+			// Strobe Technologies Ltd | 28/06/2015 | Added time_spent & time_type into SQL statement
+			// osTicket Version = v1.9.9
 
         if (!isset($vars['attachments']) || !$vars['attachments'])
             // Otherwise, body will be configured in a block below (after
@@ -1182,6 +1192,9 @@ class ThreadEntry {
                 .' WHERE `id`='.db_input($entry->getId());
             if (!db_query($sql) || !db_affected_rows())
                 return false;
+
+            // Set the $entry here for search indexing
+            $entry->ht['body'] = $body;
         }
 
         // Email message id
@@ -1536,9 +1549,14 @@ class HtmlThreadBody extends ThreadBody {
     }
 
     function getSearchable() {
-        // <br> -> \n
-        $body = preg_replace(array('`<br(\s*)?/?>`i', '`</div>`i'), "\n", $this->body);
-        $body = Format::htmldecode(Format::striptags($body));
+        // Replace tag chars with spaces (to ensure words are separated)
+        $body = Format::html($this->body, array('hook_tag' => function($el, $attributes=0) {
+            static $non_ws = array('wbr' => 1);
+            return (isset($non_ws[$el])) ? '' : ' ';
+        }));
+        // Collapse multiple white-spaces
+        $body = html_entity_decode($body, ENT_QUOTES);
+        $body = preg_replace('`\s+`u', ' ', $body);
         return Format::searchable($body);
     }
 

@@ -12,6 +12,10 @@
     See LICENSE.TXT for details.
 
     vim: expandtab sw=4 ts=4 sts=4:
+	
+	Modified By
+	Robin Toy <robin@strobe-it.co.uk>
+	http://www.strobe-it.co.uk/
 **********************************************************************/
 
 require('staff.inc.php');
@@ -36,9 +40,14 @@ if($_REQUEST['id']) {
 }
 
 //Lookup user if id is available.
-if ($_REQUEST['uid'])
+if ($_REQUEST['uid']) {
     $user = User::lookup($_REQUEST['uid']);
-
+}
+elseif (!isset($_REQUEST['advsid']) && @$_REQUEST['a'] != 'search'
+    && !isset($_REQUEST['status']) && isset($_SESSION['::Q'])
+) {
+    $_REQUEST['status'] = $_SESSION['::Q'];
+}
 // Configure form for file uploads
 $response_form = new Form(array(
     'attachments' => new FileUploadField(array('id'=>'attach',
@@ -59,16 +68,16 @@ if($_POST && !$errors):
         $errors=array();
         $lock=$ticket->getLock(); //Ticket lock if any
 		
-		// Strobe Technologies Ltd | 17/04/2015 | START - Collect Total Spent from results
-		// osTicket Version = v1.9.7
+		// Strobe Technologies Ltd | 28/06/2015 | START - Collect Total Spent from results
+		// osTicket Version = v1.9.9
 		if($_POST['time_spent']) {
 			$ticket->timeSpent($_POST['time_spent']);
 		}
-		// Strobe Technologies Ltd | 17/04/2015 | END - Collect Total Spent from results
+		// Strobe Technologies Ltd | 28/06/2015 | END - Collect Total Spent from results
 		
         switch(strtolower($_POST['a'])):
-		// Strobe Technologies Ltd | 17/04/2015 | START - Add time case / switch
-		// osTicket Version = v1.9.7
+		// Strobe Technologies Ltd | 28/06/2015 | START - Add time case / switch
+		// osTicket Version = v1.9.9
 		case 'time':
 			if(!$_POST['time_spent'])
 				$errors['time_spent']=__('Time required');
@@ -104,7 +113,7 @@ if($_POST && !$errors):
                 $errors['err']=__('Unable to post the time. Correct the errors below and try again!');
             }
 			break;
-			// Strobe Technologies Ltd | 17/04/2015 | END - Add time case / switch
+			// Strobe Technologies Ltd | 28/06/2015 | END - Add time case / switch
         case 'reply':
             if(!$thisstaff->canPostReply())
                 $errors['err'] = __('Action denied. Contact admin for access');
@@ -431,7 +440,7 @@ $open_name = _P('queue-name',
 if($cfg->showAnsweredTickets()) {
     $nav->addSubMenu(array('desc'=>$open_name.' ('.number_format($stats['open']+$stats['answered']).')',
                             'title'=>__('Open Tickets'),
-                            'href'=>'tickets.php',
+                            'href'=>'tickets.php?status=open',
                             'iconclass'=>'Ticket'),
                         (!$_REQUEST['status'] || $_REQUEST['status']=='open'));
 } else {
@@ -440,7 +449,7 @@ if($cfg->showAnsweredTickets()) {
 
         $nav->addSubMenu(array('desc'=>$open_name.' ('.number_format($stats['open']).')',
                                'title'=>__('Open Tickets'),
-                               'href'=>'tickets.php',
+                               'href'=>'tickets.php?status=open',
                                'iconclass'=>'Ticket'),
                             (!$_REQUEST['status'] || $_REQUEST['status']=='open'));
     }
@@ -499,7 +508,7 @@ if($thisstaff->canCreateTickets()) {
 }
 
 
-$ost->addExtraHeader('<script type="text/javascript" src="js/ticket.js?4be5782"></script>');
+$ost->addExtraHeader('<script type="text/javascript" src="js/ticket.js?be2f138"></script>');
 $ost->addExtraHeader('<meta name="tip-namespace" content="tickets.queue" />',
     "$('#content').data('tipNamespace', 'tickets.queue');");
 

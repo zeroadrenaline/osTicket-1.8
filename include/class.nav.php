@@ -12,6 +12,10 @@
     See LICENSE.TXT for details.
 
     vim: expandtab sw=4 ts=4 sts=4:
+	
+	Modified By
+	Robin Toy <robin@strobe-it.co.uk>
+	http://www.strobe-it.co.uk/
 **********************************************************************/
 require_once(INCLUDE_DIR.'class.app.php');
 
@@ -233,8 +237,8 @@ class AdminNav extends StaffNav{
                     $subnav[]=array('desc'=>__('Company'),'href'=>'settings.php?t=pages','iconclass'=>'pages');
                     $subnav[]=array('desc'=>__('System'),'href'=>'settings.php?t=system','iconclass'=>'preferences');
                     $subnav[]=array('desc'=>__('Tickets'),'href'=>'settings.php?t=tickets','iconclass'=>'ticket-settings');
-					$subnav[]=array('desc'=>__('Time'), 'href'=>'settings.php?t=tickettime','iconclass'=>'ticket-settings');	// Strobe Technologies Ltd | 17/04/2015 | Admin Menu for accessing Ticket Time.
-																																// osTicket Version = v1.9.7
+					$subnav[]=array('desc'=>__('Time'), 'href'=>'settings.php?t=tickettime','iconclass'=>'ticket-settings');	// Strobe Technologies Ltd | 28/06/2015 | Admin Menu for accessing Ticket Time.
+																																// osTicket Version = v1.9.9
                     $subnav[]=array('desc'=>__('Emails'),'href'=>'settings.php?t=emails','iconclass'=>'email-settings');
                     $subnav[]=array('desc'=>__('Access'),'href'=>'settings.php?t=access','iconclass'=>'users');
                     $subnav[]=array('desc'=>__('Knowledgebase'),'href'=>'settings.php?t=kb','iconclass'=>'kb-settings');

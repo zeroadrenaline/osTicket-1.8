@@ -1,4 +1,17 @@
 <?php
+/*************************************************************************
+    tickets_cost.php
+
+    Handles all tickets related actions.
+
+    Robin Toy <robin@strobe-it.co.uk>
+    Copyright (c)  2015-2020 Strobe Technologies Ltd
+    http://www.strobe-it.co.uk/
+
+    Released under the GNU General Public License WITHOUT ANY WARRANTY.
+    See LICENSE.TXT for details.
+**********************************************************************/
+
 require('staff.inc.php');
 require_once(INCLUDE_DIR.'class.ticket.php');
 

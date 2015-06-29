@@ -12,6 +12,10 @@
     See LICENSE.TXT for details.
 
     vim: expandtab sw=4 ts=4 sts=4:
+	
+	Modified By
+	Robin Toy <robin@strobe-it.co.uk>
+	http://www.strobe-it.co.uk/
 **********************************************************************/
 
 class Config {
@@ -165,6 +169,7 @@ class OsticketConfig extends Config {
         'default_help_topic' => 0,
         'help_topic_sort_mode' => 'a',
         'client_verify_email' => 1,
+        'verify_email_addrs' => 1,
     );
 
     function OsticketConfig($section=null) {
@@ -221,8 +226,8 @@ class OsticketConfig extends Config {
         return ($this->get('enable_kb') && FAQ::countPublishedFAQs());
     }
 	
-	// Strobe Technologies Ltd | 17/04/2015 | START - Checking to see if Time Spent parts are enabled
-	// osTicket Version = v1.9.7
+	// Strobe Technologies Ltd | 28/06/2015 | START - Checking to see if Time Spent parts are enabled
+	// osTicket Version = v1.9.9
 	function isClientTime() {
 		// determines if Client Time View is on or not
 		return ($this->get('isclienttime'));
@@ -242,7 +247,7 @@ class OsticketConfig extends Config {
 		// determines if Ticket Thread Timer is Enabled
 		return ($this->get('isthreadtimer'));
 	}
-	// Strobe Technologies Ltd | 17/04/2015 | END - Checking to see if Time Spent parts are enabled
+	// Strobe Technologies Ltd | 28/06/2015 | END - Checking to see if Time Spent parts are enabled
 
     function isCannedResponseEnabled() {
         return $this->get('enable_premade');
@@ -638,6 +643,10 @@ class OsticketConfig extends Config {
          return $this->get('admin_email');
     }
 
+    function verifyEmailAddrs() {
+        return (bool) $this->get('verify_email_addrs');
+    }
+
     function getReplySeparator() {
         return $this->get('reply_separator');
     }
@@ -880,8 +889,8 @@ class OsticketConfig extends Config {
                 return $this->updateKBSettings($vars, $errors);
                 break;
 			case 'tickettime':
-				return $this->updateTimeSettings($vars, $errors);	// Strobe Technologies Ltd | 17/04/2015 | Adding update case check
-				break;												// osTicket Version = v1.9.7
+				return $this->updateTimeSettings($vars, $errors);	// Strobe Technologies Ltd | 28/06/2015 | Adding update case check
+				break;												// osTicket Version = v1.9.9
             default:
                 $errors['err']=__('Unknown setting option. Get technical support.');
         }
@@ -1026,6 +1035,7 @@ class OsticketConfig extends Config {
             'alert_email_id'=>$vars['alert_email_id'],
             'default_smtp_id'=>$vars['default_smtp_id'],
             'admin_email'=>$vars['admin_email'],
+            'verify_email_addrs'=>isset($vars['verify_email_addrs']) ? 1 : 0,
             'enable_auto_cron'=>isset($vars['enable_auto_cron'])?1:0,
             'enable_mail_polling'=>isset($vars['enable_mail_polling'])?1:0,
             'strip_quoted_reply'=>isset($vars['strip_quoted_reply'])?1:0,
@@ -1135,10 +1145,9 @@ class OsticketConfig extends Config {
             'enable_premade'=>isset($vars['enable_premade'])?1:0,
         ));
     }
-	
-	
-	// Strobe Technologies Ltd | 17/04/2015 | START - Update Time Settings Function
-	// osTicket Version = v1.9.7
+
+	// Strobe Technologies Ltd | 28/06/2015 | START - Update Time Settings Function
+	// osTicket Version = v1.9.9
 	function updateTimeSettings($vars, &$errors) {
 
         if($errors) return false;
@@ -1150,8 +1159,7 @@ class OsticketConfig extends Config {
 			'isthreadtimer'=>isset($vars['isthreadtimer'])?1:0,
         ));
     }
-	// Strobe Technologies Ltd | 17/04/2015 | END - Update Time Settings Function
-
+	// Strobe Technologies Ltd | 28/06/2015 | END - Update Time Settings Function
 
     function updateAlertsSettings($vars, &$errors) {
 

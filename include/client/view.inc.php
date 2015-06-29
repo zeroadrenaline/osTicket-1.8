@@ -1,4 +1,9 @@
 <?php
+/*Modified By
+	Robin Toy <robin@strobe-it.co.uk>
+	http://www.strobe-it.co.uk/
+*/
+
 if(!defined('OSTCLIENTINC') || !$thisclient || !$ticket || !$ticket->checkUserAccess($thisclient)) die('Access Denied!');
 
 $info=($_POST && $errors)?Format::htmlchars($_POST):array();
@@ -74,15 +79,15 @@ if ($thisclient && $thisclient->isGuest()
                    <td><?php echo $ticket->getPhoneNumber(); ?></td>
                </tr>
 			   <?php
-			   // Strobe Technologies Ltd | 17/04/2015 | START - Added Total Time Spent to ticket information
-			   // osTicket Version = v1.9.7
+			   // Strobe Technologies Ltd | 28/06/2015 | START - Added Total Time Spent to ticket information
+			   // osTicket Version = v1.9.9
 			   if ($cfg->isClientTime()) { ?>
 			   <tr>
 					<th>Time Spent:</th>
 					<td><?php echo $ticket->getTimeSpent(); ?></td>
 				</tr>
 				<?PHP }
-				// Strobe Technologies Ltd | 17/04/2015 | START - Added Total Time Spent to ticket information ?>
+				// Strobe Technologies Ltd | 28/06/2015 | START - Added Total Time Spent to ticket information ?>
             </table>
        </td>
     </tr>
@@ -189,6 +194,7 @@ if (!$ticket->isClosed() || $ticket->isReopenable()) { ?>
         if ($messageField->isAttachmentsEnabled()) { ?>
 <?php
             print $attachments->render(true);
+            print $attachments->getForm()->getMedia();
 ?>
         <?php
         } ?>
