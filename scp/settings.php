@@ -12,10 +12,6 @@
     See LICENSE.TXT for details.
 
     vim: expandtab sw=4 ts=4 sts=4:
-	
-	Modified By
-	Robin Toy <robin@strobe-it.co.uk>
-	http://www.strobe-it.co.uk/
 **********************************************************************/
 
 require('admin.inc.php');
@@ -40,7 +36,7 @@ $settingOptions=array(
     'alerts' =>
         array(__('Alerts and Notices Settings'), 'settings.alerts'),
 );
-// Strobe Technologies Ltd | 28/06/2015 | Added Ticket Time settings options
+// Strobe Technologies Ltd | 30/06/2015 | Added Ticket Time settings options
 // osTicket Version = v1.9.9
 
 //Handle a POST.

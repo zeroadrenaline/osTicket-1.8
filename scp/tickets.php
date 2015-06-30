@@ -12,10 +12,6 @@
     See LICENSE.TXT for details.
 
     vim: expandtab sw=4 ts=4 sts=4:
-	
-	Modified By
-	Robin Toy <robin@strobe-it.co.uk>
-	http://www.strobe-it.co.uk/
 **********************************************************************/
 
 require('staff.inc.php');
@@ -68,15 +64,16 @@ if($_POST && !$errors):
         $errors=array();
         $lock=$ticket->getLock(); //Ticket lock if any
 		
-		// Strobe Technologies Ltd | 28/06/2015 | START - Collect Total Spent from results
+		// Strobe Technologies Ltd | 30/06/2015 | START - Collect Total Spent from results
 		// osTicket Version = v1.9.9
 		if($_POST['time_spent']) {
 			$ticket->timeSpent($_POST['time_spent']);
 		}
-		// Strobe Technologies Ltd | 28/06/2015 | END - Collect Total Spent from results
+		// Strobe Technologies Ltd | 30/06/2015 | END - Collect Total Spent from results
+		
 		
         switch(strtolower($_POST['a'])):
-		// Strobe Technologies Ltd | 28/06/2015 | START - Add time case / switch
+		// Strobe Technologies Ltd | 30/06/2015 | START - Add time case / switch
 		// osTicket Version = v1.9.9
 		case 'time':
 			if(!$_POST['time_spent'])
@@ -113,7 +110,7 @@ if($_POST && !$errors):
                 $errors['err']=__('Unable to post the time. Correct the errors below and try again!');
             }
 			break;
-			// Strobe Technologies Ltd | 28/06/2015 | END - Add time case / switch
+			// Strobe Technologies Ltd | 30/06/2015 | END - Add time case / switch
         case 'reply':
             if(!$thisstaff->canPostReply())
                 $errors['err'] = __('Action denied. Contact admin for access');

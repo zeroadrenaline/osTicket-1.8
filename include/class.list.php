@@ -13,10 +13,6 @@
     See LICENSE.TXT for details.
 
     vim: expandtab sw=4 ts=4 sts=4:
-	
-	Modified By
-	Robin Toy <robin@strobe-it.co.uk>
-	http://www.strobe-it.co.uk/
 **********************************************************************/
 
 require_once(INCLUDE_DIR .'class.dynamic_forms.php');
@@ -159,7 +155,7 @@ class DynamicList extends VerySimpleModel implements CustomList {
         $this->_config = new Config('list.'.$this->getId());
     }
 	
-	// Strobe Technologies Ltd | 28/06/2015 | START - Function to lookup types from dynamic lists
+	// Strobe Technologies Ltd | 30/06/2015 | START - Function to lookup types from dynamic lists
 	// osTicket Version = v1.9.9
 	static function getTypes($criteria) {
 
@@ -170,7 +166,7 @@ class DynamicList extends VerySimpleModel implements CustomList {
 
         return $types;
     }
-	// Strobe Technologies Ltd | 28/06/2015 | END - Function to lookup types from dynamic lists
+	// Strobe Technologies Ltd | 30/06/2015 | END - Function to lookup types from dynamic lists
 
     function getId() {
         return $this->get('id');

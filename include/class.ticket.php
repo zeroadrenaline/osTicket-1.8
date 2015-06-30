@@ -12,10 +12,6 @@
     See LICENSE.TXT for details.
 
     vim: expandtab sw=4 ts=4 sts=4:
-	
-	Modified By
-	Robin Toy <robin@strobe-it.co.uk>
-	http://www.strobe-it.co.uk/
 **********************************************************************/
 include_once(INCLUDE_DIR.'class.thread.php');
 include_once(INCLUDE_DIR.'class.staff.php');
@@ -58,7 +54,7 @@ class Ticket {
 
     var $thread; //Thread obj.
 	
-	// Strobe Technologies Ltd | 28/06/2015 | START - Variables and functions for recording and retrieving time spent
+	// Strobe Technologies Ltd | 30/06/2015 | START - Variables and functions for recording and retrieving time spent
 	// osTicket Version = v1.9.9
 	var $timeSpent;
 	
@@ -120,7 +116,7 @@ class Ticket {
         $sql = 'UPDATE '.TICKET_TABLE.' SET time_spent='.db_input($this->getRealTimeSpent()).'+'.db_input($time).' WHERE ticket_id='.db_input($this->getId());
         return (db_query($sql) && db_affected_rows())?true:false;
     } 
-	// Strobe Technologies Ltd | 28/06/2015 | END - Variables and functions for recording and retrieving time spent
+	// Strobe Technologies Ltd | 30/06/2015 | END - Variables and functions for recording and retrieving time spent
 
     function Ticket($id) {
         $this->id = 0;
@@ -146,7 +142,7 @@ class Ticket {
                 ON ( ticket.ticket_id=attach.ticket_id) '
             .' WHERE ticket.ticket_id='.db_input($id)
             .' GROUP BY ticket.ticket_id';
-			// Strobe Technologies Ltd | 28/06/2015 | Added time_spent to SQL select
+			// Strobe Technologies Ltd | 30/06/2015 | Added time_spent to SQL select
 			// osTicket v1.9.9
 
         //echo $sql;
@@ -158,7 +154,7 @@ class Ticket {
 
         $this->id       = $this->ht['ticket_id'];
         $this->number   = $this->ht['number'];
-		$this->timeSpent = $this->ht['time_spent'];		// Strobe Technologies Ltd | 28/06/2015 | Collecting time spent from SQL results
+		$this->timeSpent = $this->ht['time_spent'];		// Strobe Technologies Ltd | 30/06/2015 | Collecting time spent from SQL results
 														// osTicket Version = v1.9.9
         $this->_answers = array();
 
