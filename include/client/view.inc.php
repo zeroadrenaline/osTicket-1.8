@@ -74,15 +74,15 @@ if ($thisclient && $thisclient->isGuest()
                    <td><?php echo $ticket->getPhoneNumber(); ?></td>
                </tr>
 			   <?php
-			   // Strobe Technologies Ltd | 30/06/2015 | START - Added Total Time Spent to ticket information
-			   // osTicket Version = v1.9.9
+			   // Strobe Technologies Ltd | 17/04/2015 | START - Added Total Time Spent to ticket information
+			   // osTicket Version = v1.9.11
 			   if ($cfg->isClientTime()) { ?>
 			   <tr>
 					<th>Time Spent:</th>
 					<td><?php echo $ticket->getTimeSpent(); ?></td>
 				</tr>
 				<?PHP }
-				// Strobe Technologies Ltd | 30/06/2015 | START - Added Total Time Spent to ticket information ?>
+				// Strobe Technologies Ltd | 17/04/2015 | START - Added Total Time Spent to ticket information ?>
             </table>
        </td>
     </tr>
@@ -189,7 +189,6 @@ if (!$ticket->isClosed() || $ticket->isReopenable()) { ?>
         if ($messageField->isAttachmentsEnabled()) { ?>
 <?php
             print $attachments->render(true);
-            print $attachments->getForm()->getMedia();
 ?>
         <?php
         } ?>

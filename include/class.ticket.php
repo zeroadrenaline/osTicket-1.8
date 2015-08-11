@@ -54,8 +54,8 @@ class Ticket {
 
     var $thread; //Thread obj.
 	
-	// Strobe Technologies Ltd | 30/06/2015 | START - Variables and functions for recording and retrieving time spent
-	// osTicket Version = v1.9.9
+	// Strobe Technologies Ltd | 11/08/2015 | START - Variables and functions for recording and retrieving time spent
+	// osTicket Version = v1.9.1
 	var $timeSpent;
 	
 	function getTimeSpent(){
@@ -116,7 +116,7 @@ class Ticket {
         $sql = 'UPDATE '.TICKET_TABLE.' SET time_spent='.db_input($this->getRealTimeSpent()).'+'.db_input($time).' WHERE ticket_id='.db_input($this->getId());
         return (db_query($sql) && db_affected_rows())?true:false;
     } 
-	// Strobe Technologies Ltd | 30/06/2015 | END - Variables and functions for recording and retrieving time spent
+	// Strobe Technologies Ltd | 11/08/2015 | END - Variables and functions for recording and retrieving time spent
 
     function Ticket($id) {
         $this->id = 0;
@@ -142,8 +142,8 @@ class Ticket {
                 ON ( ticket.ticket_id=attach.ticket_id) '
             .' WHERE ticket.ticket_id='.db_input($id)
             .' GROUP BY ticket.ticket_id';
-			// Strobe Technologies Ltd | 30/06/2015 | Added time_spent to SQL select
-			// osTicket v1.9.9
+			// Strobe Technologies Ltd | 11/08/2015 | Added time_spent to SQL select
+			// osTicket v1.9.11
 
         //echo $sql;
         if(!($res=db_query($sql)) || !db_num_rows($res))
@@ -154,8 +154,8 @@ class Ticket {
 
         $this->id       = $this->ht['ticket_id'];
         $this->number   = $this->ht['number'];
-		$this->timeSpent = $this->ht['time_spent'];		// Strobe Technologies Ltd | 30/06/2015 | Collecting time spent from SQL results
-														// osTicket Version = v1.9.9
+		$this->timeSpent = $this->ht['time_spent'];		// Strobe Technologies Ltd | 11/08/2015 | Collecting time spent from SQL results
+														// osTicket Version = v1.9.11
         $this->_answers = array();
 
         $this->loadDynamicData();

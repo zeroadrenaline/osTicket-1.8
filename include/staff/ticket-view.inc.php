@@ -98,13 +98,13 @@ if($ticket->isOverdue())
                  class="icon-file-alt"></i> <?php echo __('Ticket Thread'); ?></a>
                  <li><a class="no-pjax" target="_blank" href="tickets.php?id=<?php echo $ticket->getId(); ?>&a=print&notes=1"><i
                  class="icon-file-text-alt"></i> <?php echo __('Thread + Internal Notes'); ?></a>
-				 <!-- Strobe Technologies Ltd | 30/06/2015 | START - Adds bill printing to print menu -->
-				 <!--- osTicket Version = v1.9.9 -->
+				 <!-- Strobe Technologies Ltd | 11/08/2015 | START - Adds bill printing to print menu -->
+				 <!--- osTicket Version = v1.9.11 -->
 				 <?php if ($cfg->isThreadTime()) { ?>
 					<li><a class="no-pjax" target="_blank" href="tickets_cost.php?id=<?php echo $ticket->getId(); ?>"><i
 					class="icon-file-text-alt"></i> <?php echo __('Billing Information'); ?></a>
 				<?php } ?>
-				 <!-- Strobe Technologies Ltd | 30/06/2015 | END - Adds bill printing to print menu -->
+				 <!-- Strobe Technologies Ltd | 11/08/2015 | END - Adds bill printing to print menu -->
               </ul>
             </div>
             <div id="action-dropdown-more" class="action-dropdown anchor-right">
@@ -341,15 +341,15 @@ if($ticket->isOverdue())
                     <td><?php echo Format::db_datetime($ticket->getLastRespDate()); ?></td>
                 </tr>
 				<?php
-				// Strobe Technologies Ltd | 30/06/2015 | START - Show Total Time Spent in Ticket information.
-				// osTicket Version = v1.9.9
+				// Strobe Technologies Ltd | 11/08/2015 | START - Show Total Time Spent in Ticket information.
+				// osTicket Version = v1.9.11
 				if ($cfg->isTicketTime() || $cfg->isThreadTime()) { ?>
 				<tr>
                     <th nowrap>Time Spent:</th>
                     <td><?php echo $ticket->getTimeSpent(); ?></td>
                 </tr>
 				<?php }
-				// Strobe Technologies Ltd | 30/06/2015 | END - Show Total Time Spent in Ticket information. ?>
+				// Strobe Technologies Ltd | 11/08/2015 | END - Show Total Time Spent in Ticket information. ?>
             </table>
         </td>
     </tr>
@@ -425,8 +425,8 @@ $tcount+= $ticket->getNumNotes();
                     </span>
                 </div>
 				<?php
-				// Strobe Technologies Ltd | 30/06/2015 | START - If statement testing if thread has time assigned to it and display it
-				// osTicket Version = v1.9.9
+				// Strobe Technologies Ltd | 11/08/2015 | START - If statement testing if thread has time assigned to it and display it
+				// osTicket Version = v1.9.11
 				if ($cfg->isThreadTime()) {
 					if ($entry['time_spent'] !== '0.00') { ?>
 					<div>
@@ -434,7 +434,7 @@ $tcount+= $ticket->getNumNotes();
 					</div>
 				<?php }
 				}
-				// Strobe Technologies Ltd | 30/06/2015 | END - If statement testing if thread has time assigned to it and display it ?>
+				// Strobe Technologies Ltd | 11/08/2015 | END - If statement testing if thread has time assigned to it and display it ?>
                 </th>
             </tr>
             <tr><td colspan="4" class="thread-body" id="thread-id-<?php
@@ -495,12 +495,12 @@ $tcount+= $ticket->getNumNotes();
         <?php
         } ?>
 		
-		<!-- Strobe Technologies Ltd  | 30/06/2015 | START - Add Time Tab to menu -->
-		<!-- osTicket Version = v1.9.9 -->
+		<!-- Strobe Technologies Ltd  | 11/08/2015 | START - Add Time Tab to menu -->
+		<!-- osTicket Version = v1.9.11 -->
 		<?php if ($cfg->isTicketTime()) { ?>
 			<li><a id="time_tab" href="#time"><?php echo __('Add Time to Ticket'); ?></a></li>
 		<?php } ?>
-		<!-- Strobe Technologies Ltd  | 30/06/2015 | END - Add Time Tab to menu -->
+		<!-- Strobe Technologies Ltd  | 11/08/2015 | END - Add Time Tab to menu -->
 		
     </ul>
     <?php
@@ -675,8 +675,8 @@ print $response_form->getField('attachments')->render();
                 </td>
             </tr>
 			<?php
-			// Strobe Technologies Ltd | 30/06/2015 | START - Add Time Spent fields to Reply tab
-			// osTicket Version = v1.9.9
+			// Strobe Technologies Ltd | 11/08/2015 | START - Add Time Spent fields to Reply tab
+			// osTicket Version = v1.9.11
 			if ($cfg->isThreadTime()) {
 			if($ticket->isOpen()) { ?>
             <tr>
@@ -718,7 +718,7 @@ print $response_form->getField('attachments')->render();
                     </select>
                 </td>
             </tr>
-            <?php }} // Strobe Technologies Ltd | 30/06/2015 | END - Add Time Spent fields to Reply tab ?>
+            <?php }} // Strobe Technologies Ltd | 11/08/2015 | END - Add Time Spent fields to Reply tab ?>
          </tbody>
         </table>
         <p  style="padding:0 165px;">
@@ -799,8 +799,8 @@ print $note_form->getField('attachments')->render();
                 </td>
             </tr>
 			<?php
-			// Strobe Technologies Ltd | 30/06/2015 | START - Add Time Spent fields to Internal Note tab
-			// osTicket Version = v1.9.9
+			// Strobe Technologies Ltd | 11/08/2015 | START - Add Time Spent fields to Internal Note tab
+			// osTicket Version = v1.9.11
 			if ($cfg->isThreadTime()) {
 			if($ticket->isOpen()) { ?>
             <tr>
@@ -842,7 +842,7 @@ print $note_form->getField('attachments')->render();
                     </select>
                 </td>
             </tr>
-            <?php }} // Strobe Technologies Ltd | 30/06/2015 | END - Add Time Spent fields to Internal Note tab ?>
+            <?php }} // Strobe Technologies Ltd | 11/08/2015 | END - Add Time Spent fields to Internal Note tab ?>
         </table>
 
        <p  style="padding-left:165px;">
@@ -1007,8 +1007,8 @@ print $note_form->getField('attachments')->render();
     </form>
     <?php
     } ?>
-	<!-- Strobe Technologies Ltd | 30/06/2015 | START - Add Time Tab Form -->
-	<!-- osTicket Version = v1.9.9 -->
+	<!-- Strobe Technologies Ltd | 11/08/2015 | START - Add Time Tab Form -->
+	<!-- osTicket Version = v1.9.11 -->
 	<?php if ($cfg->isTicketTime()) { ?>
     <form id="time" action="tickets.php?id=<?php echo $ticket->getId(); ?>#time" name="time" method="post" enctype="multipart/form-data">
         <?php csrf_token(); ?>
@@ -1040,7 +1040,7 @@ print $note_form->getField('attachments')->render();
 		</table>
 	</form>
 	<?php } ?>
-	<!-- Strobe Technologies Ltd | 30/06/2015 | END - Add Time Tab Form -->
+	<!-- Strobe Technologies Ltd | 11/08/2015 | END - Add Time Tab Form -->
 </div>
 <div style="display:none;" class="dialog" id="print-options">
     <h3><?php echo __('Ticket Print Options');?></h3>
@@ -1173,8 +1173,8 @@ $(function() {
 <?php } ?>
 });
 
-// Strobe Technologies Ltd | 30/06/2015 | START - Ticket Time Timer
-// osTicket Version = v1.9.9
+// Strobe Technologies Ltd | 11/08/2015 | START - Ticket Time Timer
+// osTicket Version = v1.9.11
 $('input[name=time_spent]').val(0);		// sets default value to 0 minutes
 $('i.icon-play').hide();
 var timerOn = true;						// var to store if the timer is on or off
@@ -1202,7 +1202,7 @@ $('i.icon-pause').click(function() {
 	$('i.icon-play').show();
 	return false;
 });
-// Strobe Technologies Ltd | 30/06/2015 | END - Ticket Time Timer
+// Strobe Technologies Ltd | 11/08/2015 | END - Ticket Time Timer
 </script>
 <style>
 	i.icon-undo, i.icon-play, i.icon-pause {
