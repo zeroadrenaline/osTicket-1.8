@@ -51,8 +51,10 @@ class DomElement {
 }
 
 class DomDocument {
+    function getElementsByTagName() {}
     function loadHTML() {}
     function loadXML() {}
+    function saveHTML() {}
 }
 
 class Exception {
@@ -104,6 +106,7 @@ class ZipArchive {
     function addFromString() {}
     function getFromIndex() {}
     function setCommentName() {}
+    function setExternalAttributesName() {}
 }
 
 class finfo {
@@ -125,5 +128,13 @@ class SqlFunction {
 
 class Aws_Route53_Client {
     function changeResourceRecordSets() {}
+}
+
+class Memcache {
+    function addServer() {}
+    function pconnect() {}
+    function replace() {}
+    function set() {}
+    function get() {}
 }
 ?>

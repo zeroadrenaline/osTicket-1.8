@@ -344,7 +344,7 @@ class Mailer {
         if (!(isset($options['text']) && $options['text'])) {
             if ($reply_tag || $mid_token) {
                 $message = "<div style=\"display:none\"
-                    data-mid=\"$mid_token\">$reply_tag</div>$message";
+                    class=\"mid-$mid_token\">$reply_tag</div>$message";
             }
             $txtbody = rtrim(Format::html2text($message, 90, false))
                 . ($mid_token ? "\nRef-Mid: $mid_token\n" : '');
@@ -443,6 +443,8 @@ class Mailer {
 
         //No SMTP or it failed....use php's native mail function.
         $mail = mail::factory('mail');
+        // Ensure the To: header is properly encoded.
+        $to = $headers['To'];
         return PEAR::isError($mail->send($to, $headers, $body))?false:$messageId;
 
     }

@@ -142,7 +142,7 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
                         <?php } ?>
                     </select>
                     <select name="rule_h<?php echo $i; ?>">
-                        <option value="0">&mdash; <?php echo __('Select One');?> &dash;</option>
+                        <option value="0">&mdash; <?php echo __('Select One');?> &mdash;</option>
                         <?php
                         foreach($match_types as $k=>$v){
                             $sel=($info["rule_h$i"]==$k)?'selected="selected"':'';
@@ -368,12 +368,9 @@ $info=Format::htmlchars(($errors && $_POST)?$_POST:$info);
                     <option value="0" selected="selected">&mdash; <?php
                         echo __('Unchanged'); ?> &mdash;</option>
                     <?php
-                    $sql='SELECT topic_id, topic FROM '.TOPIC_TABLE.' T ORDER by topic';
-                    if(($res=db_query($sql)) && db_num_rows($res)){
-                        while(list($id,$name)=db_fetch_row($res)){
-                            $selected=($info['topic_id'] && $id==$info['topic_id'])?'selected="selected"':'';
-                            echo sprintf('<option value="%d" %s>%s</option>',$id,$selected,$name);
-                        }
+                    foreach (Topic::getHelpTopics(false, Topic::DISPLAY_DISABLED) as $id=>$name) {
+                        $selected=($info['topic_id'] && $id==$info['topic_id'])?'selected="selected"':'';
+                        echo sprintf('<option value="%d" %s>%s</option>',$id,$selected,$name);
                     }
                     ?>
                 </select>
