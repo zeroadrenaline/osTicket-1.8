@@ -116,20 +116,29 @@ if(!$errors) {
 	<table border="2">
 		<tr>
 			<th>Date / Time</th>
+			<th>Post Type</th>
 			<th>Poster</th>
 			<th>Time Spent</th>
 			<th>Time Type</th>
 		</tr>
 		<?php
-			$sql = 'SELECT * FROM `ost_ticket_thread` WHERE `ticket_id` = ' . $TicketID . ' AND `thread_type`="R"';
+			$sql = 'SELECT * FROM `ost_ticket_thread` WHERE `ticket_id` = ' . $TicketID . ' AND (`thread_type`="R" OR `thread_type`="N")';
 			$res = db_query($sql);
 			while($row = db_fetch_array($res, MYSQL_ASSOC)) {
-				echo '<tr>';
-					echo "<td>" . $row['created'] . "</td>";
-					echo "<td>" . $row['poster'] . "</td>";
-					echo "<td>" . formatTime($row['time_spent']) . "</td>";
-					echo "<td>" . convTimeType($row['time_type']) . "</td>";
-				echo '</tr>';
+				if ($row['poster']<>"SYSTEM") {
+					echo '<tr>';
+						echo "<td>" . $row['created'] . "</td>";
+						if ($row['thread_type']=="R") {
+							echo "<td>Response to Customer</td>";
+						}
+						if ($row['thread_type']=="N") {
+							echo "<td>Internal Note</td>";
+						}
+						echo "<td>" . $row['poster'] . "</td>";
+						echo "<td>" . formatTime($row['time_spent']) . "</td>";
+						echo "<td>" . convTimeType($row['time_type']) . "</td>";
+					echo '</tr>';
+				}
 			}
 		?>
 	</table>
