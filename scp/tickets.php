@@ -64,14 +64,6 @@ if($_POST && !$errors):
         $errors=array();
         $lock=$ticket->getLock(); //Ticket lock if any
 		
-		// Strobe Technologies Ltd | 11/08/2015 | START - Collect Total Spent from results
-		// osTicket Version = v1.9.11
-		if($_POST['time_spent']) {
-			$ticket->timeSpent($_POST['time_spent']);
-		}
-		// Strobe Technologies Ltd | 11/08/2015 | END - Collect Total Spent from results
-		
-		
         switch(strtolower($_POST['a'])):
 		// Strobe Technologies Ltd | 11/08/2015 | START - Add time case / switch
 		// osTicket Version = v1.9.11
@@ -138,6 +130,13 @@ if($_POST && !$errors):
                                 $ticket->getId(), $ticket->getNumber()))
                         );
 
+				// Strobe Technologies Ltd | 11/08/2015 | START - Collect Total Spent from results
+				// osTicket Version = v1.9.11
+				if($_POST['time_spent']) {
+					$ticket->timeSpent($_POST['time_spent']);
+				}
+				// Strobe Technologies Ltd | 11/08/2015 | END - Collect Total Spent from results
+				
                 // Clear attachment list
                 $response_form->setSource(array());
                 $response_form->getField('attachments')->reset();
@@ -250,6 +249,13 @@ if($_POST && !$errors):
 
             $wasOpen = ($ticket->isOpen());
             if(($note=$ticket->postNote($vars, $errors, $thisstaff))) {
+			
+				// Strobe Technologies Ltd | 11/08/2015 | START - Collect Total Spent from results
+				// osTicket Version = v1.9.11
+				if($_POST['time_spent']) {
+					$ticket->timeSpent($_POST['time_spent']);
+				}
+				// Strobe Technologies Ltd | 11/08/2015 | END - Collect Total Spent from results
 
                 $msg=__('Internal note posted successfully');
                 // Clear attachment list
