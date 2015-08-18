@@ -1109,7 +1109,7 @@ class ThreadEntry {
         if ($poster && is_object($poster))
             $poster = (string) $poster;
 		
-		// Strobe Technologies Ltd | 11/08/2015 | START - Capture Posted time information
+		// Strobe Technologies Ltd | 18/08/2015 | START - Capture Posted time information
 		// osTicket Version = v1.9.11
 		$time_spent = $vars['time_spent'];
         if ($time_spent && is_object($time_spent))
@@ -1117,7 +1117,10 @@ class ThreadEntry {
         $time_type = $vars['time_type'];
         if ($time_type && is_object($time_type))
             $time_type = (int) $time_type;
-		// Strobe Technologies Ltd | 11/08/2015 | END - Capture Posted time information
+		$time_bill = $vars['time_bill'];
+		if ($time_bill && is_object($time_bill))
+			$time_bill = (int) $time_bill;
+		// Strobe Technologies Ltd | 18/08/2015 | END - Capture Posted time information
 
         $sql=' INSERT INTO '.TICKET_THREAD_TABLE.' SET created=NOW() '
             .' ,thread_type='.db_input($vars['type'])
@@ -1129,8 +1132,9 @@ class ThreadEntry {
             .' ,poster='.db_input($poster)
 			.' ,time_spent='.db_input($time_spent)
             .' ,time_type='.db_input($time_type)
+			.' ,time_bill='.db_input($time_bill)
             .' ,source='.db_input($vars['source']);
-			// Strobe Technologies Ltd | 11/08/2015 | Added time_spent & time_type into SQL statement
+			// Strobe Technologies Ltd | 18/08/2015 | Added time_spent, time_type & time_bill into SQL statement
 			// osTicket Version = v1.9.11
 
         if (!isset($vars['attachments']) || !$vars['attachments'])

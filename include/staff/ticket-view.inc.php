@@ -675,7 +675,7 @@ print $response_form->getField('attachments')->render();
                 </td>
             </tr>
 			<?php
-			// Strobe Technologies Ltd | 11/08/2015 | START - Add Time Spent fields to Reply tab
+			// Strobe Technologies Ltd | 18/08/2015 | START - Add Time Spent fields to Reply tab
 			// osTicket Version = v1.9.11
 			if ($cfg->isThreadTime()) {
 			if($ticket->isOpen()) { ?>
@@ -716,9 +716,12 @@ print $response_form->getField('attachments')->render();
 					}
                     ?>
                     </select>
+					<?php if ($cfg->isThreadBill()) { ?>
+						&nbsp;&nbsp;<input type="checkbox" name="time_bill" value="1" /> Billable?
+					<?php } ?>
                 </td>
             </tr>
-            <?php }} // Strobe Technologies Ltd | 11/08/2015 | END - Add Time Spent fields to Reply tab ?>
+            <?php }} // Strobe Technologies Ltd | 18/08/2015 | END - Add Time Spent fields to Reply tab ?>
          </tbody>
         </table>
         <p  style="padding:0 165px;">
@@ -799,7 +802,7 @@ print $note_form->getField('attachments')->render();
                 </td>
             </tr>
 			<?php
-			// Strobe Technologies Ltd | 11/08/2015 | START - Add Time Spent fields to Internal Note tab
+			// Strobe Technologies Ltd | 18/08/2015 | START - Add Time Spent fields to Internal Note tab
 			// osTicket Version = v1.9.11
 			if ($cfg->isThreadTime()) {
 			if($ticket->isOpen()) { ?>
@@ -840,9 +843,12 @@ print $note_form->getField('attachments')->render();
 					}
                     ?>
                     </select>
+					<?php if ($cfg->isThreadBill()) { ?>
+						&nbsp;&nbsp;<input type="checkbox" name="time_bill" value="1" /> Billable?
+					<?php } ?>
                 </td>
             </tr>
-            <?php }} // Strobe Technologies Ltd | 11/08/2015 | END - Add Time Spent fields to Internal Note tab ?>
+            <?php }} // Strobe Technologies Ltd | 18/08/2015 | END - Add Time Spent fields to Internal Note tab ?>
         </table>
 
        <p  style="padding-left:165px;">

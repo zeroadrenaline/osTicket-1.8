@@ -120,6 +120,7 @@ if(!$errors) {
 			<th>Poster</th>
 			<th>Time Spent</th>
 			<th>Time Type</th>
+			<th>Billable</th>
 		</tr>
 		<?php
 			$sql = 'SELECT * FROM `ost_ticket_thread` WHERE `ticket_id` = ' . $TicketID . ' AND (`thread_type`="R" OR `thread_type`="N")';
@@ -137,6 +138,13 @@ if(!$errors) {
 						echo "<td>" . $row['poster'] . "</td>";
 						echo "<td>" . formatTime($row['time_spent']) . "</td>";
 						echo "<td>" . convTimeType($row['time_type']) . "</td>";
+						echo "<td>";
+							if ($row['time_bill']==1) {
+								echo "YES";
+							} else {
+								echo "NO";
+							}
+						echo "</td>";
 					echo '</tr>';
 				}
 			}

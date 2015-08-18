@@ -53,6 +53,15 @@ if(!defined('OSTADMININC') || !$thisstaff || !$thisstaff->isAdmin() || !$config)
                 <i class="help-tip icon-question-sign" href="#thread_timer"></i>
             </td>
         </tr>
+		<tr>
+            <td width="180"><?php echo __('Thread Time Bill');?>:</td>
+            <td>
+                <input type="checkbox" name="isthreadbill" value="1" <?php echo $config['isthreadbill']?'checked="checked"':''; ?> >
+                <?php echo __('Enable Thread Time to be Billed'); ?>
+                &nbsp;<font class="error">&nbsp;<?php echo $errors['isthreadbill']; ?></font>
+                <i class="help-tip icon-question-sign" href="#thread_bill"></i>
+            </td>
+        </tr>
     </tbody>
 </table>
 <p style="padding-left:210px;">
