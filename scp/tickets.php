@@ -86,6 +86,10 @@ if($_POST && !$errors):
                         );
 
 
+				if($_POST['time_spent']) {
+					$ticket->timeSpent($_POST['time_spent']);
+				}
+						
                 // Remove staff's locks
                 TicketLock::removeStaffLocks($thisstaff->getId(),
                         $ticket->getId());
