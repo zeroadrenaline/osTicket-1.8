@@ -1,5 +1,5 @@
 <?php
-// Strobe Technologies Ltd | 16/03/2015 | Ticket Time Menu allowing you to enable and disable options / views
+// Strobe Technologies Ltd | 18/08/2015 | Ticket Time Menu allowing you to enable and disable options / views
 
 if(!defined('OSTADMININC') || !$thisstaff || !$thisstaff->isAdmin() || !$config) die('Access Denied');
 ?>
@@ -23,7 +23,7 @@ if(!defined('OSTADMININC') || !$thisstaff || !$thisstaff->isAdmin() || !$config)
                 <input type="checkbox" name="isclienttime" value="1" <?php echo $config['isclienttime']?'checked="checked"':''; ?>>
                 <?php echo __('Enable Client Time View'); ?>
                 &nbsp;<font class="error">&nbsp;<?php echo $errors['isclienttime']; ?></font>
-                <i class="help-tip icon-question-sign" href="#"></i>
+                <i class="help-tip icon-question-sign" href="#client_time"></i>
             </td>
         </tr>
         <tr>
@@ -32,7 +32,7 @@ if(!defined('OSTADMININC') || !$thisstaff || !$thisstaff->isAdmin() || !$config)
                 <input type="checkbox" name="istickettime" value="1" <?php echo $config['istickettime']?'checked="checked"':''; ?> >
                 <?php echo __('Enable Adding Time to Tickets via Actions'); ?>
                 &nbsp;<font class="error">&nbsp;<?php echo $errors['istickettime']; ?></font>
-                <i class="help-tip icon-question-sign" href="#"></i>
+                <i class="help-tip icon-question-sign" href="#total_time"></i>
             </td>
         </tr>
 		<tr>
@@ -41,7 +41,7 @@ if(!defined('OSTADMININC') || !$thisstaff || !$thisstaff->isAdmin() || !$config)
                 <input type="checkbox" name="isthreadtime" value="1" <?php echo $config['isthreadtime']?'checked="checked"':''; ?> >
                 <?php echo __('Enable Adding Time to Tickets via Threads'); ?>
                 &nbsp;<font class="error">&nbsp;<?php echo $errors['isthreadtime']; ?></font>
-                <i class="help-tip icon-question-sign" href="#"></i>
+                <i class="help-tip icon-question-sign" href="#thread_time"></i>
             </td>
         </tr>
 		<tr>
@@ -50,7 +50,7 @@ if(!defined('OSTADMININC') || !$thisstaff || !$thisstaff->isAdmin() || !$config)
                 <input type="checkbox" name="isthreadtimer" value="1" <?php echo $config['isthreadtimer']?'checked="checked"':''; ?> >
                 <?php echo __('Enable Timer to Tickets Threads'); ?>
                 &nbsp;<font class="error">&nbsp;<?php echo $errors['isthreadtimer']; ?></font>
-                <i class="help-tip icon-question-sign" href="#"></i>
+                <i class="help-tip icon-question-sign" href="#thread_timer"></i>
             </td>
         </tr>
     </tbody>
