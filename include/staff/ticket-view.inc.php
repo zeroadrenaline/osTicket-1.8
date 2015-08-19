@@ -147,6 +147,17 @@ if($ticket->isOverdue())
                             echo __('Mark as Answered'); ?></a></li>
                     <?php
                     }
+					
+					/*if($ticket->isAnswered()) {*/ ?>
+                    <!--<li><a class="confirm-action" id="ticket-hardware" href="#hardware"><i class="icon-cog"></i>-->
+					<li><a class="no-pjax" target="_blank" href="tickets_hardware.php?id=<?php echo $ticket->getId(); ?>"><i class="icon-cog"></i> <?php
+                            echo __('Hardware'); ?></a></li>
+                    <?php /*
+                    } else { ?>
+                    <li><a class="confirm-action" id="ticket-answered" href="#answered"><i class="icon-circle-arrow-right"></i> <?php
+                            echo __('Mark as Answered'); ?></a></li>
+                    <?php
+                    }*/
                 } ?>
                 <li><a href="#ajax.php/tickets/<?php echo $ticket->getId();
                     ?>/forms/manage" onclick="javascript:
