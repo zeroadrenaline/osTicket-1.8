@@ -124,6 +124,15 @@ if($ticket->isOverdue())
                     echo __('Delete Ticket'); ?></a></li>
                 <?php
                  }
+				 
+				// Strobe Technologies Ltd | 20/08/2015 | START - Ticket Hardware Menu
+				// osTicket Version = v1.9.12
+				if ($cfg->isTicketHardware()) { ?>
+					<li><a class="no-pjax" target="_blank" href="tickets_hardware.php?id=<?php echo $ticket->getId(); ?>"><i class="icon-cog"></i> <?php
+						echo __('Hardware'); ?></a></li>
+				<?php }
+				// Strobe Technologies Ltd | 20/08/2015 | END - Ticket Hardware Menu
+				 
                 if($ticket->isOpen() && ($dept && $dept->isManager($thisstaff))) {
 
                     if($ticket->isAssigned()) { ?>
@@ -147,14 +156,6 @@ if($ticket->isOverdue())
                             echo __('Mark as Answered'); ?></a></li>
                     <?php
                     }
-					
-					// Strobe Technologies Ltd | 20/08/2015 | START - Ticket Hardware Menu
-					// osTicket Version = v1.9.12
-					if ($cfg->isTicketHardware()) { ?>
-					<li><a class="no-pjax" target="_blank" href="tickets_hardware.php?id=<?php echo $ticket->getId(); ?>"><i class="icon-cog"></i> <?php
-                            echo __('Hardware'); ?></a></li>
-                    <?php }
-					// Strobe Technologies Ltd | 20/08/2015 | END - Ticket Hardware Menu
                 } ?>
                 <li><a href="#ajax.php/tickets/<?php echo $ticket->getId();
                     ?>/forms/manage" onclick="javascript:
