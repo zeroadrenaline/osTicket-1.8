@@ -1188,8 +1188,9 @@ $(function() {
 <?php } ?>
 });
 
-// Strobe Technologies Ltd | 11/08/2015 | START - Ticket Time Timer
-// osTicket Version = v1.9.11
+// Strobe Technologies Ltd | 20/08/2015 | START - Ticket Time Timer
+// osTicket Version = v1.9.12
+<?php if ($cfg->isThreadTimer()) { ?>
 $('input[name=time_spent]').val(0);		// sets default value to 0 minutes
 $('i.icon-play').hide();
 var timerOn = true;						// var to store if the timer is on or off
@@ -1217,7 +1218,8 @@ $('i.icon-pause').click(function() {
 	$('i.icon-play').show();
 	return false;
 });
-// Strobe Technologies Ltd | 11/08/2015 | END - Ticket Time Timer
+<?php } ?>
+// Strobe Technologies Ltd | 20/08/2015 | END - Ticket Time Timer
 </script>
 <style>
 	i.icon-undo, i.icon-play, i.icon-pause {
