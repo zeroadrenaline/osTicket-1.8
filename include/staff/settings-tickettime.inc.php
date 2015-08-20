@@ -13,6 +13,7 @@ if(!defined('OSTADMININC') || !$thisstaff || !$thisstaff->isAdmin() || !$config)
             <th colspan="2">
                 <h4><?php echo __('Ticket Time Settings');?></h4>
                 <em><?php echo __("Enabling these options allow you to add time to you tickets.");?></em>
+				<em><b><?php echo __('General Settings'); ?></b></em>
             </th>
         </tr>
     </thead>
@@ -45,7 +46,21 @@ if(!defined('OSTADMININC') || !$thisstaff || !$thisstaff->isAdmin() || !$config)
             </td>
         </tr>
 		<tr>
-            <td width="180"><?php echo __('Thread Ticket Timer');?>:</td>
+            <td width="180"><?php echo __('Ticket Hardware');?>:</td>
+            <td>
+                <input type="checkbox" name="istickethardware" value="1" <?php echo $config['istickethardware']?'checked="checked"':''; ?> >
+                <?php echo __('Enable Adding Hardware Purchases to Tickets'); ?>
+                &nbsp;<font class="error">&nbsp;<?php echo $errors['istickethardware']; ?></font>
+                <i class="help-tip icon-question-sign" href="#ticket_hardware"></i>
+            </td>
+        </tr>
+		<tr>
+			<th colspan="2">
+				<em><b><?php echo __('Thread Settings'); ?></b></em>
+            </th>
+		</tr>
+		<tr>
+            <td width="180"><?php echo __('Ticket Timer');?>:</td>
             <td>
                 <input type="checkbox" name="isthreadtimer" value="1" <?php echo $config['isthreadtimer']?'checked="checked"':''; ?> >
                 <?php echo __('Enable Timer to Tickets Threads'); ?>
@@ -54,12 +69,21 @@ if(!defined('OSTADMININC') || !$thisstaff || !$thisstaff->isAdmin() || !$config)
             </td>
         </tr>
 		<tr>
-            <td width="180"><?php echo __('Thread Time Bill');?>:</td>
+            <td width="180"><?php echo __('Time Billable');?>:</td>
             <td>
                 <input type="checkbox" name="isthreadbill" value="1" <?php echo $config['isthreadbill']?'checked="checked"':''; ?> >
                 <?php echo __('Enable Thread Time to be Billed'); ?>
                 &nbsp;<font class="error">&nbsp;<?php echo $errors['isthreadbill']; ?></font>
                 <i class="help-tip icon-question-sign" href="#thread_bill"></i>
+            </td>
+        </tr>
+		<tr>
+            <td width="180"><?php echo __('Billable as Default');?>:</td>
+            <td>
+                <input type="checkbox" name="isthreadbilldefault" value="1" <?php echo $config['isthreadbilldefault']?'checked="checked"':''; ?> >
+                <?php echo __('Time to be Billed as default'); ?>
+                &nbsp;<font class="error">&nbsp;<?php echo $errors['isthreadbilldefault']; ?></font>
+                <i class="help-tip icon-question-sign" href="#thread_billdefault"></i>
             </td>
         </tr>
     </tbody>

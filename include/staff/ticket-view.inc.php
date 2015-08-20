@@ -148,16 +148,13 @@ if($ticket->isOverdue())
                     <?php
                     }
 					
-					/*if($ticket->isAnswered()) {*/ ?>
-                    <!--<li><a class="confirm-action" id="ticket-hardware" href="#hardware"><i class="icon-cog"></i>-->
+					// Strobe Technologies Ltd | 20/08/2015 | START - Ticket Hardware Menu
+					// osTicket Version = v1.9.12
+					if ($cfg->isTicketHardware()) { ?>
 					<li><a class="no-pjax" target="_blank" href="tickets_hardware.php?id=<?php echo $ticket->getId(); ?>"><i class="icon-cog"></i> <?php
                             echo __('Hardware'); ?></a></li>
-                    <?php /*
-                    } else { ?>
-                    <li><a class="confirm-action" id="ticket-answered" href="#answered"><i class="icon-circle-arrow-right"></i> <?php
-                            echo __('Mark as Answered'); ?></a></li>
-                    <?php
-                    }*/
+                    <?php }
+					// Strobe Technologies Ltd | 20/08/2015 | END - Ticket Hardware Menu
                 } ?>
                 <li><a href="#ajax.php/tickets/<?php echo $ticket->getId();
                     ?>/forms/manage" onclick="javascript:
@@ -728,7 +725,7 @@ print $response_form->getField('attachments')->render();
                     ?>
                     </select>
 					<?php if ($cfg->isThreadBill()) { ?>
-						&nbsp;&nbsp;<input type="checkbox" name="time_bill" value="1" /> Billable?
+						&nbsp;&nbsp;<input type="checkbox" name="time_bill" value="1" <?php if ($cfg->isThreadBillDefault()) { echo 'checked=checked'; } ?>/> Billable?
 					<?php } ?>
                 </td>
             </tr>
