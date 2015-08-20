@@ -853,7 +853,7 @@ print $note_form->getField('attachments')->render();
                     ?>
                     </select>
 					<?php if ($cfg->isThreadBill()) { ?>
-						&nbsp;&nbsp;<input type="checkbox" name="time_bill" value="1" /> Billable?
+						&nbsp;&nbsp;<input type="checkbox" name="time_bill" value="1" <?php if ($cfg->isThreadBillDefault()) { echo 'checked=checked'; } ?>/> Billable?
 					<?php } ?>
                 </td>
             </tr>
