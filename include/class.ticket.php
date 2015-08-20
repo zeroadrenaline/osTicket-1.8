@@ -1972,7 +1972,7 @@ class Ticket {
                       'cannedattachments' => $files);
 
         $errors = array();
-        if(!($response=$this->postReply($info, $errors, false)))
+        if (!($response=$this->postReply($info, $errors, false, false)))
             return null;
 
         $this->markUnAnswered();
@@ -2010,11 +2010,10 @@ class Ticket {
     }
 
     /* public */
-    function postReply($vars, &$errors, $alert = true) {
+    function postReply($vars, &$errors, $alert=true, $claim=true) {
         global $thisstaff, $cfg;
 
-
-        if(!$vars['poster'] && $thisstaff)
+        if (!$vars['poster'] && $thisstaff)
             $vars['poster'] = $thisstaff;
 
         if(!$vars['staffId'] && $thisstaff)
@@ -2033,10 +2032,11 @@ class Ticket {
             $this->setStatus($vars['reply_status_id']);
 
         // Claim on response bypasses the department assignment restrictions
-        if($thisstaff && $this->isOpen() && !$this->getStaffId()
-                && $cfg->autoClaimTickets())
+        if ($claim && $thisstaff && $this->isOpen() && !$this->getStaffId()
+            && $cfg->autoClaimTickets()
+        ) {
             $this->setStaffId($thisstaff->getId()); //direct assignment;
-
+        }
 
         $this->onResponse($response, array('assignee' => $assignee)); //do house cleaning..
 
@@ -2371,7 +2371,7 @@ class Ticket {
     }
 
     function lookupByNumber($number, $email=null) {
-        return self::lookup(self:: getIdByNumber($number, $email));
+        return self::lookup(self::getIdByNumber($number, $email));
     }
 
     static function isTicketNumberUnique($number) {
