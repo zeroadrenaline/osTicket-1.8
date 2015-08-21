@@ -35,7 +35,7 @@ function convTimeType($typeid) {
 }
 
 function countTime($ticketid, $typeid) {
-	$sql = 'SELECT SUM(`time_spent`) AS `totaltime` FROM `ost_ticket_thread` WHERE `ticket_id` = '. $ticketid .' AND `time_type` = '. $typeid;
+	$sql = 'SELECT SUM(`time_spent`) AS `totaltime` FROM `ost_ticket_thread` WHERE `ticket_id` = '. $ticketid .' AND `time_type` = '. $typeid .' AND time_bill = 1';
 	$res = db_query($sql);
 	
 	$timearray = db_fetch_array($res);
@@ -58,7 +58,7 @@ if($_REQUEST['id']) {
 
 //Navigation & Page Info
 $nav->setTabActive('tickets');
-$ost->setPageTitle(sprintf(__('Ticket #%s Billing Report'),$ticket->getNumber()));
+$ost->setPageTitle(sprintf(__('Ticket #%s Bill / Invoice'),$ticket->getNumber()));
 
 
 if(!$errors) {
@@ -91,7 +91,7 @@ require_once(STAFFINC_DIR.'header.inc.php');
 if(!$errors) {
 ?>
 
-	<h1>Billing Report</h1>
+	<h1>Bill / Invoice</h1>
 	
 	<h2>Ticket Information</h2>
 	<p><b>Ticket:</b> #<?php echo $TicketNo; ?> <br />
@@ -120,10 +120,9 @@ if(!$errors) {
 			<th>Poster</th>
 			<th>Time Spent</th>
 			<th>Time Type</th>
-			<th>Billable</th>
 		</tr>
 		<?php
-			$sql = 'SELECT * FROM `ost_ticket_thread` WHERE `ticket_id` = ' . $TicketID . ' AND (`thread_type`="R" OR `thread_type`="N")';
+			$sql = 'SELECT * FROM `ost_ticket_thread` WHERE `ticket_id` = ' . $TicketID . ' AND (`thread_type`="R" OR `thread_type`="N") AND time_bill = 1';
 			$res = db_query($sql);
 			while($row = db_fetch_array($res, MYSQL_ASSOC)) {
 				if ($row['poster']<>"SYSTEM") {
@@ -138,19 +137,12 @@ if(!$errors) {
 						echo "<td>" . $row['poster'] . "</td>";
 						echo "<td>" . formatTime($row['time_spent']) . "</td>";
 						echo "<td>" . convTimeType($row['time_type']) . "</td>";
-						echo "<td>";
-							if ($row['time_bill']==1) {
-								echo "YES";
-							} else {
-								echo "NO";
-							}
-						echo "</td>";
 					echo '</tr>';
 				}
 			}
 		?>
 	</table>
-	
+
 <?php if ($cfg->isTicketHardware()) { ?>	
 	<p>&nbsp;</p>
 	
