@@ -246,6 +246,8 @@ class AdminNav extends StaffNav{
                     $subnav[]=array('desc'=>__('Company'),'href'=>'settings.php?t=pages','iconclass'=>'pages');
                     $subnav[]=array('desc'=>__('System'),'href'=>'settings.php?t=system','iconclass'=>'preferences');
                     $subnav[]=array('desc'=>__('Tickets'),'href'=>'settings.php?t=tickets','iconclass'=>'ticket-settings');
+					$subnav[]=array('desc'=>__('Time'), 'href'=>'settings.php?t=tickettime','iconclass'=>'ticket-settings');	// Strobe Technologies Ltd | 09/10/2015 | Admin Menu for accessing Ticket Time.
+																																// osTicket Version = v1.10-rc.2
                     $subnav[]=array('desc'=>__('Tasks'),'href'=>'settings.php?t=tasks','iconclass'=>'lists');
                     $subnav[]=array('desc'=>__('Agents'),'href'=>'settings.php?t=agents','iconclass'=>'teams');
                     $subnav[]=array('desc'=>__('Users'),'href'=>'settings.php?t=users','iconclass'=>'groups');
