@@ -420,7 +420,7 @@ if($ticket->isOverdue())
                     <td><?php echo Format::datetime($ticket->getLastRespDate()); ?></td>
                 </tr>
 				<?php
-				// Strobe Technologies Ltd | 09/10/2015 | START - Show Total Time Spent in Ticket information.
+				// Strobe Technologies Ltd | 09/09/2015 | START - Show Total Time Spent in Ticket information.
 				// osTicket Version = v1.10-rc.2
 				if ($cfg->isTicketTime() || $cfg->isThreadTime()) { ?>
 				<tr>
@@ -428,7 +428,7 @@ if($ticket->isOverdue())
                     <td><?php echo $ticket->getTimeSpent(); ?></td>
                 </tr>
 				<?php }
-				// Strobe Technologies Ltd | 09/10/2015 | END - Show Total Time Spent in Ticket information. ?>
+				// Strobe Technologies Ltd | 09/09/2015 | END - Show Total Time Spent in Ticket information. ?>
             </table>
         </td>
     </tr>
@@ -1018,12 +1018,10 @@ $(function() {
     });
 });
 </script>
-
-<?php
+<script>
 // Strobe Technologies Ltd | 09/10/2015 | START - Ticket Time Timer
 // osTicket Version = v1.10-rc.2
-if ($cfg->isThreadTimer()) { ?>
-<script type="text/javascript">
+<?php if ($cfg->isThreadTimer()) { ?>
 $('input[name=time_spent]').val(0);		// sets default value to 0 minutes
 $('i.icon-play').hide();
 var timerOn = true;						// var to store if the timer is on or off
@@ -1051,6 +1049,8 @@ $('i.icon-pause').click(function() {
 	$('i.icon-play').show();
 	return false;
 });
+<?php } ?>
+// Strobe Technologies Ltd | 09/10/2015 | END - Ticket Time Timer
 </script>
 <style>
 	i.icon-undo, i.icon-play, i.icon-pause {
@@ -1058,6 +1058,3 @@ $('i.icon-pause').click(function() {
 		margin-left: 5px;
 	}
 </style>
-<?php }
-// Strobe Technologies Ltd | 09/10/2015 | END - Ticket Time Timer
-?>

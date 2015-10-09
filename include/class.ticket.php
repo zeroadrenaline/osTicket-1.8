@@ -236,6 +236,70 @@ implements RestrictedAccess, Threadable {
     var $active_collaborators;
     var $recipients;
     var $lastrespondent;
+	
+	// Strobe Technologies Ltd | 04/09/2015 | START - Variables and functions for recording and retrieving time spent
+	// osTicket Version = v1.10-rc.2
+	var $timeSpent;
+	
+	function getTimeSpent(){
+        return $this->formatTime($this->timeSpent);
+    }
+	
+    function getRealTimeSpent() {
+        return $this->timeSpent;
+    }
+	
+	function convTimeSpent($time) {
+		return $this->formatTime($time);
+	}
+	
+	function convTimeType($type) {
+		$sql = 'SELECT `value` FROM `ost_list_items` WHERE `id` = '. $type;
+		$res = db_query($sql);
+		
+		$typearray = db_fetch_array($res);
+
+        $typetext = $typearray['value'];
+		return $typetext;
+	}
+	
+	function formatTime($time) {
+		//New format to store in mins contributed by @joshbmarshall
+		$hours = floor($time / 60);
+		$minutes = $time % 60;
+
+		$formatted = '';
+
+		if ($hours > 0) {
+            $formatted .= $hours . ' Hour';
+            if ($hours > 1) {
+                    $formatted .= 's';
+            }
+		}
+		if ($minutes > 0) {
+            if ($formatted) $formatted .= ', ';
+            $formatted .= $minutes . ' Minute';
+            if ($minutes > 1) {
+                    $formatted .= 's';
+            }
+		}
+		return $formatted;
+	}
+	
+    function timeSpent($time){
+        if(empty($time)){
+			$time = 0;
+        }else{
+            if(!is_numeric($time)){
+				$time = 0;
+            }else{
+				$time = round($time,0);
+            }
+        }
+        $sql = 'UPDATE '.TICKET_TABLE.' SET time_spent='.db_input($this->getRealTimeSpent()).'+'.db_input($time).' WHERE ticket_id='.db_input($this->getId());
+        return (db_query($sql) && db_affected_rows())?true:false;
+    } 
+	// Strobe Technologies Ltd | 04/09/2015 | END - Variables and functions for recording and retrieving time spent
 
     function __onload() {
         $this->loadDynamicData();
