@@ -21,6 +21,8 @@ $settingOptions=array(
         array(__('System Settings'), 'settings.system'),
     'tickets' =>
         array(__('Ticket Settings and Options'), 'settings.ticket'),
+	'tickettime' =>
+		array(__('Ticket Time Settings'), 'settings.tickettime'),
     'tasks' =>
         array(__('Task Settings and Options'), 'settings.tasks'),
     'agents' =>
@@ -32,6 +34,9 @@ $settingOptions=array(
     'kb' =>
         array(__('Knowledgebase Settings'), 'settings.kb'),
 );
+// Strobe Technologies Ltd | 09/10/2015 | Added Ticket Time settings options
+// osTicket Version = v1.10-rc.2
+
 //Handle a POST.
 $target=($_REQUEST['t'] && $settingOptions[$_REQUEST['t']])?$_REQUEST['t']:'system';
 $page = false;
