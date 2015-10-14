@@ -166,7 +166,10 @@ if ($_REQUEST['advsid'] && isset($_SESSION['adv_'.$_REQUEST['advsid']])) {
 $sortOptions=array('date'=>'effective_date','ID'=>'ticket.`number`*1',
     'pri'=>'pri.priority_urgency','name'=>'user.name','subj'=>'cdata.subject',
     'status'=>'status.name','assignee'=>'assigned','staff'=>'staff',
-    'dept'=>'dept.dept_name');
+    'dept'=>'dept.dept_name', 'Time'=>'time_spent');
+	// Strobe Technologies Ltd | 14/10/2015 | Added Time to sort options
+	// osTicket Version = v1.9.12
+	// Contributed by @ghaber
 
 $orderWays=array('DESC'=>'DESC','ASC'=>'ASC');
 
@@ -217,7 +220,11 @@ if($_GET['limit'])
 $qselect ='SELECT ticket.ticket_id,tlock.lock_id,ticket.`number`,ticket.dept_id,ticket.staff_id,ticket.team_id '
     .' ,user.name'
     .' ,email.address as email, dept.dept_name, status.state '
-         .' ,status.name as status,ticket.source,ticket.isoverdue,ticket.isanswered,ticket.created ';
+         .' ,status.name as status,ticket.source,ticket.isoverdue,ticket.isanswered,ticket.created '
+		 .' ,ticket.time_spent as time_spent';
+	// Strobe Technologies Ltd | 14/10/2015 | Added Time to query
+	// osTicket Version = v1.9.12
+	// Contributed by @ghaber
 
 $qfrom=' FROM '.TICKET_TABLE.' ticket '.
        ' LEFT JOIN '.TICKET_STATUS_TABLE. ' status
@@ -377,6 +384,18 @@ if ($results) {
             <th width="170">
                 <a <?php echo $name_sort; ?> href="tickets.php?sort=name&order=<?php echo $negorder; ?><?php echo $qstr; ?>"
                      title="<?php echo sprintf(__('Sort by %s %s'), __('Name'), __($negorder)); ?>"><?php echo __('From');?></a></th>
+			<!--
+			Strobe Technologies Ltd | 14/10/2015 | START - Header Display
+			osTicket Version = v1.9.12
+			Contributed by @ghaber
+			-->
+			<th width="30">
+				<a <?php echo $org_sort; ?> href="tickets.php?sort=Time&order=<?php echo $negorder; ?><?php echo $qstr; ?>" 
+					title="<?php echo sprintf(__('Sort by %s %s'), __('Time'), __($negorder)); ?>"><?php echo __('Time'); ?></a></th>
+			<!--
+			Strobe Technologies Ltd | 14/10/2015 | END - Header Display
+			-->
+
             <?php
             if($search && !$status) { ?>
                 <th width="60">
@@ -479,6 +498,15 @@ if ($results) {
                 </td>
                 <td nowrap>&nbsp;<?php echo Format::htmlchars(
                         Format::truncate($row['name'], 22, strpos($row['name'], '@'))); ?>&nbsp;</td>
+				<!--
+				Strobe Technologies Ltd | 14/10/2015 | START - Content Display
+				osTicket Version = v1.9.12
+				Contributed by @ghaber
+				-->
+				<td><?php echo (isset($row['time_spent'])) ? $row['time_spent'] : '&nbsp';?></td>
+				<!--
+				Strobe Technologies Ltd | 14/10/2015 | START - Content Display
+				-->
                 <?php
                 if($search && !$status){
                     $displaystatus=ucfirst($row['status']);
@@ -501,7 +529,7 @@ if ($results) {
     </tbody>
     <tfoot>
      <tr>
-        <td colspan="7">
+        <td colspan="8"> <!-- Strobe Technologies Ltd | 14/10/2015 | Updated colspan from 7 to 8 -->
             <?php if($res && $num && $thisstaff->canManageTickets()){ ?>
             <?php echo __('Select');?>:&nbsp;
             <a id="selectAll" href="#ckb"><?php echo __('All');?></a>&nbsp;&nbsp;
