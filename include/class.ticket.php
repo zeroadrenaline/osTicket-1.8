@@ -957,7 +957,7 @@ class Ticket {
                     $thisstaff ?: 'SYSTEM');
 
             $alert = false;
-            if ($comments) {
+            if (($comments = ThreadBody::clean($comments))) {
                 $note .= sprintf('<hr>%s', $comments);
                 // Send out alerts if comments are included
                 $alert = true;
@@ -1876,19 +1876,21 @@ class Ticket {
             }
         }
 
-        if(!$alerts) return $message; //Our work is done...
-
         // Do not auto-respond to bounces and other auto-replies
-        $autorespond = isset($vars['flags'])
-            ? !$vars['flags']['bounce'] && !$vars['flags']['auto-reply']
-            : true;
-        if ($autorespond && $message->isAutoReply())
-            $autorespond = false;
+        if ($alerts)
+            $alerts = isset($vars['flags'])
+                ? !$vars['flags']['bounce'] && !$vars['flags']['auto-reply']
+                : true;
+        if ($alerts && $message->isBounceOrAutoReply())
+            $alerts = false;
 
-        $this->onMessage($message, $autorespond); //must be called b4 sending alerts to staff.
+        $this->onMessage($message, $alerts); //must be called b4 sending alerts to staff.
 
-        if ($autorespond && $cfg && $cfg->notifyCollabsONNewMessage())
+        if ($alerts && $cfg && $cfg->notifyCollabsONNewMessage())
             $this->notifyCollaborators($message, array('signature' => ''));
+
+        if (!$alerts)
+            return $message; //Our work is done...
 
         $dept = $this->getDept();
 
@@ -2245,6 +2247,8 @@ class Ticket {
 
         if(!$cfg || !$thisstaff || !$thisstaff->canEditTickets())
             return false;
+
+        $vars['note'] = ThreadBody::clean($vars['note']);
 
         $fields=array();
         $fields['topicId']  = array('type'=>'int',      'required'=>1, 'error'=>__('Help topic selection is required'));
@@ -2984,6 +2988,8 @@ class Ticket {
         if (!$thisstaff->canAssignTickets())
             unset($vars['assignId']);
 
+        $vars['response'] = ThreadBody::clean($vars['response']);
+        $vars['note'] = ThreadBody::clean($vars['note']);
         $create_vars = $vars;
         $tform = TicketForm::objects()->one()->getForm($create_vars);
         $create_vars['cannedattachments']
