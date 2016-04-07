@@ -55,7 +55,7 @@ class Ticket {
     var $thread; //Thread obj.
 	
 	// Strobe Technologies Ltd | 11/08/2015 | START - Variables and functions for recording and retrieving time spent
-	// osTicket Version = v1.9.1
+	// osTicket Version = v1.9.13
 	var $timeSpent;
 	
 	function getTimeSpent(){
@@ -143,7 +143,7 @@ class Ticket {
             .' WHERE ticket.ticket_id='.db_input($id)
             .' GROUP BY ticket.ticket_id';
 			// Strobe Technologies Ltd | 11/08/2015 | Added time_spent to SQL select
-			// osTicket v1.9.11
+			// osTicket v1.9.13
 
         //echo $sql;
         if(!($res=db_query($sql)) || !db_num_rows($res))
@@ -155,7 +155,7 @@ class Ticket {
         $this->id       = $this->ht['ticket_id'];
         $this->number   = $this->ht['number'];
 		$this->timeSpent = $this->ht['time_spent'];		// Strobe Technologies Ltd | 11/08/2015 | Collecting time spent from SQL results
-														// osTicket Version = v1.9.11
+														// osTicket Version = v1.9.13
         $this->_answers = array();
 
         $this->loadDynamicData();

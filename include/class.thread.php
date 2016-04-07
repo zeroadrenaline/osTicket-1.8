@@ -1110,7 +1110,7 @@ class ThreadEntry {
             $poster = (string) $poster;
 		
 		// Strobe Technologies Ltd | 18/08/2015 | START - Capture Posted time information
-		// osTicket Version = v1.9.11
+		// osTicket Version = v1.9.13
 		$time_spent = $vars['time_spent'];
         if ($time_spent && is_object($time_spent))
             $time_spent = (float) $time_spent;
@@ -1135,7 +1135,7 @@ class ThreadEntry {
 			.' ,time_bill='.db_input($time_bill)
             .' ,source='.db_input($vars['source']);
 			// Strobe Technologies Ltd | 18/08/2015 | Added time_spent, time_type & time_bill into SQL statement
-			// osTicket Version = v1.9.11
+			// osTicket Version = v1.9.13
 
         if (!isset($vars['attachments']) || !$vars['attachments'])
             // Otherwise, body will be configured in a block below (after
