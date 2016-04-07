@@ -75,7 +75,7 @@ if ($thisclient && $thisclient->isGuest()
                </tr>
 			   <?php
 			   // Strobe Technologies Ltd | 17/04/2015 | START - Added Total Time Spent to ticket information
-			   // osTicket Version = v1.9.11
+			   // osTicket Version = v1.9.13
 			   if ($cfg->isClientTime()) { ?>
 			   <tr>
 					<th>Time Spent:</th>

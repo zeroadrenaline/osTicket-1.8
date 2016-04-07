@@ -21,7 +21,7 @@ $settingOptions=array(
         array(__('System Settings'), 'settings.system'),
     'tickets' =>
         array(__('Ticket Settings and Options'), 'settings.ticket'),
-		'tickettime' =>
+	'tickettime' =>
 		array(__('Ticket Time Settings'), 'settings.tickettime'),
     'emails' =>
         array(__('Email Settings'), 'settings.email'),
@@ -37,7 +37,7 @@ $settingOptions=array(
         array(__('Alerts and Notices Settings'), 'settings.alerts'),
 );
 // Strobe Technologies Ltd | 11/08/2015 | Added Ticket Time settings options
-// osTicket Version = v1.9.11
+// osTicket Version = v1.9.13
 
 //Handle a POST.
 $target=($_REQUEST['t'] && $settingOptions[$_REQUEST['t']])?$_REQUEST['t']:'system';

@@ -156,7 +156,7 @@ class DynamicList extends VerySimpleModel implements CustomList {
     }
 	
 	// Strobe Technologies Ltd | 11/08/2015 | START - Function to lookup types from dynamic lists
-	// osTicket Version = v1.9.11
+	// osTicket Version = v1.9.13
 	static function getTypes($criteria) {
 
         $types = array();

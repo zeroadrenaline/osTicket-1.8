@@ -66,7 +66,7 @@ if($_POST && !$errors):
 		
         switch(strtolower($_POST['a'])):
 		// Strobe Technologies Ltd | 11/08/2015 | START - Add time case / switch
-		// osTicket Version = v1.9.11
+		// osTicket Version = v1.9.13
 		case 'time':
 			if(!$_POST['time_spent'])
 				$errors['time_spent']=__('Time required');
@@ -133,7 +133,7 @@ if($_POST && !$errors):
                         );
 
 				// Strobe Technologies Ltd | 11/08/2015 | START - Collect Total Spent from results
-				// osTicket Version = v1.9.11
+				// osTicket Version = v1.9.13
 				if($_POST['time_spent']) {
 					$ticket->timeSpent($_POST['time_spent']);
 				}
@@ -254,7 +254,7 @@ if($_POST && !$errors):
             if(($note=$ticket->postNote($vars, $errors, $thisstaff))) {
 			
 				// Strobe Technologies Ltd | 11/08/2015 | START - Collect Total Spent from results
-				// osTicket Version = v1.9.11
+				// osTicket Version = v1.9.13
 				if($_POST['time_spent']) {
 					$ticket->timeSpent($_POST['time_spent']);
 				}

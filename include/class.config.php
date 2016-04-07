@@ -223,7 +223,7 @@ class OsticketConfig extends Config {
     }
 	
 	// Strobe Technologies Ltd | 20/08/2015 | START - Checking to see if Time Spent parts are enabled
-	// osTicket Version = v1.9.12
+	// osTicket Version = v1.9.13
 	function isClientTime() {
 		// determines if Client Time View is on or not
 		return ($this->get('isclienttime'));
@@ -1159,7 +1159,7 @@ class OsticketConfig extends Config {
 	
 	
 	// Strobe Technologies Ltd | 20/08/2015 | START - Update Time Settings Function
-	// osTicket Version = v1.9.12
+	// osTicket Version = v1.9.13
 	function updateTimeSettings($vars, &$errors) {
 
         if($errors) return false;
