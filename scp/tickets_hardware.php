@@ -62,7 +62,10 @@ if(!$errors) {
 		<?php
 			$sql = 'SELECT * FROM `ost_ticket_hardware` WHERE `ticket_id` = ' . $TicketID;
 			$res = db_query($sql);
-			while($row = db_fetch_array($res, MYSQL_ASSOC)) {
+			// Not Displaying bug
+			// Fix by DanoEasi
+			//while($row = db_fetch_array($res, MYSQL_ASSOC)) {
+			while($row = db_fetch_array($res, MYSQLI_ASSOC)) {
 				echo '<tr>';
 					echo "<td>" . $row['description'] . "</td>";
 					echo "<td>" . $row['qty'] . "</td>";

@@ -79,7 +79,10 @@ if(!$errors) {
 	$sql = 'SELECT * FROM `ost_list_items` where `list_id` = ' . $timelistid;
 	$res = db_query($sql);
 	$loop = 0;
-	while($row = db_fetch_array($res, MYSQL_ASSOC)) {
+	// Not Displaying bug
+	// Fix by DanoEasi
+	//while($row = db_fetch_array($res, MYSQL_ASSOC)) {
+	while($row = db_fetch_array($res, MYSQLI_ASSOC)) {
 		$loop++;
 		$time[$loop][0] = countTime($TicketID, $row['id']);
 		$time[$loop][1] = $row['id'];
@@ -124,7 +127,10 @@ if(!$errors) {
 		<?php
 			$sql = 'SELECT * FROM `ost_ticket_thread` WHERE `ticket_id` = ' . $TicketID . ' AND (`thread_type`="R" OR `thread_type`="N") AND time_bill = 1';
 			$res = db_query($sql);
-			while($row = db_fetch_array($res, MYSQL_ASSOC)) {
+			// Not Displaying bug
+			// Fix by DanoEasi
+			//while($row = db_fetch_array($res, MYSQL_ASSOC)) {
+			while($row = db_fetch_array($res, MYSQLI_ASSOC)) {
 				if ($row['poster']<>"SYSTEM") {
 					echo '<tr>';
 						echo "<td>" . $row['created'] . "</td>";
@@ -157,7 +163,10 @@ if(!$errors) {
 		<?php
 			$sql = 'SELECT * FROM `ost_ticket_hardware` WHERE `ticket_id` = ' . $TicketID;
 			$res = db_query($sql);
-			while($row = db_fetch_array($res, MYSQL_ASSOC)) {
+			// Not Displaying bug
+			// Fix by DanoEasi
+			//while($row = db_fetch_array($res, MYSQL_ASSOC)) {
+			while($row = db_fetch_array($res, MYSQLI_ASSOC)) {
 				echo '<tr>';
 					echo "<td>" . $row['description'] . "</td>";
 					echo "<td>" . $row['qty'] . "</td>";
