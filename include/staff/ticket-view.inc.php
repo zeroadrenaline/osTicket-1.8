@@ -1049,6 +1049,38 @@ print $note_form->getField('attachments')->render();
 					<i class="icon-undo" title="Reset timer to zero"></i>
 						<span class="error"><?php echo $errors['time_spent']; ?></span></td>
 				</tr>
+				<!-- ghaber begins -->
+				<!-- Ability to open / close ticket while adding time -->
+				<!-- Contributed by @ghaber -->
+            <tr>
+                <td width="120">
+                    <label><?php echo __('Ticket Status');?>:</label>
+                </td>
+                <td>
+                    <div class="faded"></div>
+                    <select name="add_time_status_id">
+                        <?php
+                        $statusId = $info['add_time_status_id'] ?: $ticket->getStatusId();
+                        $states = array('open');
+                        if ($thisstaff->canCloseTickets())
+                            $states = array_merge($states, array('closed'));
+                        foreach (TicketStatusList::getStatuses(
+                                    array('states' => $states)) as $s) {
+                            if (!$s->isEnabled()) continue;
+                            $selected = $statusId == $s->getId();
+                            echo sprintf('<option value="%d" %s>%s%s</option>',
+                                    $s->getId(),
+                                    $selected ? 'selected="selected"' : '',
+                                    __($s->getName()),
+                                    $selected ? (' ('.__('current').')') : ''
+                                    );
+                        }
+                        ?>
+                    </select>
+                    &nbsp;<span class='error'>*&nbsp;<?php echo $errors['add_time_status_id']; ?></span>
+                </td>
+            </tr>
+            <!-- ghaber ends -->
 			</table>
 			<p  style="padding-left:165px;">
 				<input class="btn_sm" type="submit" value="<?php echo __('Add Time'); ?>">

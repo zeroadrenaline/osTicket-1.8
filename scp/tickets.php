@@ -75,6 +75,17 @@ if($_POST && !$errors):
             if($lock && $lock->getStaffId()!=$thisstaff->getId())
                 $errors['err']=__('Action Denied. Ticket is locked by someone else!');
 			
+			//ghaber begins : Allow closing/opening ticket at the same time as adding time
+			// Functions to save open and close for adding time
+			// Contributed by @ghaber
+			$status=$ticket->getStatus(); 
+			$newstatus1=$_POST['add_time_status_id']; //Closed is 3 and open is 1, in numeric format
+			$newstatus2 = TicketStatus::lookup($newstatus1); // Transform status to 'open' or 'closed'
+			if($newstatus2 != $status) { //if they are different, then we make a status change
+				$ticket->setStatus($newstatus2);
+			}
+			//ghaber ends 
+			
 			//If no error...do the do.
             $vars = $_POST;
 			
