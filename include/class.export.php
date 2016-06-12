@@ -75,6 +75,11 @@ class Export {
                 'duedate' =>        __('Due Date'),
                 'isoverdue' =>      __('Overdue'),
                 'isanswered' =>     __('Answered'),
+				// Strobe Technologies Ltd | 12/06/2016 | START - Include time on export
+				// osTicket Version = v1.9.13
+				// Contributed by @ghaber
+				'time_spent' =>    __('Time'),
+				// Strobe Technologies Ltd | 12/06/2016 | END - Include time on export
                 'assigned' =>       __('Assigned To'),
                 'staff' =>          __('Agent Assigned'),
                 'team' =>           __('Team Assigned'),
