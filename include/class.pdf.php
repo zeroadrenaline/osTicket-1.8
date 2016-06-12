@@ -238,6 +238,15 @@ class Ticket2PDF extends mPDF
         $this->WriteCell($l, 7, __('Last Message'), 1, 0, 'L', true);
         $this->SetFont('');
         $this->WriteCell($c, 7, Format::db_datetime($ticket->getLastMsgDate()), 1, 1, 'L', true);
+		
+		// Strobe Technologies Ltd | 12/06/2016 | START - Add time to PDF export
+		// osTicket Version = v1.9.13
+		// contributed by @DanoEasi
+		$this->SetFont('Arial', 'B', 11);
+		$this->WriteCell($l, 7, __('Time Used'), 1, 0, 'L', true);
+		$this->SetFont('');
+		$this->WriteCell($c, 7, $ticket->getTimeSpent(), 1, 0, 'L', true);
+		// Strobe Technologies Ltd | 12/06/2016 | END - Add time to PDF export
 
         $this->SetFillColor(255, 255, 255);
         foreach (DynamicFormEntry::forTicket($ticket->getId()) as $form) {
