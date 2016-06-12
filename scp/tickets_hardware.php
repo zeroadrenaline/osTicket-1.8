@@ -52,7 +52,7 @@ if(!$errors) {
 	<p>&nbsp;</p>
 	
 	<h2>Hardware Details</h2>
-	<table border="2">
+	<table class="list" border="0" cellspacing="1" cellpadding="2" width="940">
 		<tr>
 			<th>Description</th>
 			<th>Qty</th>

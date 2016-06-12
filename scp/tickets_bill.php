@@ -116,7 +116,7 @@ if(!$errors) {
 	<p>&nbsp;</p>
 	
 	<h2>Time History / Detail</h2>
-	<table border="2">
+	<table class="list" border="0" cellspacing="1" cellpadding="2" width="940">
 		<tr>
 			<th>Date / Time</th>
 			<th>Post Type</th>
@@ -153,7 +153,7 @@ if(!$errors) {
 	<p>&nbsp;</p>
 	
 	<h2>Hardware Details</h2>
-	<table border="2">
+	<table class="list" border="0" cellspacing="1" cellpadding="2" width="940">
 		<tr>
 			<th>Description</th>
 			<th>Qty</th>
