@@ -1,7 +1,10 @@
 <?php
+// Includes
 require('staff.inc.php');
 
-//Functions
+
+
+// Functions
 function formatTime($time) {
 	$hours = floor($time / 60);
 	$minutes = $time % 60;
@@ -44,27 +47,31 @@ function countTime($ticketid, $typeid) {
 	return $totaltime;
 }
 
-//Get Organisation Details
+
+
+// Generate information for display
+//--Get Organisation Details
 $org = null;
 $org = Organization::lookup($_REQUEST['orgid']);
 
-//Navigation & Page Info
-$nav->setTabActive('users');
-$ost->setPageTitle(sprintf(__('%s - Bill / Invoice'),$org->getName()));
-
-//Collect Time Items
-// --Determine ID value for time-type
+//--Collect Time Items
+/* Determine ID value for time-type so we can look up the different time types */
 	$sql = 'SELECT * FROM `ost_list` WHERE `type` = "time-type"';
 	$res = db_query($sql);
 	$timelist = db_fetch_array($res);
 	$timelistid = $timelist['id'];
 	
-// --Generate Array of times for summary
+/* Generate Array of times times for summary */
 	$sql = 'SELECT * FROM `ost_list_items` where `list_id` = ' . $timelistid;
-	$sumres = db_query($sql);
+	$timetyperes = db_query($sql);
+	$loop = 0;
+	while($timerow = db_fetch_array($timetyperes, MYSQLI_ASSOC)) {
+		$loop++;
+		$time[$loop] = $timerow['id'];
+	}
 
-//Ticket information
-// --Generate SQL
+//--Generate SQL
+/* SELECT statements to gather all the required information */
 $select ='SELECT ticket.ticket_id,ticket.`number`,ticket.dept_id,ticket.staff_id,ticket.team_id, ticket.user_id '
         .' ,dept.dept_name,status.name as status,ticket.source,ticket.isoverdue,ticket.isanswered,ticket.created '
         .' ,CAST(GREATEST(IFNULL(ticket.lastmessage, 0), IFNULL(ticket.reopened, 0), ticket.created) as datetime) as effective_date '
@@ -73,6 +80,7 @@ $select ='SELECT ticket.ticket_id,ticket.`number`,ticket.dept_id,ticket.staff_id
         .' ,IF(ptopic.topic_pid IS NULL, topic.topic, CONCAT_WS(" / ", ptopic.topic, topic.topic)) as helptopic '
         .' ,cdata.priority as priority_id, cdata.subject, user.name, email.address as email';
 
+/* FROM statement specifying where the data is coming from */
 $from =' FROM '.TICKET_TABLE.' ticket '
       .' LEFT JOIN '.TICKET_STATUS_TABLE.' status
         ON status.id = ticket.status_id '
@@ -87,21 +95,24 @@ $from =' FROM '.TICKET_TABLE.' ticket '
       .' LEFT JOIN '.TABLE_PREFIX.'ticket__cdata cdata ON (cdata.ticket_id = ticket.ticket_id) '
       .' LEFT JOIN '.PRIORITY_TABLE.' pri ON (pri.priority_id = cdata.priority)';
 
+/* WHERE statement which limits the information to what is actually required / meets billing parameters */
 $where = 'WHERE';
 $where .= ' user.org_id = '.db_input($org->getId());
 $where .= ' AND ticket.status_id = 3';
 $where .= ' AND (ticket.created BETWEEN "'.$_REQUEST['startdate'].'" AND "'.$_REQUEST['enddate'].'")';
 // with ticket.status_id 1 = open, 3 = closed
-	
+
+/* builds the actual query from the above sections */
 $query ="$select $from $where ORDER BY ticket.created DESC";
 
-// --Fetch the results
-$results = array();
-$res = db_query($query);
+//--Fetch the results
+$results = array(); /* Create an array to store the information */
+$res = db_query($query); /* Run query and store results in $res */
 while ($row = db_fetch_array($res))
     $results[$row['ticket_id']] = $row;
+/*	$results[X] = $row */
 
-if ($results) {
+if ($results) { /* Checks to make sure tickets found before finding all threads */
     $counts_sql = 'SELECT ticket.ticket_id,
         count(DISTINCT attach.attach_id) as attachments,
         count(DISTINCT thread.id) as thread_count,
@@ -116,26 +127,32 @@ if ($results) {
     $ids_res = db_query($counts_sql);
     while ($row = db_fetch_array($ids_res)) {
         $results[$row['ticket_id']] += $row;
+		/* Adds thread information to the array via the ticket ID */
     }
 }
 
 
+
+// Display
+//--Navigation & Page Info
+$nav->setTabActive('users');
+$ost->setPageTitle(sprintf(__('%s - Bill / Invoice'),$org->getName()));
+
 require_once(STAFFINC_DIR.'header.inc.php');
+/*
+	Page content to be placed below here
+*/
 ?>
 
 <h1>Bill / Invoice</h1>
 <b>Organistation:</b> <?php echo $org->getName(); ?><br />
 <b>Billing Period:</b> <?php echo $_REQUEST['startdate']; ?> - <?php echo $_REQUEST['enddate']; ?><br /><br />
 <h2>Labour / Time Details</h2>
+
 <?php if ($results) { ?>
  <table class="list" border="0" cellspacing="1" cellpadding="2" width="940">
     <thead>
         <tr>
-            <?php
-            if (0) {?>
-            <th width="8px">&nbsp;</th>
-            <?php
-            } ?>
             <th width="70"><?php echo __('Ticket'); ?></th>
             <th width="100"><?php echo __('Date'); ?></th>
             <th width="100"><?php echo __('Status'); ?></th>
@@ -144,36 +161,15 @@ require_once(STAFFINC_DIR.'header.inc.php');
         </tr>
     </thead>
     <tbody>
-    <?php
+	<?php
     foreach($results as $row) {
-        $flag=null;
-        if ($row['lock_id'])
-            $flag='locked';
-        elseif ($row['isoverdue'])
-            $flag='overdue';
-
-        $assigned='';
-        if ($row['staff_id'])
-            $assigned=sprintf('<span class="Icon staffAssigned">%s</span>',Format::truncate($row['staff'],40));
-        elseif ($row['team_id'])
-            $assigned=sprintf('<span class="Icon teamAssigned">%s</span>',Format::truncate($row['team'],40));
-        else
-            $assigned=' ';
-
-        $status = ucfirst($row['status']);
+		$status = ucfirst($row['status']);
         $tid=$row['number'];
         $subject = Format::htmlchars(Format::truncate($row['subject'],40));
         $threadcount=$row['thread_count'];
-        ?>
-        <tr id="<?php echo $row['ticket_id']; ?>">
-            <?php
-            //Implement mass  action....if need be.
-            if (0) { ?>
-            <td align="center" class="nohover">
-                <input class="ckb" type="checkbox" name="tids[]" value="<?php echo $row['ticket_id']; ?>" <?php echo $sel?'checked="checked"':''; ?>>
-            </td>
-            <?php
-            } ?>
+		?>
+		
+		<tr id="<?php echo $row['ticket_id']; ?>">
             <td align="center" nowrap>
               <a class="Icon <?php echo strtolower($row['source']); ?>Ticket ticketPreview"
                 title="<?php echo __('Preview Ticket'); ?>"
@@ -195,14 +191,10 @@ require_once(STAFFINC_DIR.'header.inc.php');
             <td>
 				<?php
 					$loop = 0;
-					while($timerow = db_fetch_array($sumres, MYSQLI_ASSOC)) {
-						$loop++;
-						$time[$loop][0] = countTime($row['ticket_id'], $timerow['id']);
-						$time[$loop][1] = $timerow['id'];
-					}
+					$timerow = "";
 					for ($x = 1; $x <= count($time); $x++) {
-						if ($time[$x][0] <> "" && $time[$x][0] > 0) {
-							echo formatTime($time[$x][0]) . " " . convTimeType($time[$x][1]) . "<br />";
+						if (countTime($row['ticket_id'], $time[$x]) <> "" && $time[$x] > 0) {
+							echo formatTime(countTime($row['ticket_id'], $time[$x])) . " " . convTimeType($time[$x]) . "<br />";
 						}
 					}
 				?>
@@ -219,10 +211,11 @@ require_once(STAFFINC_DIR.'header.inc.php');
 			$hw[$loop][2] = $hwrow['unit_cost'];
 			$hw[$loop][3] = $hwrow['total_cost'];
 		}
-    }
     ?>
+<?php	} // END foreach $results as $row ?>
     </tbody>
 </table>
+
 <?php
 } else {
 	echo '<p>No tickets found</p>';
@@ -249,5 +242,8 @@ require_once(STAFFINC_DIR.'header.inc.php');
 </table>
 
 <?php
+/*
+	Page content to be placed above here
+*/
 require_once(STAFFINC_DIR.'footer.inc.php');
 ?>
